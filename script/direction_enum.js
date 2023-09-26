@@ -1,7 +1,8 @@
 //enum for allowed moving directions
-export default Direction = Object.freeze({
+const Direction = Object.freeze({
   up: 'up',
   down: 'down',
   left: 'left',
   right: 'right'
 });
+export default Direction;
