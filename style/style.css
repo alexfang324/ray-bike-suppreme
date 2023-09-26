@@ -16,6 +16,5 @@ body {
 .bike {
     position: absolute;
     height: 100px;
-    rotate: 90deg;
     /* z-index: 100; */
 }

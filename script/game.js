@@ -31,6 +31,7 @@ window.addEventListener('DOMContentLoaded', () => {
     10,
     'Alex'
   );
+
   //advance bike motion
   const gameInterval = setInterval(() => {
     for (const obstacle of obstacles) {
