@@ -6,6 +6,19 @@ let ARENA_WIDTH;
 let ARENA_HEIGHT;
 let ARENA_CEN_POS;
 let obstacles = [];
+let gameInterval;
+let bike1;
+
+const evolveGame = () => {
+  for (const obstacle of obstacles) {
+    const hasCollided = this.bike1.hasCollided(obstacle);
+    if (hasCollided) {
+      console.log('game over');
+      clearInterval(this.gameInterval);
+    }
+  }
+  this.bike1.moveForward();
+};
 
 window.addEventListener('DOMContentLoaded', () => {
   //set up arena
@@ -25,26 +38,12 @@ window.addEventListener('DOMContentLoaded', () => {
   obstacles.push([left, bottom, right, bottom]);
 
   //create bikes
-  const bike1 = new Bike(
-    [ARENA_CEN_POS[0] + 200, ARENA_CEN_POS[1]],
+  this.bike1 = new Bike(
+    [ARENA_CEN_POS[0] + 100, ARENA_CEN_POS[1]],
     Direction.left,
-    10,
+    5,
     'Alex'
   );
   //advance bike motion
-  const gameInterval = setInterval(() => {
-    for (const obstacle of obstacles) {
-      const hasCollided = bike1.hasCollided(obstacle);
-      if (hasCollided) {
-        console.log('game over');
-        clearInterval(gameInterval);
-      }
-    }
-    bike1.moveForward();
-  }, 50);
-
-  //add keydown event listener to bike
-  window.addEventListener('keydown', (event) => {
-    bike1.updateDirection(event.key);
-  });
+  this.gameInterval = setInterval(evolveGame, 500);
 });

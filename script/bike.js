@@ -28,11 +28,6 @@ export default class Bike {
     bike.style.left = position[0] + 'px';
     bike.style.rotate = this.BikeRotation[direction];
     bike.classList.add('bike');
-
-    bike.addEventListener('keypress', (event) => {
-      this.updateDirection(event.code);
-    });
-
     arena.appendChild(bike);
     return this;
   }
@@ -44,11 +39,11 @@ export default class Bike {
     const oldPostion = [...this.position]; //copy by value
     switch (this.direction) {
       case Direction.up:
-        this.position[1] += this.speed;
+        this.position[1] -= this.speed;
         bike.style.top = this.position[1] + 'px';
         break;
       case Direction.down:
-        this.position[1] -= this.speed;
+        this.position[1] += this.speed;
         bike.style.top = this.position[1] + 'px';
         break;
       case Direction.left:
@@ -73,9 +68,8 @@ export default class Bike {
   //Summary: update bike's moving direction
   //Input: a valid direction from the Direction enum
   //Output: Null
-  updateDirection = (keyCode) => {
-    console.log('keyCode: ' + keyCode);
-    switch (keyCode) {
+  updateDirection = (key) => {
+    switch (key) {
       case 'ArrowUp':
         this.direction = Direction.up;
         break;
@@ -88,6 +82,8 @@ export default class Bike {
       case 'ArrowRight':
         this.direction = Direction.right;
     }
+    const bike = document.getElementById(this.bikeId);
+    bike.style.rotate = this.BikeRotation[this.direction];
   };
 
   //Summary: check if a bike's movement will collide with one of the game object
