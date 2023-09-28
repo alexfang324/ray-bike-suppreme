@@ -62,4 +62,5 @@ dotElement.style.top = bike1.getHeadPosition()[1];
 dotElement.style.left = bike1.getHeadPosition()[0];
 const arena = document.getElementById('arena');
 arena.appendChild(dotElement);
+console.log('hi')
 //END###########################################################
