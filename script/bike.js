@@ -1,15 +1,18 @@
 import Direction from './direction_enum.js';
 
 export default class Bike {
+  #arena;
   #bikeElement; //img html element of the bike
   #imgPosition; //top left position of img when it's first loaded
   #imgWidth; //img width when it's first loaded
   #imgHeight; //img height when it's first loaded
+  #kbControl; //an array [up,down,left,right] keyboard control key of bike
   #headPosition; //[x,y] position of bike's head
   #direction; //current direction of bike's motion
   #speed; //num pixel bike moves per game interation
   #bikeId; //id field of bike's img html element
   #prevHeadSeg; //[x_old, y_old, x_new, y_new],evolution of bike head position during last interation
+  #trail; // a list of canvas element that represent the segments bike has travelled over
 
   BikeRotation = Object.freeze({
     up: '0deg',
@@ -18,21 +21,23 @@ export default class Bike {
     left: '270deg'
   });
 
-  constructor(imgPosition, direction, speed, bikeId, imgSrc) {
+  constructor(imgPosition, direction, speed, bikeId, imgSrc, kbControl) {
     this.imgPosition = imgPosition;
     this.headPosition = imgPosition;
     this.direction = direction;
+    this.kbControl = kbControl;
     this.speed = speed;
     this.bikeId = bikeId;
     this.prevHeadSeg = [...imgPosition, ...imgPosition];
-    const arena = document.getElementById('arena');
+    this.trail = [];
+    this.arena = document.getElementById('arena');
     const bike = document.createElement('img');
     bike.id = bikeId;
     bike.src = imgSrc;
     bike.style.top = imgPosition[1] + 'px';
     bike.style.left = imgPosition[0] + 'px';
     bike.classList.add('bike');
-    arena.appendChild(bike);
+    this.arena.appendChild(bike);
     this.bikeElement = bike;
 
     //img dimension properties are only available once img has loaded. we want the initial
@@ -99,6 +104,7 @@ export default class Bike {
     }
     this.headPosition = this.calculateHeadPosition();
     this.prevHeadSeg = [...oldHeadPostion, ...this.headPosition];
+    this.updateTrail();
   }
 
   //Summary: Return imgPosition of the bike image
@@ -118,16 +124,16 @@ export default class Bike {
   //Output: Null
   updateDirection = (key) => {
     switch (key) {
-      case 'ArrowUp':
+      case this.kbControl[0]:
         this.direction = Direction.up;
         break;
-      case 'ArrowDown':
+      case this.kbControl[1]:
         this.direction = Direction.down;
         break;
-      case 'ArrowLeft':
+      case this.kbControl[2]:
         this.direction = Direction.left;
         break;
-      case 'ArrowRight':
+      case this.kbControl[3]:
         this.direction = Direction.right;
     }
     const bike = document.getElementById(this.bikeId);
@@ -191,5 +197,19 @@ export default class Bike {
       collided = sameX && sameY ? true : false;
     }
     return collided;
+  };
+
+  updateTrail = () => {
+    const trailElement = document.createElement('canvas');
+    trailElement.classList.add('trail');
+    this.arena.appendChild(trailElement);
+
+    const ctx = trailElement.getContext('2d');
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(300, 150);
+    ctx.lineWidth = 10;
+    ctx.stroke();
+    this.trail.push(trailElement);
   };
 }

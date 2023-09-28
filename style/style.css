@@ -25,3 +25,8 @@ body {
   border-radius: 50%;
   position: absolute;
 }
+
+.trail {
+    position:absolute;
+    color: red;
+}

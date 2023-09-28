@@ -6,6 +6,11 @@ let ARENA_WIDTH;
 let ARENA_HEIGHT;
 let ARENA_CEN_POS;
 let obstacles = [];
+let bikes = [];
+
+const updateBikeDirection = (event) => {
+  bikes.forEach((bike) => bike.updateDirection(event.key));
+};
 
 window.addEventListener('DOMContentLoaded', () => {
   //set up arena
@@ -24,49 +29,42 @@ window.addEventListener('DOMContentLoaded', () => {
   obstacles.push([right, top, right, bottom]);
   obstacles.push([left, bottom, right, bottom]);
 
+  //add canvas for drawing bike trails
+
   //create bikes
   const bike1 = new Bike(
     [ARENA_CEN_POS[0] + 200, ARENA_CEN_POS[1]],
     Direction.left,
     10,
     'Alex',
-    '../img/green-bike.jpg'
+    '../img/green-bike.jpg',
+    ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
   );
+  bikes.push(bike1);
 
-  //BEGINNING#####################################################
-  const dotElement = document.createElement('img');
-  const bikeElement = document.getElementById('Alex');
-  dotElement.id = 'circle';
-  dotElement.style.top = bike1.getHeadPosition()[1];
-  dotElement.style.left = bike1.getHeadPosition()[0];
-  const arena = document.getElementById('arena');
-  arena.appendChild(dotElement);
-  //END####################################################
+  const bike2 = new Bike(
+    [ARENA_CEN_POS[0] - 200, ARENA_CEN_POS[1]],
+    Direction.right,
+    10,
+    'Josh',
+    '../img/shopping-cart.jpg',
+    ['w', 's', 'a', 'd']
+  );
+  bikes.push(bike2);
 
   //advance bike motion
   const gameInterval = setInterval(() => {
-    bike1.moveForward();
-    //BEGINNING#######################################
-    dotElement.style.top = bike1.getHeadPosition()[1] + 'px';
-    dotElement.style.left = bike1.getHeadPosition()[0] + 'px';
-
-    //END######################################
-
+    bikes.forEach((bike) => bike.moveForward());
     for (const obstacle of obstacles) {
-      const hasCollided = bike1.hasCollided(obstacle);
-      if (hasCollided) {
-        console.log(bike1.position);
+      const hasCollided = bikes.map((bike) => bike.hasCollided(obstacle));
+      if (hasCollided.includes(true)) {
         console.log('game over');
         clearInterval(gameInterval);
-        window.removeEventListener('keydown', (event) => {
-          bike1.updateDirection(event.key);
-        });
+        window.removeEventListener('keydown', updateBikeDirection);
       }
     }
   }, 30);
 
   //add keydown event listener to bike
-  window.addEventListener('keydown', (event) => {
-    bike1.updateDirection(event.key);
-  });
+  window.addEventListener('keydown', updateBikeDirection);
 });
