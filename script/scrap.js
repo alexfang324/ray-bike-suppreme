@@ -58,9 +58,8 @@ const renderWalls = (walls) => {
 const dotElement = document.createElement('img');
 const bikeElement = document.getElementById('Alex');
 dotElement.id = 'circle';
-dotElement.style.top = bike1.getHeadPosition()[1];
-dotElement.style.left = bike1.getHeadPosition()[0];
+dotElement.style.top = bike1.getHeadPosition()[1]+'px';
+dotElement.style.left = bike1.getHeadPosition()[0]+'px';
 const arena = document.getElementById('arena');
 arena.appendChild(dotElement);
-console.log('hi')
 //END###########################################################

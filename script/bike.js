@@ -12,7 +12,8 @@ export default class Bike {
   #speed; //num pixel bike moves per game interation
   #bikeId; //id field of bike's img html element
   #prevHeadSeg; //[x_old, y_old, x_new, y_new],evolution of bike head position during last interation
-  #trail; // a list of canvas element that represent the segments bike has travelled over
+  #trail; // a list of [x1,y1,x2,y2] segments the bike has travelled over
+  #trailColor //color of the trail
 
   BikeRotation = Object.freeze({
     up: '0deg',
@@ -21,14 +22,14 @@ export default class Bike {
     left: '270deg'
   });
 
-  constructor(imgPosition, direction, speed, bikeId, imgSrc, kbControl) {
+  constructor(imgPosition, direction, speed, bikeId, imgSrc,trailColor, kbControl) {
     this.imgPosition = imgPosition;
-    this.headPosition = imgPosition;
     this.direction = direction;
+    this.headPosition = this.calculateHeadPosition();
     this.kbControl = kbControl;
     this.speed = speed;
     this.bikeId = bikeId;
-    this.prevHeadSeg = [...imgPosition, ...imgPosition];
+    this.prevHeadSeg = [...this.headPosition, ...this.headPosition];
     this.trail = [];
     this.arena = document.getElementById('arena');
     const bike = document.createElement('img');
@@ -39,6 +40,7 @@ export default class Bike {
     bike.classList.add('bike');
     this.arena.appendChild(bike);
     this.bikeElement = bike;
+    this.trailColor = trailColor;
 
     //img dimension properties are only available once img has loaded. we want the initial
     //dimension for future headPosition calculation so rotate only after recording the dimensions
@@ -53,11 +55,29 @@ export default class Bike {
     return this;
   }
 
+  //Summary: Return trail of the bike
+  //Output: list of segments where each segement is an array [x1,y1,x2,y2]
+  getTrail = ()=>{
+    return this.trail
+  }
+
+  //Summary: return head position of the bike image
+  //Output: array of bike head position [x1, y1]
+  getHeadPosition = () => {
+    return this.headPosition;
+  };
+
+  //Summary: Return color of trail
+  //Output: trail color in word or hexadecimal
+  getTrailColor = ()=>{
+    return this.trailColor;
+  }
+
   //Summary: Calculate position of bike's head, given it's direction, using image position
   //         (top left of initial img) and initial img width and height.
   //Output: array of x, y of bike's head position.
 
-  calculateHeadPosition() {
+  calculateHeadPosition = () =>{
     switch (this.direction) {
       case Direction.up:
         return [this.imgPosition[0] + this.imgWidth / 2.0, this.imgPosition[1]];
@@ -81,7 +101,7 @@ export default class Bike {
 
   //Summary: Advance bike imgPosition based on bike speed and direction
   //Output: Bike's new imgPosition
-  moveForward() {
+  moveForward = () => {
     const bike = document.getElementById(this.bikeId);
     const oldHeadPostion = [...this.headPosition]; //copy by value
     switch (this.direction) {
@@ -104,19 +124,13 @@ export default class Bike {
     }
     this.headPosition = this.calculateHeadPosition();
     this.prevHeadSeg = [...oldHeadPostion, ...this.headPosition];
-    this.updateTrail();
+    this.trail.push(this.prevHeadSeg);
   }
 
   //Summary: Return imgPosition of the bike image
   //Output: An array [left, top] of img position in pixel
   getImgPosition = () => {
     return this.imgPosition;
-  };
-
-  //Summary: return head position of the bike image
-  //Output: array of bike head position [x1, y1]
-  getHeadPosition = () => {
-    return this.headPosition;
   };
 
   //Summary: update bike's moving direction
@@ -138,6 +152,7 @@ export default class Bike {
     }
     const bike = document.getElementById(this.bikeId);
     bike.style.rotate = this.BikeRotation[this.direction];
+    
   };
 
   //Summary: Check if a bike's last movement collided with another game object (i.e. obstacles).
@@ -199,17 +214,4 @@ export default class Bike {
     return collided;
   };
 
-  updateTrail = () => {
-    const trailElement = document.createElement('canvas');
-    trailElement.classList.add('trail');
-    this.arena.appendChild(trailElement);
-
-    const ctx = trailElement.getContext('2d');
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(300, 150);
-    ctx.lineWidth = 10;
-    ctx.stroke();
-    this.trail.push(trailElement);
-  };
 }

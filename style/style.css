@@ -2,12 +2,12 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-
 }
 
 #arena {
     width: 900px;
     height: 500px;
+    position: relative;
     border: 5px solid black;
     flex-shrink: 0;
     background-color: lightgrey;
@@ -26,7 +26,6 @@ body {
   position: absolute;
 }
 
-.trail {
+canvas {
     position:absolute;
-    color: red;
 }
