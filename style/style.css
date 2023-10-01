@@ -7,7 +7,7 @@ body {
 #arena {
     width: 900px;
     height: 500px;
-    position: relative;
+    /* position: relative; */
     border: 5px solid black;
     flex-shrink: 0;
     background-color: lightgrey;
@@ -27,5 +27,7 @@ body {
 }
 
 canvas {
+    top:0;
+    left:0;
     position:absolute;
 }
