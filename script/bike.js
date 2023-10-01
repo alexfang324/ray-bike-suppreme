@@ -151,8 +151,7 @@ export default class Bike {
         this.direction = Direction.right;
     }
     const bike = document.getElementById(this.bikeId);
-    bike.style.rotate = this.BikeRotation[this.direction];
-    
+    bike.style.rotate = this.BikeRotation[this.direction];    
   };
 
   //Summary: Check if a bike's last movement collided with another game object (i.e. obstacles).
