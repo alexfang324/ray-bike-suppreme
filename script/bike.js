@@ -8,11 +8,11 @@ export default class Bike {
   #imgHeight; //img height when it's first loaded
   #kbControl; //an array [up,down,left,right] keyboard control key of bike
   #headPosition; //[x,y] position of bike's head
-  #tailPosition; //[x,y] position of bike's tail
+  #centerPosition; //[x,y] position of bike's center
   #direction; //current direction of bike's motion
   #speed; //num pixel bike moves per game interation
   #bikeId; //id field of bike's img html element
-  #tailSeg; //[x_old, y_old, x_new, y_new],evolution of bike tail position during last interation
+  #centerSeg; //[x_old, y_old, x_new, y_new],evolution of bike center position during last interation
   #trail; // a list of [x1,y1,x2,y2] segments the bike has travelled over
   #trailColor; //color of the trail
 
@@ -35,11 +35,11 @@ export default class Bike {
     this.imgPosition = imgPosition;
     this.direction = direction;
     this.headPosition = this.calculateHeadPosition();
-    this.tailPosition = this.calculateTailPosition();
+    this.centerPosition = this.calculateCenterPosition();
     this.kbControl = kbControl;
     this.speed = speed;
     this.bikeId = bikeId;
-    this.prevTailSeg = [...this.tailPosition, ...this.tailPosition];
+    this.centerSeg = [...this.centerPosition, ...this.centerPosition];
     this.trail = [];
     this.arena = document.getElementById('arena');
     const bike = document.createElement('img');
@@ -134,11 +134,30 @@ export default class Bike {
     return position;
   };
 
+  calculateCenterPosition = () => {
+    const position = this.calculateHeadPosition();
+    switch (this.direction) {
+      case Direction.up:
+        position[1] = position[1] + this.imgHeight / 2;
+        break;
+      case Direction.down:
+        position[1] = position[1] - this.imgHeight / 2;
+        break;
+      case Direction.left:
+        position[0] = position[0] + this.imgHeight / 2;
+        break;
+      case Direction.right:
+        position[0] = position[0] - this.imgHeight / 2;
+        break;
+    }
+    return position;
+  };
+
   //Summary: Advance bike imgPosition based on bike speed and direction
   //Output: Bike's new imgPosition
   moveForward = () => {
     const bike = document.getElementById(this.bikeId);
-    const oldTailPostion = [...this.tailPosition]; //copy by value
+    const oldCenterPostion = [...this.centerPosition]; //copy by value
     switch (this.direction) {
       case Direction.up:
         this.imgPosition[1] -= this.speed;
@@ -157,9 +176,9 @@ export default class Bike {
         bike.style.left = this.imgPosition[0] + 'px';
         break;
     }
-    this.tailPosition = this.calculateTailPosition();
-    this.tailSeg = [...oldTailPostion, ...this.tailPosition];
-    this.trail.push(this.tailSeg);
+    this.centerPosition = this.calculateCenterPosition();
+    this.centerSeg = [...oldCenterPostion, ...this.centerPosition];
+    this.trail.push(this.centerSeg);
   };
 
   //Summary: Return imgPosition of the bike image
@@ -190,7 +209,7 @@ export default class Bike {
   };
 
   //Summary: Check if a bike's last movement collided with another game object (i.e. obstacles).
-  //Input: tailSeg is an array [x_old, y_old, x_new, y_new], reprsenting bike head's last movement
+  //Input: centerSeg is an array [x_old, y_old, x_new, y_new], reprsenting bike center's last movement
   //       obstacle is either a segment [x1,y1,x2,y2], e.g. wall or ray segment, or a position (x1,y1), e.g. point-like obstacle.
   //Output: boolean of whether a collision happend
   //Assumption: assumed every obstacle segment is a horizontal or vertical line.
@@ -199,17 +218,17 @@ export default class Bike {
     if (obstacle.length == 4) {
       //object is a segment
       const bikeDir =
-        this.tailSeg[2] - this.tailSeg[0] == 0 ? 'vertical' : 'horizontal';
+        this.centerSeg[2] - this.centerSeg[0] == 0 ? 'vertical' : 'horizontal';
       const objDir = obstacle[2] - obstacle[0] == 0 ? 'vertical' : 'horizontal';
 
       if (bikeDir == 'horizontal' && objDir == 'vertical') {
         const minObjY = Math.min(obstacle[1], obstacle[3]);
         const maxObjY = Math.max(obstacle[1], obstacle[3]);
-        const minBikeX = Math.min(this.tailSeg[0], this.tailSeg[2]);
-        const maxBikeX = Math.max(this.tailSeg[0], this.tailSeg[2]);
+        const minBikeX = Math.min(this.centerSeg[0], this.centerSeg[2]);
+        const maxBikeX = Math.max(this.centerSeg[0], this.centerSeg[2]);
         if (
-          this.tailSeg[1] >= minObjY &&
-          this.tailSeg[1] <= maxObjY &&
+          this.centerSeg[1] >= minObjY &&
+          this.centerSeg[1] <= maxObjY &&
           minBikeX <= obstacle[0] &&
           maxBikeX >= obstacle[0]
         ) {
@@ -220,11 +239,11 @@ export default class Bike {
       if (bikeDir == 'vertical' && objDir == 'horizontal') {
         const minObjX = Math.min(obstacle[0], obstacle[2]);
         const maxObjX = Math.max(obstacle[0], obstacle[2]);
-        const minBikeY = Math.min(this.tailSeg[1], this.tailSeg[3]);
-        const maxBikeY = Math.max(this.tailSeg[1], this.tailSeg[3]);
+        const minBikeY = Math.min(this.centerSeg[1], this.centerSeg[3]);
+        const maxBikeY = Math.max(this.centerSeg[1], this.centerSeg[3]);
         if (
-          this.tailSeg[0] >= minObjX &&
-          this.tailSeg[0] <= maxObjX &&
+          this.centerSeg[0] >= minObjX &&
+          this.centerSeg[0] <= maxObjX &&
           minBikeY <= obstacle[1] &&
           maxBikeY >= obstacle[1]
         ) {
@@ -234,11 +253,11 @@ export default class Bike {
     } else {
       //obstacle is a single point on grid
       const sameX =
-        obstacle[0] == this.tailSeg[0] || obstacle[0] == this.tailSeg[2]
+        obstacle[0] == this.centerSeg[0] || obstacle[0] == this.centerSeg[2]
           ? true
           : false;
       const sameY =
-        obstacle[1] == this.tailSeg[1] || obstacle[1] == this.tailSeg[3]
+        obstacle[1] == this.centerSeg[1] || obstacle[1] == this.centerSeg[3]
           ? true
           : false;
       collided = sameX && sameY ? true : false;

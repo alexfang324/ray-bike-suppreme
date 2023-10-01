@@ -30,19 +30,14 @@ const drawTrail = (i) => {
 window.addEventListener('DOMContentLoaded', () => {
   //set up arena
   const as = document.getElementById('arena').getBoundingClientRect();
-  const top = parseFloat(as.top.toFixed(4));
-  const bottom = parseFloat(as.bottom.toFixed(4));
-  const left = parseFloat(as.left.toFixed(4));
-  const right = parseFloat(as.right.toFixed(4));
-
   ARENA_WIDTH = as.width.toFixed(4);
   ARENA_HEIGHT = as.height.toFixed(4);
-  ARENA_CEN_POS = [(right + left) / 2.0, (top + bottom) / 2.0];
-  //add arena boundaries as obstacles
-  obstacles.push([left, bottom, left, top]);
-  obstacles.push([left, top, right, top]);
-  obstacles.push([right, top, right, bottom]);
-  obstacles.push([left, bottom, right, bottom]);
+  ARENA_CEN_POS = [ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0];
+  //add arena boundaries as obstacles using relative position of the area
+  obstacles.push([0, ARENA_HEIGHT, 0, 0]);
+  obstacles.push([0, 0, ARENA_WIDTH, 0]);
+  obstacles.push([ARENA_WIDTH, 0, ARENA_WIDTH, ARENA_HEIGHT]);
+  obstacles.push([0, ARENA_HEIGHT, ARENA_WIDTH, ARENA_HEIGHT]);
 
   //create bikes
   const bike1 = new Bike(
