@@ -6,6 +6,7 @@ let ARENA_WIDTH;
 let ARENA_HEIGHT;
 let ARENA_CEN_POS;
 let obstacles = [];
+let walls = [];
 let bikes = []; //list of bike objects
 let trailCanvases = []; //canvas html elements
 
@@ -34,16 +35,16 @@ window.addEventListener('DOMContentLoaded', () => {
   ARENA_HEIGHT = as.height.toFixed(4);
   ARENA_CEN_POS = [ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0];
   //add arena boundaries as obstacles using relative position of the area
-  obstacles.push([0, ARENA_HEIGHT, 0, 0]);
-  obstacles.push([0, 0, ARENA_WIDTH, 0]);
-  obstacles.push([ARENA_WIDTH, 0, ARENA_WIDTH, ARENA_HEIGHT]);
-  obstacles.push([0, ARENA_HEIGHT, ARENA_WIDTH, ARENA_HEIGHT]);
+  walls.push([0, ARENA_HEIGHT, 0, 0]);
+  walls.push([0, 0, ARENA_WIDTH, 0]);
+  walls.push([ARENA_WIDTH, 0, ARENA_WIDTH, ARENA_HEIGHT]);
+  walls.push([0, ARENA_HEIGHT, ARENA_WIDTH, ARENA_HEIGHT]);
 
   //create bikes
   const bike1 = new Bike(
     [ARENA_CEN_POS[0] + 200, ARENA_CEN_POS[1]],
     Direction.left,
-    10,
+    3,
     'Alex',
     '../img/green-bike.jpg',
     'green',
@@ -55,7 +56,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const bike2 = new Bike(
     [ARENA_CEN_POS[0] - 200, ARENA_CEN_POS[1]],
     Direction.right,
-    10,
+    3,
     'Josh',
     '../img/shopping-cart.jpg',
     'red',
@@ -89,10 +90,17 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     //BEGINNING#####################################################
-    dotElement.style.top = bikes[0].getTrail().slice(-1)[0][3] + 'px';
-    dotElement.style.left = bikes[0].getTrail().slice(-1)[0][2] + 'px';
+    dotElement.style.top = bikes[1].calculateHeadPosition()[1] + 'px';
+    dotElement.style.left = bikes[1].calculateHeadPosition()[0] + 'px';
     //END###########################################################
 
+    //construct a list of all obstacles in the game
+    obstacles = [...walls];
+    bikes.forEach((bike) => {
+      obstacles = [...obstacles, ...bike.getTrail()];
+    });
+
+    //check for collision
     for (const obstacle of obstacles) {
       const hasCollided = bikes.map((bike) => bike.hasCollided(obstacle));
       if (hasCollided.includes(true)) {

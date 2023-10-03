@@ -9,6 +9,7 @@ export default class Bike {
   #kbControl; //an array [up,down,left,right] keyboard control key of bike
   #headPosition; //[x,y] position of bike's head
   #centerPosition; //[x,y] position of bike's center
+  #tailPosition; //[x,y] position of bike's tail
   #direction; //current direction of bike's motion
   #speed; //num pixel bike moves per game interation
   #bikeId; //id field of bike's img html element
@@ -36,6 +37,7 @@ export default class Bike {
     this.direction = direction;
     this.headPosition = this.calculateHeadPosition();
     this.centerPosition = this.calculateCenterPosition();
+    this.tailPosition = this.calculateTailPosition();
     this.kbControl = kbControl;
     this.speed = speed;
     this.bikeId = bikeId;
@@ -83,6 +85,12 @@ export default class Bike {
     return this.headPosition;
   };
 
+  //Summary: return center position of the bike image
+  //Output: array of bike center position [x1, y1]
+  getCenterPosition = () => {
+    return this.centerPosition;
+  };
+
   //Summary: return tail position of the bike image
   //Output: array of bike tail position [x1, y1]
   getTailPosition = () => {
@@ -115,25 +123,6 @@ export default class Bike {
     }
   };
 
-  calculateTailPosition = () => {
-    const position = this.calculateHeadPosition();
-    switch (this.direction) {
-      case Direction.up:
-        position[1] = position[1] + this.imgHeight;
-        break;
-      case Direction.down:
-        position[1] = position[1] - this.imgHeight;
-        break;
-      case Direction.left:
-        position[0] = position[0] + this.imgHeight;
-        break;
-      case Direction.right:
-        position[0] = position[0] - this.imgHeight;
-        break;
-    }
-    return position;
-  };
-
   calculateCenterPosition = () => {
     const position = this.calculateHeadPosition();
     switch (this.direction) {
@@ -148,6 +137,25 @@ export default class Bike {
         break;
       case Direction.right:
         position[0] = position[0] - this.imgHeight / 2;
+        break;
+    }
+    return position;
+  };
+
+  calculateTailPosition = () => {
+    const position = this.calculateHeadPosition();
+    switch (this.direction) {
+      case Direction.up:
+        position[1] = position[1] + this.imgHeight;
+        break;
+      case Direction.down:
+        position[1] = position[1] - this.imgHeight;
+        break;
+      case Direction.left:
+        position[0] = position[0] + this.imgHeight;
+        break;
+      case Direction.right:
+        position[0] = position[0] - this.imgHeight;
         break;
     }
     return position;
@@ -176,7 +184,9 @@ export default class Bike {
         bike.style.left = this.imgPosition[0] + 'px';
         break;
     }
+    this.headPosition = this.calculateHeadPosition();
     this.centerPosition = this.calculateCenterPosition();
+    this.tailPosition = this.calculateTailPosition();
     this.centerSeg = [...oldCenterPostion, ...this.centerPosition];
     this.trail.push(this.centerSeg);
   };
@@ -210,58 +220,50 @@ export default class Bike {
 
   //Summary: Check if a bike's last movement collided with another game object (i.e. obstacles).
   //Input: centerSeg is an array [x_old, y_old, x_new, y_new], reprsenting bike center's last movement
-  //       obstacle is either a segment [x1,y1,x2,y2], e.g. wall or ray segment, or a position (x1,y1), e.g. point-like obstacle.
+  //       obstacle isa segment [x1,y1,x2,y2], e.g. wall or ray segment
   //Output: boolean of whether a collision happend
   //Assumption: assumed every obstacle segment is a horizontal or vertical line.
   hasCollided = (obstacle) => {
     let collided = false;
-    if (obstacle.length == 4) {
-      //object is a segment
-      const bikeDir =
-        this.centerSeg[2] - this.centerSeg[0] == 0 ? 'vertical' : 'horizontal';
-      const objDir = obstacle[2] - obstacle[0] == 0 ? 'vertical' : 'horizontal';
+    //object is also a segment
+    const bikeDir =
+      this.headPosition[0] - this.tailPosition[0] == 0
+        ? 'vertical'
+        : 'horizontal';
+    const objDir = obstacle[2] - obstacle[0] == 0 ? 'vertical' : 'horizontal';
 
-      if (bikeDir == 'horizontal' && objDir == 'vertical') {
+    switch (true) {
+      case bikeDir == 'horizontal' && objDir == 'vertical':
         const minObjY = Math.min(obstacle[1], obstacle[3]);
         const maxObjY = Math.max(obstacle[1], obstacle[3]);
-        const minBikeX = Math.min(this.centerSeg[0], this.centerSeg[2]);
-        const maxBikeX = Math.max(this.centerSeg[0], this.centerSeg[2]);
+        const minBikeX = Math.min(this.tailPosition[0], this.headPosition[0]);
+        const maxBikeX = Math.max(this.tailPosition[0], this.headPosition[0]);
         if (
-          this.centerSeg[1] >= minObjY &&
-          this.centerSeg[1] <= maxObjY &&
-          minBikeX <= obstacle[0] &&
-          maxBikeX >= obstacle[0]
+          this.headPosition[1] > minObjY &&
+          this.headPosition[1] < maxObjY &&
+          minBikeX < obstacle[0] &&
+          maxBikeX > obstacle[0]
         ) {
           collided = true;
         }
-      }
+        break;
 
-      if (bikeDir == 'vertical' && objDir == 'horizontal') {
+      case bikeDir == 'vertical' && objDir == 'horizontal':
         const minObjX = Math.min(obstacle[0], obstacle[2]);
         const maxObjX = Math.max(obstacle[0], obstacle[2]);
-        const minBikeY = Math.min(this.centerSeg[1], this.centerSeg[3]);
-        const maxBikeY = Math.max(this.centerSeg[1], this.centerSeg[3]);
+        const minBikeY = Math.min(this.tailPosition[1], this.headPosition[1]);
+        const maxBikeY = Math.max(this.tailPosition[1], this.headPosition[1]);
         if (
-          this.centerSeg[0] >= minObjX &&
-          this.centerSeg[0] <= maxObjX &&
-          minBikeY <= obstacle[1] &&
-          maxBikeY >= obstacle[1]
+          this.headPosition[0] > minObjX &&
+          this.headPosition[0] < maxObjX &&
+          minBikeY < obstacle[1] &&
+          maxBikeY > obstacle[1]
         ) {
           collided = true;
         }
-      }
-    } else {
-      //obstacle is a single point on grid
-      const sameX =
-        obstacle[0] == this.centerSeg[0] || obstacle[0] == this.centerSeg[2]
-          ? true
-          : false;
-      const sameY =
-        obstacle[1] == this.centerSeg[1] || obstacle[1] == this.centerSeg[3]
-          ? true
-          : false;
-      collided = sameX && sameY ? true : false;
+        break;
     }
+
     return collided;
   };
 }
