@@ -90,8 +90,8 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     //BEGINNING#####################################################
-    dotElement.style.top = bikes[1].calculateHeadPosition()[1] + 'px';
-    dotElement.style.left = bikes[1].calculateHeadPosition()[0] + 'px';
+    dotElement.style.top = bikes[0].calculateHeadPosition()[1] + 'px';
+    dotElement.style.left = bikes[0].calculateHeadPosition()[0] + 'px';
     //END###########################################################
 
     //construct a list of all obstacles in the game
@@ -99,7 +99,6 @@ window.addEventListener('DOMContentLoaded', () => {
     bikes.forEach((bike) => {
       obstacles = [...obstacles, ...bike.getTrail()];
     });
-
     //check for collision
     for (const obstacle of obstacles) {
       const hasCollided = bikes.map((bike) => bike.hasCollided(obstacle));
