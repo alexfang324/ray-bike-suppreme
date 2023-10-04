@@ -16,6 +16,7 @@ body {
 .bike {
     position: absolute;
     height: 100px;
+    z-index: 100;
 }
 
 #circle {

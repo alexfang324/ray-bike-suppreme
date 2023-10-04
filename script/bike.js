@@ -64,7 +64,7 @@ export default class Bike {
       this.#imgHeight = parseFloat(
         bike.getBoundingClientRect().height.toFixed(4)
       );
-      this.#cttSegNum = Math.ceil(this.#imgHeight / 2 / this.#speed);
+      this.#cttSegNum = Math.floor(this.#imgHeight / 2 / this.#speed) + 1;
 
       bike.style.rotate = this.#BikeRotation[direction];
     };
@@ -232,9 +232,12 @@ export default class Bike {
   //Output: boolean of whether a collision happend
   //Assumption: assumed every obstacle segment is a horizontal or vertical line.
   hasCollided = (obstacle) => {
-    if (
-      this.#trail.slice(this.#trail.length - this.#cttSegNum).includes(obstacle)
-    ) {
+    //ignore trail created between bike center to bike tail during collision calculation
+    const trailToIgnore =
+      this.#trail.length >= this.#cttSegNum
+        ? this.#trail.slice(this.#trail.length - this.#cttSegNum)
+        : this.#trail;
+    if (trailToIgnore.includes(obstacle)) {
       return false;
     }
 
