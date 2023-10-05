@@ -1,13 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./style/style.css" type="text/css" />
   <title>Ray Bike Extreme</title>
 </head>
+
 <body>
-  <div id="root" />
-  <script type="module"  crossorigin="anonymous" src="./script/game.js"></script>
+  <!-- opening page -->
+  <div id="opening-page">
+    <h1 id="game-title">Ray Bike Extreme</h1>
+    <div id="menu-option">
+      <div class="menu-section">
+        <div class="menu-row">
+          <h1>Player 1</h1>
+          <h1>Player 2</h1>
+        </div>
+        <div class="menu-row">
+          <input placeholder="Enter Name">
+          <input placeholder="Enter Name">
+        </div>
+        <div class="menu-row">
+          <img class="bike-img" src="../img/green-bike.jpg" />
+          <img class="bike-img" src="../img/shopping-cart.jpg" />
+        </div>
+      </div>
+      <h1>Difficulty Mode</h1>
+      <ul id="difficulty-mode">
+        <li><a href="#">Easy</a></li>
+        <li><a href="#">Medium</a></li>
+        <li><a href="#">Hard</a></li>
+      </ul>
+      <button id="start-game-btn">Start Game</button>
+    </div>
+  </div>
+  <div id="game-page" />
+  <script type="module" crossorigin="anonymous" src="./script/index.js"></script>
 </body>
+
 </html>

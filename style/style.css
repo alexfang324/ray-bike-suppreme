@@ -1,20 +1,109 @@
 body {
-    display:flex;
     position:relative;
-    width:1200px;
-    min-height: 100vh;
+    width:1000px;
+    min-height: 90vh;
     margin:auto;
+    text-align: center;
   }
 
-#root {
+/* ===================================================================== */
+/* Opening Page Styling Below=========================================== */
+  
+input {
+    box-sizing: border-box;
+    font-size: 20px;
+    width:200px;
+  }
+  
+  #game-title {
+    font-size: 60px;
+    color: #df29ff;
+    background-image: -webkit-linear-gradient(0deg, #df29ff 10%, #9d0d49 30%, #44c5fc 70%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+  }
+  
+  #menu-option {
+    width: 600px;
+    margin: 0 auto;
+  }
+
+  #menu-option h1{
+    font-size: 20px;
+    margin: 0px;
+  }
+  
+  .menu-section {
+    display:flex;
+    flex-direction: column;
+    row-gap: 20px;
+  }
+
+  .menu-row{
+    display:flex;
+    justify-content: space-around;
+}
+  
+  .bike-img {
+    height:70px;
+    animation: rotation 6s infinite linear;
+  }
+
+  @keyframes rotation {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  #difficulty-mode {
+    box-sizing: border-box;
+    list-style-type: none;
+    font-size: 0;
+    padding:10px;
+    margin: 10px auto;
+    text-align: center;
+  }
+  
+  #difficulty-mode > li {
+    box-sizing: border-box;
+    display:inline;
+  }
+  
+  #difficulty-mode > li > a{
+    text-decoration: none;
+    color:black;
+    background-color: lightgrey;
+    font-size: 20px;
+    padding:10px 40px;
+    border-radius: 5%;
+  }
+  
+  #difficulty-mode > li > a:active,
+  #difficulty-mode > li > a:hover {
+    color: red;
+    background-color: skyblue;
+  }
+  
+  #start-game-btn {
+    font-size: 20px;
+    margin:20px;
+  }
+
+  #game-page {
     width:100%;
     margin:0  auto;
     justify-content: center;
 }
 
+/* ===================================================================== */
+/* Game Page Styling Below=========================================== */
+
 #arena {
-    /* width: 900px;
-    height: 500px; */
     position: relative;
     border: 5px solid black;
     flex-shrink: 0;
@@ -37,25 +126,4 @@ body {
 
 canvas {
     position:absolute;
-}
-
-/* =========================================== */
-  
-.game-title {
-font-size: 60px;
-color: #df29ff;
-background-image: -webkit-linear-gradient(0deg, #df29ff 10%, #9d0d49 30%, #44c5fc 70%);
-background-clip: text;
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-text-align: center;
-}
-
-#menu {
-    margin:0  auto;
-    text-align: center;
-}
-  
-#start-game-btn {
-    font-size: 30px;
 }
