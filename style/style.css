@@ -94,7 +94,7 @@ input {
     border-radius: 5%;
   }
   
-  #difficulty-mode > li > a:active,
+  #difficulty-mode > li > a.active,
   #difficulty-mode > li > a:hover {
     color: red;
     background-color: skyblue;
