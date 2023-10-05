@@ -1,0 +1,74 @@
+body {
+  position:relative;
+  width:1000px;
+  min-height: 100vh;
+  margin:auto;
+  text-align: center;
+}
+
+input {
+  box-sizing: border-box;
+  font-size: 20px;
+  width:200px;
+}
+
+#game-title {
+  font-size: 60px;
+  color: #df29ff;
+  background-image: -webkit-linear-gradient(0deg, #df29ff 10%, #9d0d49 30%, #44c5fc 70%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+}
+
+#menu-option h1{
+  font-size: 20px;
+}
+
+.info-table {
+  margin:auto;
+  border-spacing:50px 20px;
+}
+
+.info-table > tr{
+  padding:10px;
+}
+
+.bike-img {
+  height:70px;
+}
+
+#difficulty-mode {
+  box-sizing: border-box;
+  list-style-type: none;
+  font-size: 0;
+  padding:10px;
+  margin: 10px auto;
+  text-align: center;
+}
+
+#difficulty-mode > li {
+  box-sizing: border-box;
+  display:inline;
+}
+
+#difficulty-mode > li > a{
+  text-decoration: none;
+  color:black;
+  background-color: lightgrey;
+  font-size: 20px;
+  padding:10px 40px;
+  border-radius: 5%;
+}
+
+#difficulty-mode > li > a:active,
+#difficulty-mode > li > a:hover {
+  color: red;
+  background-color: skyblue;
+}
+
+#start-game-btn {
+  font-size: 20px;
+  margin:20px;
+}

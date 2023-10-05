@@ -1,12 +1,20 @@
 body {
-    display: flex;
+    display:flex;
+    position:relative;
+    width:1200px;
+    min-height: 100vh;
+    margin:auto;
+  }
+
+#root {
+    width:100%;
+    margin:0  auto;
     justify-content: center;
-    align-items: center;
 }
 
 #arena {
-    width: 900px;
-    height: 500px;
+    /* width: 900px;
+    height: 500px; */
     position: relative;
     border: 5px solid black;
     flex-shrink: 0;
@@ -29,4 +37,25 @@ body {
 
 canvas {
     position:absolute;
+}
+
+/* =========================================== */
+  
+.game-title {
+font-size: 60px;
+color: #df29ff;
+background-image: -webkit-linear-gradient(0deg, #df29ff 10%, #9d0d49 30%, #44c5fc 70%);
+background-clip: text;
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+text-align: center;
+}
+
+#menu {
+    margin:0  auto;
+    text-align: center;
+}
+  
+#start-game-btn {
+    font-size: 30px;
 }
