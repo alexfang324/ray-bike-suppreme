@@ -1,14 +1,22 @@
 body {
-    position:relative;
+    /* position:relative; */
+    /* display:flex; */
+    align-items: center;
     width:1000px;
     min-height: 90vh;
     margin:auto;
-    text-align: center;
+    /* text-align: center; */
   }
 
 /* ===================================================================== */
 /* Opening Page Styling Below=========================================== */
-  
+
+#opening-page {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
 input {
     box-sizing: border-box;
     font-size: 20px;
@@ -26,6 +34,8 @@ input {
   }
   
   #menu-option {
+    display:flex;
+    flex-direction: column;
     width: 600px;
     margin: 0 auto;
   }
@@ -33,6 +43,7 @@ input {
   #menu-option h1{
     font-size: 20px;
     margin: 0px;
+    text-align: center;
   }
   
   .menu-section {
@@ -91,7 +102,7 @@ input {
   
   #start-game-btn {
     font-size: 20px;
-    margin:20px;
+    margin:auto;
   }
 
   #game-page {
@@ -102,6 +113,11 @@ input {
 
 /* ===================================================================== */
 /* Game Page Styling Below=========================================== */
+
+#game-page {
+    display:flex;
+    align-items: center;
+}
 
 #arena {
     position: relative;
