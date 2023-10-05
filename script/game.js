@@ -5,8 +5,8 @@ const SEGLENGTH = 1; //intrinsic segment length of the game
 const RAYWIDTH = 3;
 const BIKESPEED = 5;
 
-let ARENA_WIDTH;
-let ARENA_HEIGHT;
+const ARENA_WIDTH = 900; //pixel width of gameplay arena
+const ARENA_HEIGHT = 500; //pixel height of gameplay arena
 let ARENA_CEN_POS;
 
 let obstacles = [];
@@ -40,10 +40,14 @@ const createBikes = () => {
 };
 
 const setupArena = () => {
-  const as = document.getElementById('arena').getBoundingClientRect();
-  ARENA_WIDTH = as.width.toFixed(4);
-  ARENA_HEIGHT = as.height.toFixed(4);
+  const rootElement = document.getElementById('root');
+  const arena = document.createElement('div');
+  arena.id = 'arena';
+  arena.style.width = ARENA_WIDTH + 'px';
+  arena.style.height = ARENA_HEIGHT + 'px';
+  rootElement.replaceChildren(arena);
   ARENA_CEN_POS = [ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0];
+
   //add arena boundaries as obstacles using relative position of the area
   walls.push([0, ARENA_HEIGHT, 0, 0]);
   walls.push([0, 0, ARENA_WIDTH, 0]);
@@ -110,11 +114,29 @@ const drawTrail = (i) => {
   ctx.stroke();
 };
 
-//Entry point for the game
-window.addEventListener('DOMContentLoaded', () => {
+const startTwoPlayerGame = () => {
   setupArena();
   createBikes();
   setupCanvases();
   setupEventListeners();
   evolveGame();
+};
+
+const getOpeningPage = async () => {
+  const response = await fetch('../public/opening-page.html');
+  const htmlString = await response.text();
+  const parser = new DOMParser();
+  const content = parser.parseFromString(htmlString, 'text/html').body.children;
+  const rootElement = document.getElementById('root');
+  rootElement.replaceChildren(...content);
+
+  const startGameBtn = document.getElementById('start-game-btn');
+  startGameBtn.addEventListener('click', () => {
+    startTwoPlayerGame();
+  });
+};
+
+//Entry point for the game
+window.addEventListener('DOMContentLoaded', () => {
+  getOpeningPage();
 });
