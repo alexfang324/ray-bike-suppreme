@@ -102,6 +102,10 @@ export default class Bike {
     return this.#tailPosition;
   };
 
+  getElement = () => {
+    return this.#bikeElement;
+  };
+
   //Summary: Calculate position of bike's head, given it's direction, using image position
   //         (top left of initial img) and initial img width and height.
   //Output: array of x, y of bike's head position.
