@@ -34,7 +34,7 @@ export default class TwoPlayerGame extends Game {
       'Alex',
       '../img/green-bike.jpg',
       'rgb(57, 255, 20)',
-      ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
+      ['ArrowLeft', 'ArrowRight']
     );
     this._bikes.push(bike1);
 
@@ -45,7 +45,7 @@ export default class TwoPlayerGame extends Game {
       'Josh',
       '../img/shopping-cart.jpg',
       'rgb(188, 19, 254)',
-      ['w', 's', 'a', 'd']
+      ['a', 'd']
     );
     this._bikes.push(bike2);
   };

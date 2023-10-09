@@ -1,6 +1,8 @@
 import Direction from './direction_enum.js';
 
 export default class Bike {
+  #DIR_ARRAY = ['up', 'right', 'down', 'left']; //order of bike dir as user hits the right key
+
   #arena;
   #bikeElement; //img html element of the bike
   #imgPosition; //top left position of img when it's first loaded
@@ -215,19 +217,26 @@ export default class Bike {
   updateDirection = (key) => {
     switch (key) {
       case this.#kbControl[0]:
-        this.#direction = Direction.up;
+        this.#direction = this.getNewDirection(-1);
         break;
       case this.#kbControl[1]:
-        this.#direction = Direction.down;
+        this.#direction = this.getNewDirection(1);
         break;
-      case this.#kbControl[2]:
-        this.#direction = Direction.left;
-        break;
-      case this.#kbControl[3]:
-        this.#direction = Direction.right;
     }
     const bike = document.getElementById(this.#bikeId);
     bike.style.rotate = this.#BikeRotation[this.#direction];
+  };
+
+  //Summary: update bike's moving direction
+  //Input: an increment or decrement of current direction along the DIR_ARRAY
+  //Output: updated bike direction
+  getNewDirection = (change) => {
+    const dirIndex = this.#DIR_ARRAY.indexOf(this.#direction);
+    if (dirIndex == 0 && change == -1) {
+      return this.#DIR_ARRAY[3];
+    } else {
+      return this.#DIR_ARRAY[(dirIndex + change) % 4];
+    }
   };
 
   //Summary: Check if a bike's last movement collided with another game object (i.e. obstacles).
