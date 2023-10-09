@@ -4,27 +4,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <link rel="stylesheet" href="./style/style.css" type="text/css" />
   <title>Ray Bike Extreme</title>
 </head>
 
 <body>
+  <!-- Instruction Modal -->
+  <div class="modal fade" id="instructionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Game Play Instruction</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          This is the instruction
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- opening page -->
   <div id="opening-page">
     <h1 id="game-title">Ray Bike Extreme</h1>
+    <button type="button" class="btn" data-toggle="modal" data-target="#instructionModal">
+      Instruction
+    </button>
     <div id="menu-option">
       <div class="menu-section">
         <div class="menu-row">
-          <h1>Player 1</h1>
-          <h1>Player 2</h1>
+          <p class="player-label">Player 1</p>
+          <p class="player-label">Player 2</p>
         </div>
         <div class="menu-row">
-          <input placeholder="Enter Name">
-          <input placeholder="Enter Name">
+          <input id="name1" placeholder="Enter Name">
+          <input id="name2" placeholder="Enter Name">
         </div>
         <div class="menu-row">
-          <img class="bike-img" src="../img/green-bike.jpg" />
           <img class="bike-img" src="../img/shopping-cart.jpg" />
+          <img class="bike-img" src="../img/green-bike.jpg" />
         </div>
       </div>
       <h1>Difficulty Mode</h1>
@@ -33,11 +56,23 @@
         <li><a href="#" value="medium">Medium</a></li>
         <li><a href="#" value="hard">Hard</a></li>
       </ul>
-      <button id="start-game-btn">Start Game</button>
+      <button id="start-game-btn" class="btn">Start Game</button>
     </div>
   </div>
+
+  <!-- Game Page -->
   <div id="game-page" />
+
   <script type="module" crossorigin="anonymous" src="./script/index.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
 </body>
 
 </html>

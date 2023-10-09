@@ -8,7 +8,10 @@ const getOpeningPage = async () => {
   startGameBtn.addEventListener('click', () => {
     const openPageElement = document.getElementById('opening-page');
     openPageElement.style.display = 'none';
-    new TwoPlayerGame(difficulty);
+    const playerName1 = document.getElementById('name1').value;
+    const playerName2 = document.getElementById('name2').value;
+
+    new TwoPlayerGame(difficulty, playerName1, playerName2);
   });
 
   //set up selector handler to each difficulty button and choose 'easy' as default mode.

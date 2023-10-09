@@ -9,9 +9,13 @@ export default class TwoPlayerGame extends Game {
   _maxObsHeight = 100; //max obstacle height in px;
   _obsImgPath = '../img/rock.jpg';
 
-  constructor(difficulty) {
+  constructor(difficulty, playerName1, playerName2) {
     super();
     this._difficulty = difficulty;
+    this._playerName1 = playerName1;
+    this._playerName2 = playerName2;
+
+    this.setupScoreBoard();
     this.setupArena();
     this.createBikes();
     this.setupCanvases();
@@ -130,4 +134,37 @@ export default class TwoPlayerGame extends Game {
       (minY2 > minY1 && minY2 < maxY1) || (maxY2 > minY1 && maxY2 < maxY1);
     return inXRange && inYRange;
   }
+
+  evolveGame = () => {
+    const gameInterval = setInterval(() => {
+      this._bikes.forEach((bike, i) => {
+        bike.moveForward();
+        this.drawTrail(i);
+      });
+
+      //add current bike trail to list of obstacle segments
+      let updatedObsSegs = [...this._obsSegments];
+      this._bikes.forEach((bike) => {
+        updatedObsSegs = [...updatedObsSegs, ...bike.getTrail()];
+      });
+
+      //increment score
+      this.incrementScore();
+
+      //check for collision
+      for (const seg of updatedObsSegs) {
+        const hasCollided = this._bikes.map((bike) => bike.hasCollided(seg));
+        if (hasCollided.includes(true)) {
+          clearInterval(gameInterval);
+          window.removeEventListener('keydown', this.updateBikeDirection);
+        }
+      }
+    }, 30);
+  };
+
+  incrementScore = () => {
+    const scoreElement = document.getElementById('player-score');
+    const score = Math.round((Date.now() - this._GAME_START_TIME) / 100);
+    scoreElement.textContent = `${score}`;
+  };
 }

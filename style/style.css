@@ -1,11 +1,8 @@
 body {
-    /* position:relative; */
-    /* display:flex; */
     align-items: center;
     width:1000px;
     min-height: 90vh;
     margin:auto;
-    /* text-align: center; */
   }
 
 /* ===================================================================== */
@@ -31,6 +28,7 @@ input {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-align: center;
+    padding:10px;
   }
   
   #menu-option {
@@ -40,8 +38,9 @@ input {
     margin: 0 auto;
   }
 
-  #menu-option h1{
+  .player-label{
     font-size: 20px;
+    font-weight:500;
     margin: 0px;
     text-align: center;
   }
@@ -111,12 +110,28 @@ input {
     justify-content: center;
 }
 
+
 /* ===================================================================== */
 /* Game Page Styling Below=========================================== */
 
 #game-page {
+  display:flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.score-board {
     display:flex;
+    justify-content: space-between;
+    width:100%;
+    padding:10px;
+    margin: auto;
     align-items: center;
+}
+
+#player-score {
+  font-size: 50px;
+  margin:0px;
 }
 
 #arena {
