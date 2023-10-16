@@ -1,9 +1,13 @@
 'use strict';
 
 export default class Player {
-  constructor(name, bike) {
+  _name;
+  _bike;
+  _accumulatedScore;
+  _bestScore;
+
+  constructor(name) {
     this._name = name;
-    this._bike = bike;
     this._accumulatedScore = 0;
     this._bestScore = 0;
   }
@@ -14,6 +18,18 @@ export default class Player {
 
   getBike = () => {
     return this._bike;
+  };
+
+  setBike = (bike) => {
+    this._bike = bike;
+  };
+
+  getAccumulatedScore = () => {
+    return this._accumulatedScore;
+  };
+
+  getBestScore = () => {
+    return this._bestScore;
   };
 
   updateScore = (newScore) => {

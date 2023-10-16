@@ -33,11 +33,11 @@ export default class Bike {
     direction,
     speed,
     bikeId,
+    kbControl,
     imgSrc,
-    trailColor,
-    kbControl
+    trailColor
   ) {
-    this.#imgPosition = imgPosition;
+    this.#imgPosition = [...imgPosition];
     this.#direction = direction;
     this.#headPosition = this.calculateHeadPosition();
     this.#centerPosition = this.calculateCenterPosition();
@@ -107,6 +107,10 @@ export default class Bike {
 
   getElement = () => {
     return this.#bikeElement;
+  };
+
+  setImgPosition = (imgPosition) => {
+    this.#imgPosition = imgPosition;
   };
 
   //Summary: Calculate position of bike's head, given it's direction, using image position
@@ -291,6 +295,7 @@ export default class Bike {
         ) {
           return true;
         }
+
       case bikeDir === 'vertical' && objDir === 'vertical':
         const bikeX = this.#headPosition[0];
         const objX = obstacle[0];
@@ -302,6 +307,7 @@ export default class Bike {
             return true;
           }
         }
+
       case bikeDir === 'horizontal' && objDir === 'horizontal':
         const bikeY = this.#headPosition[1];
         const objY = obstacle[1];
@@ -313,6 +319,9 @@ export default class Bike {
             return true;
           }
         }
+
+      default:
+        return false;
     }
   };
 }

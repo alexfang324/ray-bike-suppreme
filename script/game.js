@@ -12,7 +12,6 @@ export default class Game {
   _players = [];
   _arena; // arena html element
   _obsSegments = []; //list of segments representing obstacles in the arena (not including bike trails)
-  _bikes = []; //list of bike objects
   _trailCanvases = []; //canvas html elements
 
   constructor() {
@@ -57,7 +56,7 @@ export default class Game {
     });
   };
 
-  setupEventListeners = () => {
+  setupBikeEventListeners = () => {
     window.addEventListener('keydown', this.updateBikeDirection);
   };
 

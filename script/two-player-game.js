@@ -5,58 +5,111 @@ import Bike from './bike.js';
 import Direction from './direction_enum.js';
 
 export default class TwoPlayerGame extends Game {
-  _difficulty; //game difficulty
-  _minObsHeight = 20; //minimum obstacle height in px;
-  _maxObsHeight = 100; //max obstacle height in px;
+  _MIN_OBS_HEIGHT = 20; //minimum obstacle height in px;
+  _MAX_OBS_HEIGHT = 100; //max obstacle height in px;
+  _BIKE1_ID = 'bike1';
+  _INITIAL_BIKE1_DIR = Direction.right;
+  _INITIAL_BIKE1_IMG_POS = [250, 250];
+  _BIKE2_ID = 'bike2';
+  _INITIAL_BIKE2_DIR = Direction.left;
+  _INITIAL_BIKE2_IMG_POS = [650, 250];
   _obsImgPath = '../img/rock.jpg';
+
+  _difficulty; //game difficulty
+  _gamePageElement;
+  _gameOverPageElement;
+  _openingPageElement;
+  _playerName1;
+  _playerName2;
+  _score;
 
   constructor(difficulty, playerName1, playerName2) {
     super();
     this._difficulty = difficulty;
-    this.setupScoreBoard(playerName1, playerName2);
-    this.setupArena();
+    this._playerName1 = playerName1;
+    this._playerName2 = playerName2;
+    this._openingPageElement = document.getElementById('opening-page');
+    this._gamePageElement = document.getElementById('game-page');
+    this._gameOverPageElement = document.getElementById('game-over-page');
 
-    const bike1 = new Bike(
-      [this._ARENA_CEN_POS[0] + 200, this._ARENA_CEN_POS[1]],
-      Direction.left,
-      this._BIKESPEED,
-      'bike1',
-      '../img/green-bike.jpg',
-      'rgb(57, 255, 20)',
-      ['ArrowLeft', 'ArrowRight']
-    );
-    const player1 = new Player(playerName1, bike1);
+    const player1 = new Player(this._playerName1);
     this._players.push(player1);
 
-    const bike2 = new Bike(
-      [this._ARENA_CEN_POS[0] - 200, this._ARENA_CEN_POS[1]],
-      Direction.right,
-      this._BIKESPEED,
-      'bike2',
-      '../img/shopping-cart.jpg',
-      'rgb(188, 19, 254)',
-      ['a', 'd']
-    );
-    const player2 = new Player(playerName2, bike2);
+    const player2 = new Player(this._playerName2);
     this._players.push(player2);
 
-    this.setupCanvases();
-    if (difficulty === 'medium') {
-      this.addObstacles(5);
-    }
-    this.setupEventListeners();
-    this.evolveGame();
+    //wire up game-over page buttons
+    document.getElementById('main-menu-btn').addEventListener('click', () => {
+      this._openingPageElement.removeAttribute('hidden');
+      this._gameOverPageElement.setAttribute('hidden', true);
+    });
+
+    document.getElementById('play-again-btn').addEventListener('click', () => {
+      this._gameOverPageElement.setAttribute('hidden', true);
+      this._gamePageElement.removeAttribute('hidden');
+      this.startFreshGame();
+    });
+
+    this.startFreshGame();
   }
 
+  startFreshGame = () => {
+    //reset parameters and elements
+    this._gamePageElement.innerHTML = '';
+    this._score = 0;
+    this._GAME_START_TIME = Date.now();
+    this._obsSegments = [];
+    this._trailCanvases = [];
+
+    this.setupScoreBoard(this._playerName1, this._playerName2);
+    this.setupArena();
+
+    const bike1Element = document.getElementById(this._BIKE1_ID);
+    if (bike1Element) {
+      bike1Element.remove();
+    }
+    const bike1 = new Bike(
+      this._INITIAL_BIKE1_IMG_POS,
+      this._INITIAL_BIKE1_DIR,
+      this._BIKESPEED,
+      this._BIKE1_ID,
+      ['a', 'd'],
+      '../img/shopping-cart.jpg',
+      'rgb(188, 19, 254)'
+    );
+    this._players[0].setBike(bike1);
+
+    const bike2Element = document.getElementById(this._BIKE2_ID);
+    if (bike2Element) {
+      bike2Element.remove();
+    }
+    const bike2 = new Bike(
+      this._INITIAL_BIKE2_IMG_POS,
+      this._INITIAL_BIKE2_DIR,
+      this._BIKESPEED,
+      this._BIKE2_ID,
+      ['ArrowLeft', 'ArrowRight'],
+      '../img/green-bike.jpg',
+      'rgb(57, 255, 20)'
+    );
+    this._players[1].setBike(bike2);
+
+    this.setupCanvases();
+    if (this._difficulty === 'medium') {
+      this.addObstacles(5);
+    }
+    this.setupBikeEventListeners();
+    this.evolveGame();
+  };
+
   setupScoreBoard = (playerName1, playerName2) => {
-    const rootElement = document.getElementById('game-page');
     const scoreBoardElement = document.createElement('div');
     scoreBoardElement.classList.add('score-board');
     scoreBoardElement.innerHTML = `<div><p class="label">Player 1</p>
     <p class="player-name">${playerName1}</p></div>
     <p id="player-score">0</p><div><p class="label">Player 2</p>
     <p class="player-name">${playerName2}</p></div>`;
-    rootElement.appendChild(scoreBoardElement);
+    this._gamePageElement.appendChild(scoreBoardElement);
   };
 
   addObstacles = (numObstacles) => {
@@ -66,8 +119,8 @@ export default class TwoPlayerGame extends Game {
     //get variable obstacle height
     for (let i = 0; i < numObstacles; i++) {
       const obsHeight =
-        this._minObsHeight +
-        Math.random() * (this._maxObsHeight - this._minObsHeight);
+        this._MIN_OBS_HEIGHT +
+        Math.random() * (this._MAX_OBS_HEIGHT - this._MIN_OBS_HEIGHT);
 
       //add obstacle onto arena with initial arena-relative position [0,0]
       const obsElement = document.createElement('img');
@@ -179,11 +232,34 @@ export default class TwoPlayerGame extends Game {
           window.removeEventListener('keydown', this.updateBikeDirection);
           const winnerInd = hasCollided.indexOf(false);
           this._players[winnerInd].updateScore(this._score);
-          GameOverPage(this._players[winnerInd]);
+          this.renderGameOverPage(this._players[winnerInd]);
+          break;
         }
       }
     }, 30);
   };
 
-  GameOverPage = () => {};
+  renderGameOverPage = (winningPlayer) => {
+    //switch from game page to game over page and wire the buttons in game over page
+    this._gamePageElement.setAttribute('hidden', 'true');
+    this._gameOverPageElement.removeAttribute('hidden');
+
+    //calculate and display stats to player
+    document.getElementById(
+      'winner-name'
+    ).innerHTML = `${winningPlayer.getName()}`;
+    document.getElementById(
+      'winner-score'
+    ).innerHTML = `Scored ${this._score} points`;
+
+    const statsBoardElement = document.getElementById('score-stats');
+    statsBoardElement.innerHTML = `<p></p><p>${this._players[0].getName()}</p>
+    <p>${this._players[1].getName()}
+    </p><p>Best Score</p>
+    <p>${this._players[0].getBestScore()}</p>
+    <p>${this._players[1].getBestScore()}</p>
+    <p>Accumulated Score</p>
+    <p>${this._players[0].getAccumulatedScore()}</p>
+    <p>${this._players[1].getAccumulatedScore()}</p>`;
+  };
 }
