@@ -1,3 +1,8 @@
+*{
+  margin:0px;
+  padding:0px;
+}
+
 body {
     align-items: center;
     width:1000px;
@@ -9,9 +14,15 @@ body {
 /* Opening Page Styling Below=========================================== */
 
 #opening-page {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
+  margin-top:30px;
+  height:600px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  background-image: url('../img/opening-background.png');
+  background-size: cover;
+  border-radius: 20px;
+    
 }
 
 input {
@@ -39,6 +50,7 @@ input {
   }
 
   .label{
+    color:white;
     font-size: 20px;
     font-weight:500;
     margin: 0px;
@@ -89,6 +101,7 @@ input {
     color:black;
     background-color: lightgrey;
     font-size: 20px;
+    font-weight: 400;
     padding:10px 40px;
     border-radius: 5%;
   }
@@ -96,12 +109,13 @@ input {
   #difficulty-mode > li > a.active,
   #difficulty-mode > li > a:hover {
     color: red;
+    font-weight: 500;
     background-color: skyblue;
   }
   
   #start-game-btn {
     font-size: 20px;
-    margin:auto;
+    margin:20px auto;
   }
 
   #game-page {
@@ -115,16 +129,17 @@ input {
 /* =====================Game Page Styling Below========================= */
 
 #game-page {
+  margin-top:30px;
   display:flex;
   align-items: center;
   flex-direction: column;
-  background-color: lightskyblue;
+  background-color: lightgray;
   border-radius: 20px;
 }
 
 .score-board {
     display:flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
     width:100%;
     padding:10px;
     margin: auto;
@@ -133,20 +148,33 @@ input {
 
 .player-name {
   font-size:30px;
+  color:white;
 }
 
 #player-score {
   font-size: 50px;
+  color:white;
   margin:0px;
 }
 
 #arena {
     position: relative;
-    border: 5px solid black;
     flex-shrink: 0;
-    background-color: lightgrey;
+    background-color: #1c123c;
     margin:20px;
     border-radius: 10px;
+    background-image:
+    linear-gradient(to right, rgb(188, 19, 254) 2px, transparent 1px),
+    linear-gradient(to bottom, rgb(188, 19, 254) 2px, transparent 1px);
+}
+
+#arena-grid {
+  display:grid;
+  grid-template-columns: repeat(10,1fr);
+  grid-template-rows: repeat((5,1fr));
+  grid-auto-rows: 10rem;
+  grid-auto-columns: 10rem;
+  border: solid 1px purple;
 }
 
 .bike {
@@ -180,7 +208,7 @@ canvas {
   align-items: center;
   width: 100%;
   height:600px;
-  margin-top:50px;
+  margin-top:30px;
   background-color: lightgrey;
   border-radius: 20px;
 }

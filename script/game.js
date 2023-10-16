@@ -3,10 +3,12 @@
 export default class Game {
   _SEGLENGTH = 1; //intrinsic segment length of the game
   _RAYWIDTH = 3;
-  _BIKESPEED = 5;
-  _ARENA_WIDTH = 900; //pixel width of gameplay arena
+  _BIKESPEED = 1;
+  _ARENA_WIDTH = 950; //pixel width of gameplay arena
   _ARENA_HEIGHT = 500; //pixel height of gameplay arena
   _ARENA_CEN_POS;
+  _ARENA_GRID_X_NUM = 15; //number of background grid lines horizontally
+  _ARENA_GRID_Y_NUM = 8; //number of background grid lines horizontally
   _GAME_START_TIME = Date.now();
 
   _players = [];
@@ -26,6 +28,9 @@ export default class Game {
     this._arena.id = 'arena';
     this._arena.style.width = this._ARENA_WIDTH + 'px';
     this._arena.style.height = this._ARENA_HEIGHT + 'px';
+    this._arena.style.backgroundSize = `${
+      this._ARENA_WIDTH / this._ARENA_GRID_X_NUM
+    }px ${this._ARENA_HEIGHT / this._ARENA_GRID_Y_NUM}px`;
     rootElement.appendChild(this._arena);
     this._ARENA_CEN_POS = [this._ARENA_WIDTH / 2.0, this._ARENA_HEIGHT / 2.0];
 
