@@ -1,5 +1,4 @@
-import Bike from './bike.js';
-import Direction from './direction_enum.js';
+'use strict';
 
 export default class Game {
   _SEGLENGTH = 1; //intrinsic segment length of the game
@@ -10,11 +9,9 @@ export default class Game {
   _ARENA_CEN_POS;
   _GAME_START_TIME = Date.now();
 
-  _playerName1;
-  _playerName2;
+  _players = [];
   _arena; // arena html element
   _obsSegments = []; //list of segments representing obstacles in the arena (not including bike trails)
-  _walls = []; //list of segments that represents boundary of the game
   _bikes = []; //list of bike objects
   _trailCanvases = []; //canvas html elements
 
@@ -23,15 +20,6 @@ export default class Game {
       throw new TypeError('Cannot construct Game instances directly');
     }
   }
-
-  setupScoreBoard = () => {
-    const rootElement = document.getElementById('game-page');
-    const scoreBoardElement = document.createElement('div');
-    scoreBoardElement.classList.add('score-board');
-    scoreBoardElement.innerHTML =
-      '<p class="player-label">Player 1</p><p id="player-score">0</p><p class="player-label">Player 2</p>';
-    rootElement.appendChild(scoreBoardElement);
-  };
 
   setupArena = () => {
     const rootElement = document.getElementById('game-page');
@@ -60,7 +48,7 @@ export default class Game {
   };
 
   setupCanvases = () => {
-    this._bikes.forEach((i) => {
+    this._players.forEach((i) => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = this._ARENA_WIDTH;
       canvasElement.height = this._ARENA_HEIGHT;
@@ -74,22 +62,24 @@ export default class Game {
   };
 
   updateBikeDirection = (event) => {
-    this._bikes.forEach((bike) => bike.updateDirection(event.key));
+    this._players.forEach((player) =>
+      player.getBike().updateDirection(event.key)
+    );
   };
 
   drawTrail = (i) => {
-    const trailSegments = this._bikes[i].getTrail();
+    const trailSegments = this._players[i].getBike().getTrail();
     const canvas = this._trailCanvases[i];
     const ctx = canvas.getContext('2d');
     ctx.globalCompositeOperation = 'lighter';
     ctx.shadowBlur = this._RAYWIDTH;
-    ctx.shadowColor = this._bikes[i].getTrailColor();
+    ctx.shadowColor = this._players[i].getBike().getTrailColor();
     ctx.beginPath();
     trailSegments.forEach((seg) => {
       ctx.moveTo(seg[0], seg[1]);
       ctx.lineTo(seg[2], seg[3]);
     });
-    ctx.strokeStyle = this._bikes[i].getTrailColor();
+    ctx.strokeStyle = this._players[i].getBike().getTrailColor();
     ctx.lineWidth = this._RAYWIDTH;
     ctx.stroke();
   };

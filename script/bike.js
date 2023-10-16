@@ -1,3 +1,4 @@
+'use strict';
 import Direction from './direction_enum.js';
 
 export default class Bike {

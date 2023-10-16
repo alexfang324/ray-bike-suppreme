@@ -1,8 +1,9 @@
+'use strict';
 import TwoPlayerGame from './two-player-game.js';
 
 let difficulty = 'easy';
 
-const getOpeningPage = async () => {
+const loadGame = async () => {
   //set up start game button
   const startGameBtn = document.getElementById('start-game-btn');
   startGameBtn.addEventListener('click', () => {
@@ -37,5 +38,5 @@ const selectDifficultyMode = (event) => {
 
 //Entry point for the game
 window.addEventListener('DOMContentLoaded', () => {
-  getOpeningPage();
+  loadGame();
 });

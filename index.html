@@ -12,18 +12,23 @@
 
 <body>
   <!-- Instruction Modal -->
-  <div class="modal fade" id="instructionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  <div class="modal fade" id="instructionModal" tabindex="-1" role="dialog" 
     aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Game Play Instruction</h5>
+          <h5 class="modal-title" >How to Play</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          This is the instruction
+          <p>Player 1 keys: "a" for turn left and "d" for turn right<br><br>
+              Player 2 keys: arrow-left for turn left and arrow-right for turn right<br><br>
+              Goal:<br>
+              Be the last sruvivor! Your bike leaves behinds a ray trail as it moves forwards.
+              Control your bike to avoid crashing into the walls, rocks, or trails (including
+              your own)</p>
         </div>
       </div>
     </div>
@@ -38,8 +43,8 @@
     <div id="menu-option">
       <div class="menu-section">
         <div class="menu-row">
-          <p class="menu-label">Player 1</p>
-          <p class="menu-label">Player 2</p>
+          <p class="label">Player 1</p>
+          <p class="label">Player 2</p>
         </div>
         <div class="menu-row">
           <input id="name1" placeholder="Enter Name">
@@ -50,7 +55,7 @@
           <img class="bike-img" src="../img/green-bike.jpg" />
         </div>
       </div>
-      <h1 class="menu-label">Difficulty Mode</h1>
+      <h1 class="label">Difficulty Mode</h1>
       <ul id="difficulty-mode">
         <li><a href="#" value="easy">Easy</a></li>
         <li><a href="#" value="medium">Medium</a></li>
@@ -61,7 +66,19 @@
   </div>
 
   <!-- Game Page -->
-  <div id="game-page" />
+  <div id="game-page" /></div>
+
+  <!-- Game Over Page -->
+  <div id="game-over-page">
+    <h1>Winner is</h1>
+    <h2 id="winner-name"></h2>
+    <div id="score-stats"></div>
+    <div>
+      <button>Play Again</button>
+      <button>Return to Menu</button>
+    </div>
+
+  </div>
 
   <script type="module" crossorigin="anonymous" src="./script/index.js"></script>
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"

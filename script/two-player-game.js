@@ -1,10 +1,11 @@
+'use strict';
 import Game from './game.js';
+import Player from './player.js';
 import Bike from './bike.js';
 import Direction from './direction_enum.js';
 
 export default class TwoPlayerGame extends Game {
   _difficulty; //game difficulty
-  _numObstacles = 5; //number of obstacles in medium difficulty mode
   _minObsHeight = 20; //minimum obstacle height in px;
   _maxObsHeight = 100; //max obstacle height in px;
   _obsImgPath = '../img/rock.jpg';
@@ -12,50 +13,58 @@ export default class TwoPlayerGame extends Game {
   constructor(difficulty, playerName1, playerName2) {
     super();
     this._difficulty = difficulty;
-    this._playerName1 = playerName1;
-    this._playerName2 = playerName2;
-
-    this.setupScoreBoard();
+    this.setupScoreBoard(playerName1, playerName2);
     this.setupArena();
-    this.createBikes();
-    this.setupCanvases();
-    if (difficulty === 'medium') {
-      this.addObstacles();
-    }
-    this.setupEventListeners();
-    this.evolveGame();
-  }
 
-  createBikes = () => {
     const bike1 = new Bike(
       [this._ARENA_CEN_POS[0] + 200, this._ARENA_CEN_POS[1]],
       Direction.left,
       this._BIKESPEED,
-      'Alex',
+      'bike1',
       '../img/green-bike.jpg',
       'rgb(57, 255, 20)',
       ['ArrowLeft', 'ArrowRight']
     );
-    this._bikes.push(bike1);
+    const player1 = new Player(playerName1, bike1);
+    this._players.push(player1);
 
     const bike2 = new Bike(
       [this._ARENA_CEN_POS[0] - 200, this._ARENA_CEN_POS[1]],
       Direction.right,
       this._BIKESPEED,
-      'Josh',
+      'bike2',
       '../img/shopping-cart.jpg',
       'rgb(188, 19, 254)',
       ['a', 'd']
     );
-    this._bikes.push(bike2);
+    const player2 = new Player(playerName2, bike2);
+    this._players.push(player2);
+
+    this.setupCanvases();
+    if (difficulty === 'medium') {
+      this.addObstacles(5);
+    }
+    this.setupEventListeners();
+    this.evolveGame();
+  }
+
+  setupScoreBoard = (playerName1, playerName2) => {
+    const rootElement = document.getElementById('game-page');
+    const scoreBoardElement = document.createElement('div');
+    scoreBoardElement.classList.add('score-board');
+    scoreBoardElement.innerHTML = `<div><p class="label">Player 1</p>
+    <p class="player-name">${playerName1}</p></div>
+    <p id="player-score">0</p><div><p class="label">Player 2</p>
+    <p class="player-name">${playerName2}</p></div>`;
+    rootElement.appendChild(scoreBoardElement);
   };
 
-  addObstacles = () => {
+  addObstacles = (numObstacles) => {
     //list of arena objects, e.g. bike, rock
-    let arenaObjects = [...this._bikes.map((b) => b.getElement())];
+    let arenaObjects = [...this._players.map((p) => p.getBike().getElement())];
 
     //get variable obstacle height
-    for (let i = 0; i < this._numObstacles; i++) {
+    for (let i = 0; i < numObstacles; i++) {
       const obsHeight =
         this._minObsHeight +
         Math.random() * (this._maxObsHeight - this._minObsHeight);
@@ -89,7 +98,7 @@ export default class TwoPlayerGame extends Game {
 
           for (const obj of arenaObjects) {
             const objRect = obj.getBoundingClientRect();
-            overlap = overlap || this.checkImageOverlap(obsRect, objRect);
+            overlap = this.checkImageOverlap(obsRect, objRect);
             if (overlap) {
               break;
             }
@@ -135,17 +144,25 @@ export default class TwoPlayerGame extends Game {
     return inXRange && inYRange;
   }
 
+  incrementScore = () => {
+    const newScore = Math.round((Date.now() - this._GAME_START_TIME) / 100);
+    this._score = newScore;
+    const scoreElement = document.getElementById('player-score');
+    scoreElement.textContent = `${newScore}`;
+  };
+
   evolveGame = () => {
     const gameInterval = setInterval(() => {
-      this._bikes.forEach((bike, i) => {
-        bike.moveForward();
+      this._players.forEach((player, i) => {
+        player.getBike().moveForward();
         this.drawTrail(i);
       });
 
       //add current bike trail to list of obstacle segments
       let updatedObsSegs = [...this._obsSegments];
-      this._bikes.forEach((bike) => {
-        updatedObsSegs = [...updatedObsSegs, ...bike.getTrail()];
+
+      this._players.forEach((player) => {
+        updatedObsSegs = [...updatedObsSegs, ...player.getBike().getTrail()];
       });
 
       //increment score
@@ -153,18 +170,20 @@ export default class TwoPlayerGame extends Game {
 
       //check for collision
       for (const seg of updatedObsSegs) {
-        const hasCollided = this._bikes.map((bike) => bike.hasCollided(seg));
+        const hasCollided = this._players.map((player) => {
+          return player.getBike().hasCollided(seg);
+        });
+
         if (hasCollided.includes(true)) {
           clearInterval(gameInterval);
           window.removeEventListener('keydown', this.updateBikeDirection);
+          const winnerInd = hasCollided.indexOf(false);
+          this._players[winnerInd].updateScore(this._score);
+          GameOverPage(this._players[winnerInd]);
         }
       }
     }, 30);
   };
 
-  incrementScore = () => {
-    const scoreElement = document.getElementById('player-score');
-    const score = Math.round((Date.now() - this._GAME_START_TIME) / 100);
-    scoreElement.textContent = `${score}`;
-  };
+  GameOverPage = () => {};
 }
