@@ -213,6 +213,7 @@ export default class Bike {
   };
 
   updateTrail = () => {
+    const segToRemove = [];
     //add newst segment to trail
     const ttl = new Date(new Date().getTime() + this.#RAY_LIFETIME).getTime();
     this.#trail.push([...this.#centerSeg, ttl]);
@@ -221,7 +222,8 @@ export default class Bike {
     const now = new Date().getTime();
 
     while (this.#trail[0][4] < now) {
-      this.#trail.shift();
+      const seg = this.#trail.shift();
+      segToRemove.push(seg);
     }
   };
 
