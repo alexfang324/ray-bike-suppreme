@@ -5,6 +5,7 @@ import Bike from './bike.js';
 import Direction from './direction_enum.js';
 
 export default class TwoPlayerGame extends Game {
+  _RAY_LIFETIME = 10000; //lifetime in miliseconds
   _MIN_OBS_HEIGHT = 20; //minimum obstacle height in px;
   _MAX_OBS_HEIGHT = 100; //max obstacle height in px;
   _BIKE1_ID = 'bike1';
@@ -13,7 +14,7 @@ export default class TwoPlayerGame extends Game {
   _BIKE2_ID = 'bike2';
   _INITIAL_BIKE2_DIR = Direction.left;
   _INITIAL_BIKE2_IMG_POS = [650, 250];
-  _obsImgPath = '../img/rock.jpg';
+  _OBS_IMG_PATH = '../img/rock.jpg';
 
   _difficulty; //game difficulty
   _gamePageElement;
@@ -75,7 +76,8 @@ export default class TwoPlayerGame extends Game {
       this._BIKE1_ID,
       ['a', 'd'],
       '../img/shopping-cart.jpg',
-      'rgb(188, 19, 254)'
+      'rgb(188, 19, 254)',
+      this._RAY_LIFETIME
     );
     this._players[0].setBike(bike1);
 
@@ -90,7 +92,8 @@ export default class TwoPlayerGame extends Game {
       this._BIKE2_ID,
       ['ArrowLeft', 'ArrowRight'],
       '../img/green-bike.jpg',
-      'rgb(57, 255, 20)'
+      'rgb(57, 255, 20)',
+      this._RAY_LIFETIME
     );
     this._players[1].setBike(bike2);
 
@@ -126,7 +129,7 @@ export default class TwoPlayerGame extends Game {
 
       //add obstacle onto arena with initial arena-relative position [0,0]
       const obsElement = document.createElement('img');
-      obsElement.src = this._obsImgPath;
+      obsElement.src = this._OBS_IMG_PATH;
       obsElement.classList.add('rock');
       obsElement.style.height = obsHeight + 'px';
       obsElement.style.top = '0px';

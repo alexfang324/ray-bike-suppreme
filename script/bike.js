@@ -3,7 +3,7 @@ import Direction from './direction_enum.js';
 
 export default class Bike {
   #DIR_ARRAY = ['up', 'right', 'down', 'left']; //order of bike dir as user hits the right key
-
+  #RAY_LIFETIME;
   #arena;
   #bikeElement; //img html element of the bike
   #imgPosition; //top left position of img when it's first loaded
@@ -17,7 +17,7 @@ export default class Bike {
   #speed; //num pixel bike moves per game interation
   #bikeId; //id field of bike's img html element
   #centerSeg; //[x_old, y_old, x_new, y_new],evolution of bike center position during last interation
-  #trail; // a list of [x1,y1,x2,y2] segments the bike has travelled over
+  #trail; // a list of [x1,y1,x2,y2,ttl] segments the bike has travelled over and the segment time to live time
   #trailColor; //color of the trail
   #cttSegNum; //number of segments needed to span from bike center to bike tail
 
@@ -35,7 +35,8 @@ export default class Bike {
     bikeId,
     kbControl,
     imgSrc,
-    trailColor
+    trailColor,
+    rayLifetime
   ) {
     this.#imgPosition = [...imgPosition];
     this.#direction = direction;
@@ -57,6 +58,7 @@ export default class Bike {
     this.#arena.appendChild(bike);
     this.#bikeElement = bike;
     this.#trailColor = trailColor;
+    this.#RAY_LIFETIME = rayLifetime;
 
     //img dimension properties are only available once img has loaded. we want the initial
     //dimension for future headPosition calculation so rotate only after recording the dimensions
@@ -207,7 +209,20 @@ export default class Bike {
     this.#centerPosition = this.calculateCenterPosition();
     this.#tailPosition = this.calculateTailPosition();
     this.#centerSeg = [...oldCenterPostion, ...this.#centerPosition];
-    this.#trail.push(this.#centerSeg);
+    this.updateTrail();
+  };
+
+  updateTrail = () => {
+    //add newst segment to trail
+    const ttl = new Date(new Date().getTime() + this.#RAY_LIFETIME).getTime();
+    this.#trail.push([...this.#centerSeg, ttl]);
+
+    //delete expired trail
+    const now = new Date().getTime();
+
+    while (this.#trail[0][4] < now) {
+      this.#trail.shift();
+    }
   };
 
   //Summary: Return imgPosition of the bike image

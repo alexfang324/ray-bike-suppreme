@@ -75,6 +75,8 @@ export default class Game {
     const trailSegments = this._players[i].getBike().getTrail();
     const canvas = this._trailCanvases[i];
     const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     ctx.globalCompositeOperation = 'lighter';
     ctx.shadowBlur = this._RAYWIDTH;
     ctx.shadowColor = this._players[i].getBike().getTrailColor();
