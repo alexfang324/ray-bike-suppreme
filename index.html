@@ -26,8 +26,8 @@
           </button>
         </div>
         <div class="modal-body">
-          <p>Player 1 keys: "a" for turn left and "d" for turn right<br><br>
-              Player 2 keys: arrow-left for turn left and arrow-right for turn right<br><br>
+          <p>Player 1 keys: <b>a</b> to turn left and <b>d</b> to turn right<br><br>
+              Player 2 keys: arrow-left (&#129048;) to turn left and arrow-right (&#129050;) to right turn<br><br>
               Goal:<br>
               Be the last sruvivor! Your bike leaves behinds a ray trail as it moves forwards.
               Control your bike to avoid crashing into the walls, rocks, or trails (including
@@ -53,7 +53,7 @@
           <input id="name1" placeholder="Enter Name">
           <input id="name2" placeholder="Enter Name">
         </div>
-        <div class="menu-row">
+        <div class="menu-row img-row">
           <img class="bike-img" src="../img/shopping-cart.jpg" />
           <img class="bike-img" src="../img/green-bike.jpg" />
         </div>
@@ -73,7 +73,7 @@
 
   <!-- Game Over Page -->
   <div id="game-over-page" hidden>
-    <h1>Winner is</h1>
+    <h1 id="winner-is">Winner is</h1>
     <h2 id="winner-name"></h2>
     <h2 id="winner-score"></h2>
     <div id="score-stats"></div>

@@ -96,7 +96,9 @@ export default class TwoPlayerGame extends Game {
 
     this.setupCanvases();
     if (this._difficulty === 'medium') {
-      this.addObstacles(5);
+      this.addObstacles(4);
+    } else if (this._difficulty === 'hard') {
+      this.addObstacles(8);
     }
     this.setupBikeEventListeners();
     this.evolveGame();
@@ -250,7 +252,7 @@ export default class TwoPlayerGame extends Game {
     ).innerHTML = `${winningPlayer.getName()}`;
     document.getElementById(
       'winner-score'
-    ).innerHTML = `Scored ${this._score} points`;
+    ).innerHTML = `You scored ${this._score} points!`;
 
     const statsBoardElement = document.getElementById('score-stats');
     statsBoardElement.innerHTML = `<p></p><p>${this._players[0].getName()}</p>

@@ -3,7 +3,7 @@
 export default class Game {
   _SEGLENGTH = 1; //intrinsic segment length of the game
   _RAYWIDTH = 3;
-  _BIKESPEED = 1;
+  _BIKESPEED = 3;
   _ARENA_WIDTH = 950; //pixel width of gameplay arena
   _ARENA_HEIGHT = 500; //pixel height of gameplay arena
   _ARENA_CEN_POS;
