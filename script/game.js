@@ -75,7 +75,6 @@ export default class Game {
     const trailSegments = this._players[i].getBike().getTrail();
     const canvas = this._trailCanvases[i];
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.globalCompositeOperation = 'lighter';
     ctx.shadowBlur = this._RAYWIDTH;
@@ -89,4 +88,17 @@ export default class Game {
     ctx.lineWidth = this._RAYWIDTH;
     ctx.stroke();
   };
+
+  eraseTrail = (segsToRemove,i) =>{
+    const canvas = this._trailCanvases[i];
+    const ctx = canvas.getContext('2d');
+    for (const seg of segsToRemove){
+      const left = Math.min(seg[0],seg[2])-2*this._RAYWIDTH;
+      const top = Math.min(seg[1],seg[3])-2*this._RAYWIDTH;
+      const width  = Math.abs(seg[0]-seg[2])+4*this._RAYWIDTH;
+      const height = Math.abs(seg[1]-seg[3])+4*this._RAYWIDTH;
+      ctx.clearRect(left,top,width,height);
+    }
+  }
+
 }

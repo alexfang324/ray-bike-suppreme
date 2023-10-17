@@ -5,7 +5,7 @@ import Bike from './bike.js';
 import Direction from './direction_enum.js';
 
 export default class TwoPlayerGame extends Game {
-  _RAY_LIFETIME = 10000; //lifetime in miliseconds
+  _RAY_LIFETIME = 2000; //lifetime in miliseconds
   _MIN_OBS_HEIGHT = 20; //minimum obstacle height in px;
   _MAX_OBS_HEIGHT = 100; //max obstacle height in px;
   _BIKE1_ID = 'bike1';
@@ -212,7 +212,10 @@ export default class TwoPlayerGame extends Game {
   evolveGame = () => {
     const gameInterval = setInterval(() => {
       this._players.forEach((player, i) => {
-        player.getBike().moveForward();
+        const bike = player.getBike();
+        bike.moveForward();
+        const segsToRemove = bike.removeExpiredTrail();
+        this.eraseTrail(segsToRemove,i);
         this.drawTrail(i);
       });
 

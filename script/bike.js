@@ -209,22 +209,20 @@ export default class Bike {
     this.#centerPosition = this.calculateCenterPosition();
     this.#tailPosition = this.calculateTailPosition();
     this.#centerSeg = [...oldCenterPostion, ...this.#centerPosition];
-    this.updateTrail();
-  };
 
-  updateTrail = () => {
-    const segToRemove = [];
-    //add newst segment to trail
+    //add newst segment to trail with a ttl
     const ttl = new Date(new Date().getTime() + this.#RAY_LIFETIME).getTime();
     this.#trail.push([...this.#centerSeg, ttl]);
+  };
 
-    //delete expired trail
+  removeExpiredTrail = () => {
     const now = new Date().getTime();
-
+    const segToRemove = [];
     while (this.#trail[0][4] < now) {
       const seg = this.#trail.shift();
       segToRemove.push(seg);
     }
+    return segToRemove;
   };
 
   //Summary: Return imgPosition of the bike image
