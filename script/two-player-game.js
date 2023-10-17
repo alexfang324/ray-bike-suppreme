@@ -215,7 +215,7 @@ export default class TwoPlayerGame extends Game {
         const bike = player.getBike();
         bike.moveForward();
         const segsToRemove = bike.removeExpiredTrail();
-        this.eraseTrail(segsToRemove,i);
+        this.eraseTrail(i, segsToRemove);
         this.drawTrail(i);
       });
 

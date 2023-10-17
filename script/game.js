@@ -89,7 +89,7 @@ export default class Game {
     ctx.stroke();
   };
 
-  eraseTrail = (segsToRemove,i) =>{
+  eraseTrail = (i, segsToRemove) =>{
     const canvas = this._trailCanvases[i];
     const ctx = canvas.getContext('2d');
     for (const seg of segsToRemove){
