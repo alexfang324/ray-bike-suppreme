@@ -8,6 +8,7 @@ body {
     width:1000px;
     min-height: 90vh;
     margin:auto;
+    /* font-family: 'Press Start 2P'; */
   }
 
 /* ===================================================================== */
@@ -33,6 +34,7 @@ input {
   
   #game-title {
     font-size: 60px;
+
     color: #df29ff;
     background-image: -webkit-linear-gradient(0deg, #df29ff 10%, #9d0d49 30%, #44c5fc 70%);
     background-clip: text;
