@@ -2,26 +2,27 @@
 import Direction from './direction_enum.js';
 
 export default class Bike {
-  #DIR_ARRAY = ['up', 'right', 'down', 'left']; //order of bike dir as user hits the right key
-  #RAY_LIFETIME;
-  #arena;
-  #bikeElement; //img html element of the bike
-  #imgPosition; //top left position of img when it's first loaded
-  #imgWidth; //img width when it's first loaded
-  #imgHeight; //img height when it's first loaded
-  #kbControl; //an array [up,down,left,right] keyboard control key of bike
-  #headPosition; //[x,y] position of bike's head
-  #centerPosition; //[x,y] position of bike's center
-  #tailPosition; //[x,y] position of bike's tail
-  #direction; //current direction of bike's motion
-  #speed; //num pixel bike moves per game interation
-  #bikeId; //id field of bike's img html element
-  #centerSeg; //[x_old, y_old, x_new, y_new],evolution of bike center position during last interation
-  #trail; // a list of [x1,y1,x2,y2,ttl] segments the bike has travelled over and the segment time to live time
-  #trailColor; //color of the trail
-  #cttSegNum; //number of segments needed to span from bike center to bike tail
+  _DIR_ARRAY = ['up', 'right', 'down', 'left']; //order of bike dir as user hits the right key
+  _RAY_LIFETIME;
+  _arena;
+  _bikeElement; //img html element of the bike
+  _imgPosition; //top left position of img when it's first loaded
+  _imgWidth; //img width when it's first loaded
+  _imgHeight; //img height when it's first loaded
+  _kbControl; //an array [up,down,left,right] keyboard control key of bike
+  _headPosition; //[x,y] position of bike's head
+  _centerPosition; //[x,y] position of bike's center
+  _tailPosition; //[x,y] position of bike's tail
+  _direction; //current direction of bike's motion
+  _speed; //num pixel bike moves per game interation
+  _bikeId; //id field of bike's img html element
+  _centerSeg; //[x_old, y_old, x_new, y_new],evolution of bike center position during last interation
+  _trail; // a list of [x1,y1,x2,y2,ttl] segments the bike has travelled over and the segment time to live time
+  _trailColor; //color of the trail
+  _cttSegNum; //number of segments needed to span from bike center to bike tail
 
-  #BikeRotation = Object.freeze({
+  //enum relating bike pointing direction and image rotation angled needed
+  _BikeRotation = Object.freeze({
     up: '0deg',
     right: '90deg',
     down: '180deg',
@@ -38,40 +39,40 @@ export default class Bike {
     trailColor,
     rayLifetime
   ) {
-    this.#imgPosition = [...imgPosition];
-    this.#direction = direction;
-    this.#headPosition = this.calculateHeadPosition();
-    this.#centerPosition = this.calculateCenterPosition();
-    this.#tailPosition = this.calculateTailPosition();
-    this.#kbControl = kbControl;
-    this.#speed = speed;
-    this.#bikeId = bikeId;
-    this.#centerSeg = [...this.#centerPosition, ...this.#centerPosition];
-    this.#trail = [];
-    this.#arena = document.getElementById('arena');
+    this._imgPosition = [...imgPosition];
+    this._direction = direction;
+    this._headPosition = this.calculateHeadPosition();
+    this._centerPosition = this.calculateCenterPosition();
+    this._tailPosition = this.calculateTailPosition();
+    this._kbControl = kbControl;
+    this._speed = speed;
+    this._bikeId = bikeId;
+    this._centerSeg = [...this._centerPosition, ...this._centerPosition];
+    this._trail = [];
+    this._arena = document.getElementById('arena');
     const bike = document.createElement('img');
     bike.id = bikeId;
     bike.src = imgSrc;
     bike.style.top = imgPosition[1] + 'px';
     bike.style.left = imgPosition[0] + 'px';
     bike.classList.add('bike');
-    this.#arena.appendChild(bike);
-    this.#bikeElement = bike;
-    this.#trailColor = trailColor;
-    this.#RAY_LIFETIME = rayLifetime;
+    this._arena.appendChild(bike);
+    this._bikeElement = bike;
+    this._trailColor = trailColor;
+    this._RAY_LIFETIME = rayLifetime;
 
     //img dimension properties are only available once img has loaded. we want the initial
     //dimension for future headPosition calculation so rotate only after recording the dimensions
     bike.onload = () => {
-      this.#imgWidth = parseFloat(
+      this._imgWidth = parseFloat(
         bike.getBoundingClientRect().width.toFixed(4)
       );
-      this.#imgHeight = parseFloat(
+      this._imgHeight = parseFloat(
         bike.getBoundingClientRect().height.toFixed(4)
       );
-      this.#cttSegNum = Math.floor(this.#imgHeight / 2 / this.#speed) + 1;
+      this._cttSegNum = Math.floor(this._imgHeight / 2 / this._speed) + 1;
 
-      bike.style.rotate = this.#BikeRotation[direction];
+      bike.style.rotate = this._BikeRotation[direction];
     };
 
     return this;
@@ -80,39 +81,39 @@ export default class Bike {
   //Summary: Return trail of the bike
   //Output: list of segments where each segement is an array [x1,y1,x2,y2]
   getTrail = () => {
-    return this.#trail;
+    return this._trail;
   };
 
   //Summary: Return color of trail
   //Output: trail color in word or hexadecimal
   getTrailColor = () => {
-    return this.#trailColor;
+    return this._trailColor;
   };
 
   //Summary: return head position of the bike image
   //Output: array of bike head position [x1, y1]
   getHeadPosition = () => {
-    return this.#headPosition;
+    return this._headPosition;
   };
 
   //Summary: return center position of the bike image
   //Output: array of bike center position [x1, y1]
   getCenterPosition = () => {
-    return this.#centerPosition;
+    return this._centerPosition;
   };
 
   //Summary: return tail position of the bike image
   //Output: array of bike tail position [x1, y1]
   getTailPosition = () => {
-    return this.#tailPosition;
+    return this._tailPosition;
   };
 
   getElement = () => {
-    return this.#bikeElement;
+    return this._bikeElement;
   };
 
   setImgPosition = (imgPosition) => {
-    this.#imgPosition = imgPosition;
+    this._imgPosition = imgPosition;
   };
 
   //Summary: Calculate position of bike's head, given it's direction, using image position
@@ -120,44 +121,44 @@ export default class Bike {
   //Output: array of x, y of bike's head position.
 
   calculateHeadPosition = () => {
-    switch (this.#direction) {
+    switch (this._direction) {
       case Direction.up:
         return [
-          this.#imgPosition[0] + this.#imgWidth / 2.0,
-          this.#imgPosition[1]
+          this._imgPosition[0] + this._imgWidth / 2.0,
+          this._imgPosition[1]
         ];
       case Direction.down:
         return [
-          this.#imgPosition[0] + this.#imgWidth / 2.0,
-          this.#imgPosition[1] + this.#imgHeight
+          this._imgPosition[0] + this._imgWidth / 2.0,
+          this._imgPosition[1] + this._imgHeight
         ];
       case Direction.left:
         return [
-          this.#imgPosition[0] - (this.#imgHeight - this.#imgWidth) / 2.0,
-          this.#imgPosition[1] + this.#imgHeight / 2.0
+          this._imgPosition[0] - (this._imgHeight - this._imgWidth) / 2.0,
+          this._imgPosition[1] + this._imgHeight / 2.0
         ];
       case Direction.right:
         return [
-          this.#imgPosition[0] + (this.#imgHeight + this.#imgWidth) / 2.0,
-          this.#imgPosition[1] + this.#imgHeight / 2.0
+          this._imgPosition[0] + (this._imgHeight + this._imgWidth) / 2.0,
+          this._imgPosition[1] + this._imgHeight / 2.0
         ];
     }
   };
 
   calculateCenterPosition = () => {
     const position = this.calculateHeadPosition();
-    switch (this.#direction) {
+    switch (this._direction) {
       case Direction.up:
-        position[1] = position[1] + this.#imgHeight / 2;
+        position[1] = position[1] + this._imgHeight / 2;
         break;
       case Direction.down:
-        position[1] = position[1] - this.#imgHeight / 2;
+        position[1] = position[1] - this._imgHeight / 2;
         break;
       case Direction.left:
-        position[0] = position[0] + this.#imgHeight / 2;
+        position[0] = position[0] + this._imgHeight / 2;
         break;
       case Direction.right:
-        position[0] = position[0] - this.#imgHeight / 2;
+        position[0] = position[0] - this._imgHeight / 2;
         break;
     }
     return position;
@@ -165,18 +166,18 @@ export default class Bike {
 
   calculateTailPosition = () => {
     const position = this.calculateHeadPosition();
-    switch (this.#direction) {
+    switch (this._direction) {
       case Direction.up:
-        position[1] = position[1] + this.#imgHeight;
+        position[1] = position[1] + this._imgHeight;
         break;
       case Direction.down:
-        position[1] = position[1] - this.#imgHeight;
+        position[1] = position[1] - this._imgHeight;
         break;
       case Direction.left:
-        position[0] = position[0] + this.#imgHeight;
+        position[0] = position[0] + this._imgHeight;
         break;
       case Direction.right:
-        position[0] = position[0] - this.#imgHeight;
+        position[0] = position[0] - this._imgHeight;
         break;
     }
     return position;
@@ -185,41 +186,41 @@ export default class Bike {
   //Summary: Advance bike imgPosition based on bike speed and direction
   //Output: Bike's new imgPosition
   moveForward = () => {
-    const bike = document.getElementById(this.#bikeId);
-    const oldCenterPostion = [...this.#centerPosition]; //copy by value
-    switch (this.#direction) {
+    const bike = document.getElementById(this._bikeId);
+    const oldCenterPostion = [...this._centerPosition]; //copy by value
+    switch (this._direction) {
       case Direction.up:
-        this.#imgPosition[1] -= this.#speed;
-        bike.style.top = this.#imgPosition[1] + 'px';
+        this._imgPosition[1] -= this._speed;
+        bike.style.top = this._imgPosition[1] + 'px';
         break;
       case Direction.down:
-        this.#imgPosition[1] += this.#speed;
-        bike.style.top = this.#imgPosition[1] + 'px';
+        this._imgPosition[1] += this._speed;
+        bike.style.top = this._imgPosition[1] + 'px';
         break;
       case Direction.left:
-        this.#imgPosition[0] -= this.#speed;
-        bike.style.left = this.#imgPosition[0] + 'px';
+        this._imgPosition[0] -= this._speed;
+        bike.style.left = this._imgPosition[0] + 'px';
         break;
       case Direction.right:
-        this.#imgPosition[0] += this.#speed;
-        bike.style.left = this.#imgPosition[0] + 'px';
+        this._imgPosition[0] += this._speed;
+        bike.style.left = this._imgPosition[0] + 'px';
         break;
     }
-    this.#headPosition = this.calculateHeadPosition();
-    this.#centerPosition = this.calculateCenterPosition();
-    this.#tailPosition = this.calculateTailPosition();
-    this.#centerSeg = [...oldCenterPostion, ...this.#centerPosition];
+    this._headPosition = this.calculateHeadPosition();
+    this._centerPosition = this.calculateCenterPosition();
+    this._tailPosition = this.calculateTailPosition();
+    this._centerSeg = [...oldCenterPostion, ...this._centerPosition];
 
     //add newst segment to trail with a ttl
-    const ttl = new Date(new Date().getTime() + this.#RAY_LIFETIME).getTime();
-    this.#trail.push([...this.#centerSeg, ttl]);
+    const ttl = new Date(new Date().getTime() + this._RAY_LIFETIME).getTime();
+    this._trail.push([...this._centerSeg, ttl]);
   };
 
   removeExpiredTrail = () => {
     const now = new Date().getTime();
     const segToRemove = [];
-    while (this.#trail[0][4] < now) {
-      const seg = this.#trail.shift();
+    while (this._trail[0][4] < now) {
+      const seg = this._trail.shift();
       segToRemove.push(seg);
     }
     return segToRemove;
@@ -228,7 +229,7 @@ export default class Bike {
   //Summary: Return imgPosition of the bike image
   //Output: An array [left, top] of img position in pixel
   getImgPosition = () => {
-    return this.#imgPosition;
+    return this._imgPosition;
   };
 
   //Summary: update bike's moving direction
@@ -236,26 +237,26 @@ export default class Bike {
   //Output: Null
   updateDirection = (key) => {
     switch (key) {
-      case this.#kbControl[0]:
-        this.#direction = this.getNewDirection(-1);
+      case this._kbControl[0]:
+        this._direction = this.getNewDirection(-1);
         break;
-      case this.#kbControl[1]:
-        this.#direction = this.getNewDirection(1);
+      case this._kbControl[1]:
+        this._direction = this.getNewDirection(1);
         break;
     }
-    const bike = document.getElementById(this.#bikeId);
-    bike.style.rotate = this.#BikeRotation[this.#direction];
+    const bike = document.getElementById(this._bikeId);
+    bike.style.rotate = this._BikeRotation[this._direction];
   };
 
   //Summary: update bike's moving direction
   //Input: an increment or decrement of current direction along the DIR_ARRAY
   //Output: updated bike direction
   getNewDirection = (change) => {
-    const dirIndex = this.#DIR_ARRAY.indexOf(this.#direction);
+    const dirIndex = this._DIR_ARRAY.indexOf(this._direction);
     if (dirIndex == 0 && change == -1) {
-      return this.#DIR_ARRAY[3];
+      return this._DIR_ARRAY[3];
     } else {
-      return this.#DIR_ARRAY[(dirIndex + change) % 4];
+      return this._DIR_ARRAY[(dirIndex + change) % 4];
     }
   };
 
@@ -267,16 +268,16 @@ export default class Bike {
   hasCollided = (obstacle) => {
     //ignore trail created between bike center to bike tail during collision calculation
     const trailToIgnore =
-      this.#trail.length >= this.#cttSegNum
-        ? this.#trail.slice(this.#trail.length - this.#cttSegNum)
-        : this.#trail;
+      this._trail.length >= this._cttSegNum
+        ? this._trail.slice(this._trail.length - this._cttSegNum)
+        : this._trail;
     if (trailToIgnore.includes(obstacle)) {
       return false;
     }
 
     //object is also a segment
     const bikeDir =
-      this.#headPosition[0] - this.#tailPosition[0] == 0
+      this._headPosition[0] - this._tailPosition[0] == 0
         ? 'vertical'
         : 'horizontal';
     const objDir = obstacle[2] - obstacle[0] == 0 ? 'vertical' : 'horizontal';
@@ -285,16 +286,16 @@ export default class Bike {
     const maxObjX = Math.max(obstacle[0], obstacle[2]);
     const minObjY = Math.min(obstacle[1], obstacle[3]);
     const maxObjY = Math.max(obstacle[1], obstacle[3]);
-    const minBikeX = Math.min(this.#tailPosition[0], this.#headPosition[0]);
-    const maxBikeX = Math.max(this.#tailPosition[0], this.#headPosition[0]);
-    const minBikeY = Math.min(this.#tailPosition[1], this.#headPosition[1]);
-    const maxBikeY = Math.max(this.#tailPosition[1], this.#headPosition[1]);
+    const minBikeX = Math.min(this._tailPosition[0], this._headPosition[0]);
+    const maxBikeX = Math.max(this._tailPosition[0], this._headPosition[0]);
+    const minBikeY = Math.min(this._tailPosition[1], this._headPosition[1]);
+    const maxBikeY = Math.max(this._tailPosition[1], this._headPosition[1]);
 
     switch (true) {
       case bikeDir === 'horizontal' && objDir === 'vertical':
         if (
-          this.#headPosition[1] >= minObjY &&
-          this.#headPosition[1] <= maxObjY &&
+          this._headPosition[1] >= minObjY &&
+          this._headPosition[1] <= maxObjY &&
           minBikeX <= obstacle[0] &&
           maxBikeX >= obstacle[0]
         ) {
@@ -303,8 +304,8 @@ export default class Bike {
 
       case bikeDir === 'vertical' && objDir === 'horizontal':
         if (
-          this.#headPosition[0] >= minObjX &&
-          this.#headPosition[0] <= maxObjX &&
+          this._headPosition[0] >= minObjX &&
+          this._headPosition[0] <= maxObjX &&
           minBikeY <= obstacle[1] &&
           maxBikeY >= obstacle[1]
         ) {
@@ -312,7 +313,7 @@ export default class Bike {
         }
 
       case bikeDir === 'vertical' && objDir === 'vertical':
-        const bikeX = this.#headPosition[0];
+        const bikeX = this._headPosition[0];
         const objX = obstacle[0];
         if (bikeX === objX) {
           if (
@@ -324,7 +325,7 @@ export default class Bike {
         }
 
       case bikeDir === 'horizontal' && objDir === 'horizontal':
-        const bikeY = this.#headPosition[1];
+        const bikeY = this._headPosition[1];
         const objY = obstacle[1];
         if (bikeY === objY) {
           if (

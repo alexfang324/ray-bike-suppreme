@@ -42,7 +42,6 @@ input {
 
 #game-title {
   font-size: 60px;
-
   color: #df29ff;
   background-image: -webkit-linear-gradient(0deg, #df29ff 10%, #9d0d49 30%, #44c5fc 70%);
   background-clip: text;
@@ -50,6 +49,10 @@ input {
   -webkit-text-fill-color: transparent;
   text-align: center;
   padding:10px;
+}
+
+#modal-button{
+  background-color: orange;
 }
 
 #menu-option {
@@ -135,7 +138,7 @@ input {
 #start-game-btn {
   font-size: 20px;
   margin:20px auto;
-  background-color: purple;
+  background-color: orange;
 }
 
 #game-page {

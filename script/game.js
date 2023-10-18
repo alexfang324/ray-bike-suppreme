@@ -65,6 +65,10 @@ export default class Game {
     window.addEventListener('keydown', this.updateBikeDirection);
   };
 
+  removeBikeEventListeners = () => {
+    window.removeEventListener('keydown', this.updateBikeDirection);
+  };
+
   updateBikeDirection = (event) => {
     this._players.forEach((player) =>
       player.getBike().updateDirection(event.key)
@@ -89,16 +93,15 @@ export default class Game {
     ctx.stroke();
   };
 
-  eraseTrail = (segsToRemove,i) =>{
+  eraseTrail = (segsToRemove, i) => {
     const canvas = this._trailCanvases[i];
     const ctx = canvas.getContext('2d');
-    for (const seg of segsToRemove){
-      const left = Math.min(seg[0],seg[2])-2*this._RAYWIDTH;
-      const top = Math.min(seg[1],seg[3])-2*this._RAYWIDTH;
-      const width  = Math.abs(seg[0]-seg[2])+4*this._RAYWIDTH;
-      const height = Math.abs(seg[1]-seg[3])+4*this._RAYWIDTH;
-      ctx.clearRect(left,top,width,height);
+    for (const seg of segsToRemove) {
+      const left = Math.min(seg[0], seg[2]) - 2 * this._RAYWIDTH;
+      const top = Math.min(seg[1], seg[3]) - 2 * this._RAYWIDTH;
+      const width = Math.abs(seg[0] - seg[2]) + 4 * this._RAYWIDTH;
+      const height = Math.abs(seg[1] - seg[3]) + 4 * this._RAYWIDTH;
+      ctx.clearRect(left, top, width, height);
     }
-  }
-
+  };
 }

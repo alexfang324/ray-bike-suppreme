@@ -40,16 +40,13 @@ export default class TwoPlayerGame extends Game {
     this._players.push(player2);
 
     //wire up game-over page buttons
-    document.getElementById('main-menu-btn').addEventListener('click', () => {
-      this._openingPageElement.removeAttribute('hidden');
-      this._gameOverPageElement.setAttribute('hidden', true);
-    });
+    document
+      .getElementById('main-menu-btn')
+      .addEventListener('click', this.mainMenuBtnClicked);
 
-    document.getElementById('play-again-btn').addEventListener('click', () => {
-      this._gameOverPageElement.setAttribute('hidden', true);
-      this._gamePageElement.removeAttribute('hidden');
-      this.startFreshGame();
-    });
+    document
+      .getElementById('play-again-btn')
+      .addEventListener('click', this.playAgainBtnClicked);
 
     this.startFreshGame();
   }
@@ -215,7 +212,7 @@ export default class TwoPlayerGame extends Game {
         const bike = player.getBike();
         bike.moveForward();
         const segsToRemove = bike.removeExpiredTrail();
-        this.eraseTrail(segsToRemove,i);
+        this.eraseTrail(segsToRemove, i);
         this.drawTrail(i);
       });
 
@@ -237,7 +234,7 @@ export default class TwoPlayerGame extends Game {
 
         if (hasCollided.includes(true)) {
           clearInterval(gameInterval);
-          window.removeEventListener('keydown', this.updateBikeDirection);
+          this.removeBikeEventListeners();
           const winnerInd = hasCollided.indexOf(false);
           this._players[winnerInd].updateScore(this._score);
           this.renderGameOverPage(this._players[winnerInd]);
@@ -269,5 +266,16 @@ export default class TwoPlayerGame extends Game {
     <p>Accumulated Score</p>
     <p>${this._players[0].getAccumulatedScore()}</p>
     <p>${this._players[1].getAccumulatedScore()}</p>`;
+  };
+
+  mainMenuBtnClicked = () => {
+    this._openingPageElement.removeAttribute('hidden');
+    this._gameOverPageElement.setAttribute('hidden', true);
+  };
+
+  playAgainBtnClicked = () => {
+    this._gameOverPageElement.setAttribute('hidden', true);
+    this._gamePageElement.removeAttribute('hidden');
+    this.startFreshGame();
   };
 }
