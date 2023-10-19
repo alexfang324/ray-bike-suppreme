@@ -6,8 +6,16 @@ const Direction = Object.freeze({
   right: 'right'
 });
 
+//enum relating bike pointing direction and image rotation angled needed
+const ImgRotationAngle = Object.freeze({
+  up: '0deg',
+  right: '90deg',
+  down: '180deg',
+  left: '270deg'
+});
+
 const ObstacleType = Object.freeze({
   rock: 'rock'
 });
 
-export { Direction, ObstacleType };
+export { Direction, ImgRotationAngle, ObstacleType };
