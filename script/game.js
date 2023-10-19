@@ -70,7 +70,8 @@ export default class Game {
     );
   };
 
-  drawTrail = (i) => {
+  //always redraw drail from beginning to achieve the neon blur effect
+  drawCanvasTrail = (i) => {
     const trailSegments = this._players[i].getBike().getTrail();
     const canvas = this._trailCanvases[i];
     const ctx = canvas.getContext('2d');
@@ -88,7 +89,7 @@ export default class Game {
     ctx.stroke();
   };
 
-  eraseTrail = (segsToRemove, i) => {
+  eraseCanvasTrail = (segsToRemove, i) => {
     const canvas = this._trailCanvases[i];
     const ctx = canvas.getContext('2d');
     for (const seg of segsToRemove) {

@@ -207,12 +207,10 @@ input {
     z-index: 100;
 }
 
-#circle {
-  height: 10px;
-  width: 10px;
-  background-color: red;
-  border-radius: 50%;
+.projectile {
   position: absolute;
+  height: 50px;
+  /* z-index: 100; */
 }
 
 canvas {

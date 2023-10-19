@@ -245,7 +245,7 @@ export default class TwoPlayerGame extends Game {
   emitProjectile = (bike) => {
     this._projectiles.push(
       new Projectile(
-        bike.getHeadPosition(),
+        bike.getImgPosition(),
         bike.getDirection(),
         this._PROJ_SPEED,
         this._PROJ_IMG_PATH
@@ -257,16 +257,16 @@ export default class TwoPlayerGame extends Game {
     const gameInterval = setInterval(() => {
       //advance projection motion
       this._projectiles.forEach((proj) => {
-        proj.moveForward();
+        proj.moveForward(proj);
       });
 
       //advance bike motion and update its trail on canvas
       this._players.forEach((player, i) => {
         const bike = player.getBike();
-        bike.moveForward();
+        bike.moveForwardAndAddTrail();
         const obsToRemove = bike.removeExpiredTrail();
-        this.eraseTrail(obsToRemove, i);
-        this.drawTrail(i);
+        this.eraseCanvasTrail(obsToRemove, i);
+        this.drawCanvasTrail(i);
       });
 
       //add current bike trail to list of obstacle segments

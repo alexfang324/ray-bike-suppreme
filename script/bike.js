@@ -53,32 +53,9 @@ export default class Bike extends MovingObject {
     return this._trailColor;
   };
 
-  //Summary: Advance bike imgPosition based on bike speed and direction
-  //Output: Bike's new imgPosition
-  moveForward = () => {
-    const bike = document.getElementById(this._bikeId);
+  moveForwardAndAddTrail = () => {
     const oldCenterPostion = [...this._centerPosition]; //copy by value
-    switch (this._direction) {
-      case Direction.up:
-        this._imgPosition[1] -= this._speed;
-        bike.style.top = this._imgPosition[1] + 'px';
-        break;
-      case Direction.down:
-        this._imgPosition[1] += this._speed;
-        bike.style.top = this._imgPosition[1] + 'px';
-        break;
-      case Direction.left:
-        this._imgPosition[0] -= this._speed;
-        bike.style.left = this._imgPosition[0] + 'px';
-        break;
-      case Direction.right:
-        this._imgPosition[0] += this._speed;
-        bike.style.left = this._imgPosition[0] + 'px';
-        break;
-    }
-    this._headPosition = this.calculateHeadPosition();
-    this._centerPosition = this.calculateCenterPosition();
-    this._tailPosition = this.calculateTailPosition();
+    this.moveForward(this);
     this._centerSeg = [...oldCenterPostion, ...this._centerPosition];
 
     //add newst segment to trail with a ttl

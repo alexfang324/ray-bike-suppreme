@@ -41,6 +41,10 @@ export default class MovingObject {
     };
   }
 
+  getImgPosition = () => {
+    return this._imgPosition;
+  };
+
   //Summary: return head position of the bike image
   //Output: array of bike head position [x1, y1]
   getHeadPosition = () => {
@@ -132,6 +136,32 @@ export default class MovingObject {
         break;
     }
     return position;
+  };
+
+  moveForward = (obj) => {
+    const objElement = obj.getElement();
+
+    switch (this._direction) {
+      case Direction.up:
+        this._imgPosition[1] -= this._speed;
+        objElement.style.top = this._imgPosition[1] + 'px';
+        break;
+      case Direction.down:
+        this._imgPosition[1] += this._speed;
+        objElement.style.top = this._imgPosition[1] + 'px';
+        break;
+      case Direction.left:
+        this._imgPosition[0] -= this._speed;
+        objElement.style.left = this._imgPosition[0] + 'px';
+        break;
+      case Direction.right:
+        this._imgPosition[0] += this._speed;
+        objElement.style.left = this._imgPosition[0] + 'px';
+        break;
+    }
+    this._headPosition = this.calculateHeadPosition();
+    this._centerPosition = this.calculateCenterPosition();
+    this._tailPosition = this.calculateTailPosition();
   };
 
   //Summary: Check if a bike's last movement collided with another game object (i.e. obstacles).
