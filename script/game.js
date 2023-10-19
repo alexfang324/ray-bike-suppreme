@@ -1,4 +1,5 @@
 'use strict';
+import Obstacle from './obstacle.js';
 
 export default class Game {
   _SEGLENGTH = 1; //intrinsic segment length of the game
@@ -6,14 +7,14 @@ export default class Game {
   _BIKESPEED = 3;
   _ARENA_WIDTH = 950; //pixel width of gameplay arena
   _ARENA_HEIGHT = 500; //pixel height of gameplay arena
-  _ARENA_CEN_POS;
+  _ARENA_CEN_POS; //[x,y] position that's calculated at runtime
   _ARENA_GRID_X_NUM = 15; //number of background grid lines horizontally
   _ARENA_GRID_Y_NUM = 8; //number of background grid lines horizontally
   _GAME_START_TIME = Date.now();
 
   _players = [];
   _arena; // arena html element
-  _obsSegments = []; //list of segments representing obstacles in the arena (not including bike trails)
+  _obstacles = []; //list of obstacles in the arena (not including bike trails)
   _trailCanvases = []; //canvas html elements
 
   constructor() {
@@ -35,20 +36,14 @@ export default class Game {
     this._ARENA_CEN_POS = [this._ARENA_WIDTH / 2.0, this._ARENA_HEIGHT / 2.0];
 
     //add arena boundaries as obstacles using relative position of the area
-    this._obsSegments.push([0, this._ARENA_HEIGHT, 0, 0]);
-    this._obsSegments.push([0, 0, this._ARENA_WIDTH, 0]);
-    this._obsSegments.push([
-      this._ARENA_WIDTH,
-      0,
-      this._ARENA_WIDTH,
-      this._ARENA_HEIGHT
-    ]);
-    this._obsSegments.push([
-      0,
-      this._ARENA_HEIGHT,
-      this._ARENA_WIDTH,
-      this._ARENA_HEIGHT
-    ]);
+    this._obstacles.push(new Obstacle(0, this._ARENA_HEIGHT, 0, 0));
+    this._obstacles.push(new Obstacle(0, 0, this._ARENA_WIDTH, 0));
+    this._obstacles.push(
+      new Obstacle(this._ARENA_WIDTH, 0, this._ARENA_WIDTH, this._ARENA_HEIGHT)
+    );
+    this._obstacles.push(
+      new Obstacle(0, this._ARENA_HEIGHT, this._ARENA_WIDTH, this._ARENA_HEIGHT)
+    );
   };
 
   setupCanvases = () => {
@@ -85,8 +80,8 @@ export default class Game {
     ctx.shadowColor = this._players[i].getBike().getTrailColor();
     ctx.beginPath();
     trailSegments.forEach((seg) => {
-      ctx.moveTo(seg[0], seg[1]);
-      ctx.lineTo(seg[2], seg[3]);
+      ctx.moveTo(seg.x1, seg.y1);
+      ctx.lineTo(seg.x2, seg.y2);
     });
     ctx.strokeStyle = this._players[i].getBike().getTrailColor();
     ctx.lineWidth = this._RAYWIDTH;
@@ -97,10 +92,10 @@ export default class Game {
     const canvas = this._trailCanvases[i];
     const ctx = canvas.getContext('2d');
     for (const seg of segsToRemove) {
-      const left = Math.min(seg[0], seg[2]) - 2 * this._RAYWIDTH;
-      const top = Math.min(seg[1], seg[3]) - 2 * this._RAYWIDTH;
-      const width = Math.abs(seg[0] - seg[2]) + 4 * this._RAYWIDTH;
-      const height = Math.abs(seg[1] - seg[3]) + 4 * this._RAYWIDTH;
+      const left = Math.min(seg.x1, seg.x2) - 2 * this._RAYWIDTH;
+      const top = Math.min(seg.y1, seg.y2) - 2 * this._RAYWIDTH;
+      const width = Math.abs(seg.x1 - seg.x2) + 4 * this._RAYWIDTH;
+      const height = Math.abs(seg.y1 - seg.y2) + 4 * this._RAYWIDTH;
       ctx.clearRect(left, top, width, height);
     }
   };

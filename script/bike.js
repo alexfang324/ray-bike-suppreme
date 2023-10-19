@@ -1,5 +1,6 @@
 'use strict';
-import Direction from './direction_enum.js';
+import { Direction } from './enum.js';
+import Obstacle from './obstacle.js';
 
 export default class Bike {
   _DIR_ARRAY = ['up', 'right', 'down', 'left']; //order of bike dir as user hits the right key
@@ -17,7 +18,7 @@ export default class Bike {
   _speed; //num pixel bike moves per game interation
   _bikeId; //id field of bike's img html element
   _centerSeg; //[x_old, y_old, x_new, y_new],evolution of bike center position during last interation
-  _trail; // a list of [x1,y1,x2,y2,ttl] segments the bike has travelled over and the segment time to live time
+  _trail; // a list of Obstacle object representing the segment the bike has travelled over
   _trailColor; //color of the trail
   _cttSegNum; //number of segments needed to span from bike center to bike tail
 
@@ -213,13 +214,13 @@ export default class Bike {
 
     //add newst segment to trail with a ttl
     const ttl = new Date(new Date().getTime() + this._RAY_LIFETIME).getTime();
-    this._trail.push([...this._centerSeg, ttl]);
+    this._trail.push(new Obstacle(...this._centerSeg, null, null, ttl));
   };
 
   removeExpiredTrail = () => {
     const now = new Date().getTime();
     const segToRemove = [];
-    while (this._trail[0][4] < now) {
+    while (this._trail[0].ttl < now) {
       const seg = this._trail.shift();
       segToRemove.push(seg);
     }
@@ -236,11 +237,11 @@ export default class Bike {
   //Input: a valid direction from the Direction enum
   //Output: Null
   updateDirection = (key) => {
-    switch (key) {
-      case this._kbControl[0]:
+    switch (key.toLowerCase()) {
+      case this._kbControl[0].toLowerCase():
         this._direction = this.getNewDirection(-1);
         break;
-      case this._kbControl[1]:
+      case this._kbControl[1].toLowerCase():
         this._direction = this.getNewDirection(1);
         break;
     }
@@ -275,46 +276,45 @@ export default class Bike {
       return false;
     }
 
-    //object is also a segment
     const bikeDir =
       this._headPosition[0] - this._tailPosition[0] == 0
         ? 'vertical'
         : 'horizontal';
-    const objDir = obstacle[2] - obstacle[0] == 0 ? 'vertical' : 'horizontal';
+    const obsDir = obstacle.x2 - obstacle.x1 == 0 ? 'vertical' : 'horizontal';
 
-    const minObjX = Math.min(obstacle[0], obstacle[2]);
-    const maxObjX = Math.max(obstacle[0], obstacle[2]);
-    const minObjY = Math.min(obstacle[1], obstacle[3]);
-    const maxObjY = Math.max(obstacle[1], obstacle[3]);
+    const minObjX = Math.min(obstacle.x1, obstacle.x2);
+    const maxObjX = Math.max(obstacle.x1, obstacle.x2);
+    const minObjY = Math.min(obstacle.y1, obstacle.y2);
+    const maxObjY = Math.max(obstacle.y1, obstacle.y2);
     const minBikeX = Math.min(this._tailPosition[0], this._headPosition[0]);
     const maxBikeX = Math.max(this._tailPosition[0], this._headPosition[0]);
     const minBikeY = Math.min(this._tailPosition[1], this._headPosition[1]);
     const maxBikeY = Math.max(this._tailPosition[1], this._headPosition[1]);
 
     switch (true) {
-      case bikeDir === 'horizontal' && objDir === 'vertical':
+      case bikeDir === 'horizontal' && obsDir === 'vertical':
         if (
           this._headPosition[1] >= minObjY &&
           this._headPosition[1] <= maxObjY &&
-          minBikeX <= obstacle[0] &&
-          maxBikeX >= obstacle[0]
+          minBikeX <= obstacle.x1 &&
+          maxBikeX >= obstacle.x1
         ) {
           return true;
         }
 
-      case bikeDir === 'vertical' && objDir === 'horizontal':
+      case bikeDir === 'vertical' && obsDir === 'horizontal':
         if (
           this._headPosition[0] >= minObjX &&
           this._headPosition[0] <= maxObjX &&
-          minBikeY <= obstacle[1] &&
-          maxBikeY >= obstacle[1]
+          minBikeY <= obstacle.y1 &&
+          maxBikeY >= obstacle.y1
         ) {
           return true;
         }
 
-      case bikeDir === 'vertical' && objDir === 'vertical':
+      case bikeDir === 'vertical' && obsDir === 'vertical':
         const bikeX = this._headPosition[0];
-        const objX = obstacle[0];
+        const objX = obstacle.x1;
         if (bikeX === objX) {
           if (
             (maxBikeY >= minObjY && maxBikeY <= maxObjY) ||
@@ -324,9 +324,9 @@ export default class Bike {
           }
         }
 
-      case bikeDir === 'horizontal' && objDir === 'horizontal':
+      case bikeDir === 'horizontal' && obsDir === 'horizontal':
         const bikeY = this._headPosition[1];
-        const objY = obstacle[1];
+        const objY = obstacle.y1;
         if (bikeY === objY) {
           if (
             (maxBikeX >= minObjX && maxBikeX <= maxObjX) ||

@@ -5,4 +5,9 @@ const Direction = Object.freeze({
   left: 'left',
   right: 'right'
 });
-export default Direction;
+
+const ObstacleType = Object.freeze({
+  rock: 'rock'
+});
+
+export { Direction, ObstacleType };

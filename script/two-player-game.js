@@ -2,7 +2,8 @@
 import Game from './game.js';
 import Player from './player.js';
 import Bike from './bike.js';
-import Direction from './direction_enum.js';
+import Obstacle from './obstacle.js';
+import { Direction, ObstacleType } from './enum.js';
 
 export default class TwoPlayerGame extends Game {
   _RAY_LIFETIME = 2000; //lifetime in miliseconds
@@ -56,7 +57,7 @@ export default class TwoPlayerGame extends Game {
     this._gamePageElement.innerHTML = '';
     this._score = 0;
     this._GAME_START_TIME = Date.now();
-    this._obsSegments = [];
+    this._obstacles = [];
     this._trailCanvases = [];
 
     this.setupScoreBoard(this._playerName1, this._playerName2);
@@ -163,11 +164,40 @@ export default class TwoPlayerGame extends Game {
             const width = obsRect.width;
             const height = obsRect.height;
             arenaObjects.push(obsElement);
-            this._obsSegments.push(
-              [left, top, left + width, top],
-              [left + width, top, left + width, top + height],
-              [left, top + height, left + width, top + height],
-              [left, top, left, top + height]
+            const obsId = Math.random();
+            this._obstacles.push(
+              new Obstacle(
+                left,
+                top,
+                left + width,
+                top,
+                ObstacleType.rock,
+                obsId
+              ),
+              new Obstacle(
+                left + width,
+                top,
+                left + width,
+                top + height,
+                ObstacleType.rock,
+                obsId
+              ),
+              new Obstacle(
+                left,
+                top + height,
+                left + width,
+                top + height,
+                ObstacleType.rock,
+                obsId
+              ),
+              new Obstacle(
+                left,
+                top,
+                left,
+                top + height,
+                ObstacleType.rock,
+                obsId
+              )
             );
             break;
           }
@@ -211,25 +241,27 @@ export default class TwoPlayerGame extends Game {
       this._players.forEach((player, i) => {
         const bike = player.getBike();
         bike.moveForward();
-        const segsToRemove = bike.removeExpiredTrail();
-        this.eraseTrail(segsToRemove, i);
+        const obsToRemove = bike.removeExpiredTrail();
+        this.eraseTrail(obsToRemove, i);
         this.drawTrail(i);
       });
 
       //add current bike trail to list of obstacle segments
-      let updatedObsSegs = [...this._obsSegments];
-
+      let updatedObstacles = [...this._obstacles];
       this._players.forEach((player) => {
-        updatedObsSegs = [...updatedObsSegs, ...player.getBike().getTrail()];
+        updatedObstacles = [
+          ...updatedObstacles,
+          ...player.getBike().getTrail()
+        ];
       });
 
       //increment score
       this.incrementScore();
 
       //check for collision
-      for (const seg of updatedObsSegs) {
+      for (const obs of updatedObstacles) {
         const hasCollided = this._players.map((player) => {
-          return player.getBike().hasCollided(seg);
+          return player.getBike().hasCollided(obs);
         });
 
         if (hasCollided.includes(true)) {
