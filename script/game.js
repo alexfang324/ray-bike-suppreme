@@ -57,16 +57,16 @@ export default class Game {
   };
 
   setupBikeEventListeners = () => {
-    window.addEventListener('keydown', this.updateBikeDirection);
+    window.addEventListener('keydown', this.updateBikeEvent);
   };
 
   removeBikeEventListeners = () => {
-    window.removeEventListener('keydown', this.updateBikeDirection);
+    window.removeEventListener('keydown', this.updateBikeEvent);
   };
 
-  updateBikeDirection = (event) => {
+  updateBikeEvent = (event) => {
     this._players.forEach((player) =>
-      player.getBike().updateDirection(event.key)
+      player.getBike().updateBikeEvent(event.key)
     );
   };
 

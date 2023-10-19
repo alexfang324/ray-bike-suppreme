@@ -183,7 +183,7 @@ input {
 #arena {
     position: relative;
     flex-shrink: 0;
-    background-color: #1c123c;
+    /* background-color: #1c123c; */
     border: solid 3px rgb(188, 19, 254);
     margin:20px;
     border-radius: 10px;

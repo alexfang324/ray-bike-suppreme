@@ -63,6 +63,10 @@ export default class MovingObject {
     return this._element;
   };
 
+  getDirection = () => {
+    return this._direction;
+  };
+
   //Summary: Calculate position of bike's head, given it's direction, using image position
   //         (top left of initial img) and initial img width and height.
   //Output: array of x, y of bike's head position.
@@ -128,5 +132,85 @@ export default class MovingObject {
         break;
     }
     return position;
+  };
+
+  //Summary: Check if a bike's last movement collided with another game object (i.e. obstacles).
+  //Input: centerSeg is an array [x_old, y_old, x_new, y_new], reprsenting bike center's last movement
+  //       obstacle isa segment [x1,y1,x2,y2], e.g. wall or ray segment
+  //Output: boolean of whether a collision happend
+  //Assumption: assumed every obstacle segment is a horizontal or vertical line.
+  hasCollided = (obstacle) => {
+    //ignore trail created between bike center to bike tail during collision calculation
+    const trailToIgnore =
+      this._trail.length >= this._cttSegNum
+        ? this._trail.slice(this._trail.length - this._cttSegNum)
+        : this._trail;
+    if (trailToIgnore.includes(obstacle)) {
+      return false;
+    }
+
+    const bikeDir =
+      this._headPosition[0] - this._tailPosition[0] == 0
+        ? 'vertical'
+        : 'horizontal';
+    const obsDir = obstacle.x2 - obstacle.x1 == 0 ? 'vertical' : 'horizontal';
+
+    const minObjX = Math.min(obstacle.x1, obstacle.x2);
+    const maxObjX = Math.max(obstacle.x1, obstacle.x2);
+    const minObjY = Math.min(obstacle.y1, obstacle.y2);
+    const maxObjY = Math.max(obstacle.y1, obstacle.y2);
+    const minBikeX = Math.min(this._tailPosition[0], this._headPosition[0]);
+    const maxBikeX = Math.max(this._tailPosition[0], this._headPosition[0]);
+    const minBikeY = Math.min(this._tailPosition[1], this._headPosition[1]);
+    const maxBikeY = Math.max(this._tailPosition[1], this._headPosition[1]);
+
+    switch (true) {
+      case bikeDir === 'horizontal' && obsDir === 'vertical':
+        if (
+          this._headPosition[1] >= minObjY &&
+          this._headPosition[1] <= maxObjY &&
+          minBikeX <= obstacle.x1 &&
+          maxBikeX >= obstacle.x1
+        ) {
+          return true;
+        }
+
+      case bikeDir === 'vertical' && obsDir === 'horizontal':
+        if (
+          this._headPosition[0] >= minObjX &&
+          this._headPosition[0] <= maxObjX &&
+          minBikeY <= obstacle.y1 &&
+          maxBikeY >= obstacle.y1
+        ) {
+          return true;
+        }
+
+      case bikeDir === 'vertical' && obsDir === 'vertical':
+        const bikeX = this._headPosition[0];
+        const objX = obstacle.x1;
+        if (bikeX === objX) {
+          if (
+            (maxBikeY >= minObjY && maxBikeY <= maxObjY) ||
+            (minBikeY >= minObjY && minBikeY <= maxObjY)
+          ) {
+            return true;
+          }
+        }
+
+      case bikeDir === 'horizontal' && obsDir === 'horizontal':
+        const bikeY = this._headPosition[1];
+        const objY = obstacle.y1;
+        if (bikeY === objY) {
+          if (
+            (maxBikeX >= minObjX && maxBikeX <= maxObjX) ||
+            (minBikeX >= minObjX && minBikeX <= maxObjX)
+          ) {
+            return true;
+          }
+        }
+
+      default:
+        return false;
+    }
   };
 }

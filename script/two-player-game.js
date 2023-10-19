@@ -4,9 +4,11 @@ import Player from './player.js';
 import Bike from './bike.js';
 import Obstacle from './obstacle.js';
 import { Direction, ObstacleType } from './enum.js';
+import Projectile from './projectile.js';
 
 export default class TwoPlayerGame extends Game {
   _RAY_LIFETIME = 2000; //lifetime in miliseconds
+  _PROJ_SPEED = 5; //speed of projectile
   _MIN_OBS_HEIGHT = 20; //minimum obstacle height in px;
   _MAX_OBS_HEIGHT = 100; //max obstacle height in px;
   _BIKE1_ID = 'bike1';
@@ -15,7 +17,8 @@ export default class TwoPlayerGame extends Game {
   _BIKE2_ID = 'bike2';
   _INITIAL_BIKE2_DIR = Direction.left;
   _INITIAL_BIKE2_IMG_POS = [650, 250];
-  _OBS_IMG_PATH = '../img/rock.jpg';
+  _OBS_IMG_PATH = '../img/rock.jpg'; //image path of stationary obstacle
+  _PROJ_IMG_PATH = '../img/laser.png'; //image path of projectile
 
   _difficulty; //game difficulty
   _gamePageElement;
@@ -24,6 +27,7 @@ export default class TwoPlayerGame extends Game {
   _playerName1;
   _playerName2;
   _score;
+  _projectiles = [];
 
   constructor(difficulty, playerName1, playerName2) {
     super();
@@ -72,10 +76,11 @@ export default class TwoPlayerGame extends Game {
       this._INITIAL_BIKE1_DIR,
       this._BIKESPEED,
       this._BIKE1_ID,
-      ['a', 'd'],
+      ['a', 'd', 'w'],
       '../img/shopping-cart.jpg',
       'rgb(188, 19, 254)',
-      this._RAY_LIFETIME
+      this._RAY_LIFETIME,
+      this.emitProjectile
     );
     this._players[0].setBike(bike1);
 
@@ -88,10 +93,11 @@ export default class TwoPlayerGame extends Game {
       this._INITIAL_BIKE2_DIR,
       this._BIKESPEED,
       this._BIKE2_ID,
-      ['ArrowLeft', 'ArrowRight'],
+      ['ArrowLeft', 'ArrowRight', 'ArrowUp'],
       '../img/green-bike.jpg',
       'rgb(57, 255, 20)',
-      this._RAY_LIFETIME
+      this._RAY_LIFETIME,
+      this.emitProjectile
     );
     this._players[1].setBike(bike2);
 
@@ -236,8 +242,25 @@ export default class TwoPlayerGame extends Game {
     scoreElement.textContent = `${newScore}`;
   };
 
+  emitProjectile = (bike) => {
+    this._projectiles.push(
+      new Projectile(
+        bike.getHeadPosition(),
+        bike.getDirection(),
+        this._PROJ_SPEED,
+        this._PROJ_IMG_PATH
+      )
+    );
+  };
+
   evolveGame = () => {
     const gameInterval = setInterval(() => {
+      //advance projection motion
+      this._projectiles.forEach((proj) => {
+        proj.moveForward();
+      });
+
+      //advance bike motion and update its trail on canvas
       this._players.forEach((player, i) => {
         const bike = player.getBike();
         bike.moveForward();
