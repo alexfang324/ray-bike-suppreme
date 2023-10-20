@@ -1,7 +1,7 @@
-import MovingObject from './moving-object.js';
+import MovableObject from './movable-object.js';
 import { ImgRotationAngle } from './enum.js';
 
-export default class Projectile extends MovingObject {
+export default class Projectile extends MovableObject {
   constructor(centerPosition, direction, speed, imgSrc) {
     super(centerPosition, direction, speed, imgSrc);
     const projElement = this.getElement();

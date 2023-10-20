@@ -1,9 +1,9 @@
 'use strict';
 import { ImgRotationAngle } from './enum.js';
-import MovingObject from './moving-object.js';
+import MovableObject from './movable-object.js';
 import Obstacle from './obstacle.js';
 
-export default class Bike extends MovingObject {
+export default class Bike extends MovableObject {
   _bikeId;
   _DIR_ARRAY = ['up', 'right', 'down', 'left']; //order of bike dir as user hits the right key
   _RAY_LIFETIME;

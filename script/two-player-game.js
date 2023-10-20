@@ -178,7 +178,9 @@ export default class TwoPlayerGame extends Game {
                 left + width,
                 top,
                 ObstacleType.rock,
-                obsId
+                obsId,
+                null,
+                obsElement
               ),
               new Obstacle(
                 left + width,
@@ -186,7 +188,9 @@ export default class TwoPlayerGame extends Game {
                 left + width,
                 top + height,
                 ObstacleType.rock,
-                obsId
+                obsId,
+                null,
+                obsElement
               ),
               new Obstacle(
                 left,
@@ -194,7 +198,9 @@ export default class TwoPlayerGame extends Game {
                 left + width,
                 top + height,
                 ObstacleType.rock,
-                obsId
+                obsId,
+                null,
+                obsElement
               ),
               new Obstacle(
                 left,
@@ -202,7 +208,9 @@ export default class TwoPlayerGame extends Game {
                 left,
                 top + height,
                 ObstacleType.rock,
-                obsId
+                obsId,
+                null,
+                obsElement
               )
             );
             break;
@@ -310,7 +318,8 @@ export default class TwoPlayerGame extends Game {
     for (const obs of updatedObstacles) {
       this._projectiles.forEach((proj, i) => {
         if (proj.hasCollided(obs)) {
-          //remove projectile from array and handle collidee
+          //remove projectile object and html element and handle collidee situation
+          this._projectiles[i].getElement().remove();
           this._projectiles.splice(i, 1);
           this._handleProjectileCollision(obs);
         }
@@ -321,7 +330,16 @@ export default class TwoPlayerGame extends Game {
   _handleProjectileCollision(obstacle) {
     switch (obstacle.type) {
       case ObstacleType.wall:
-        console.log('wall');
+        break;
+      case ObstacleType.rock:
+        //remove html element and the 4 obstacles object that forms the rock
+        obstacle.element.remove();
+        this._obstacles = this._obstacles.filter(
+          (obs) => obs.id != obstacle.id
+        );
+        break;
+      case ObstacleType.ray:
+        console.error('need to delete ray');
         break;
       default:
         console.log('hit something');

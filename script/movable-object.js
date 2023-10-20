@@ -1,6 +1,6 @@
 import { Direction, ImgRotationAngle } from './enum.js';
 
-export default class MovingObject {
+export default class MovableObject {
   _imgPosition; //top left position of img when it's first loaded
   _direction; //current direction of object's motion
   _speed; //num pixel bike moves per game interation

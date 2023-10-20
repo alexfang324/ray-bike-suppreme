@@ -16,7 +16,8 @@ const ImgRotationAngle = Object.freeze({
 
 const ObstacleType = Object.freeze({
   wall: 'wall',
-  rock: 'rock'
+  rock: 'rock',
+  ray: 'ray'
 });
 
 export { Direction, ImgRotationAngle, ObstacleType };
