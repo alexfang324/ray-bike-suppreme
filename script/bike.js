@@ -1,5 +1,5 @@
 'use strict';
-import { Direction, ImgRotationAngle } from './enum.js';
+import { ImgRotationAngle } from './enum.js';
 import MovingObject from './moving-object.js';
 import Obstacle from './obstacle.js';
 
@@ -31,20 +31,42 @@ export default class Bike extends MovingObject {
     this._centerSeg = [...this._centerPosition, ...this._centerPosition];
     this._trail = [];
     this._bikeId = bikeId;
-    const bike = this.getElement();
-    bike.id = bikeId;
-    bike.classList.add('bike');
+    const bikeElement = this.getElement();
+    bikeElement.id = bikeId;
+    bikeElement.classList.add('bike');
     this._trailColor = trailColor;
     this._RAY_LIFETIME = rayLifetime;
     this.emitProjectile = emitProjectile; //callback func for emitting a projectile
 
-    return this;
+    //img dimension properties are only available once img has loaded. we want the initial
+    //dimension for future headPosition calculation so rotate only after recording the dimensions
+    bikeElement.onload = () => {
+      this._imgWidth = parseFloat(
+        bikeElement.getBoundingClientRect().width.toFixed(4)
+      );
+      this._imgHeight = parseFloat(
+        bikeElement.getBoundingClientRect().height.toFixed(4)
+      );
+      this._cttSegNum = Math.floor(this._imgHeight / 2 / this._speed) + 1;
+
+      bikeElement.style.rotate = ImgRotationAngle[direction];
+    };
   }
 
   //Summary: Return trail of the bike
   //Output: list of segments where each segement is an array [x1,y1,x2,y2]
   getTrail = () => {
+    //ignore trail created between bike center to bike tail for collision calculation purpose
     return this._trail;
+  };
+
+  getTrailForCollisionCheck = () => {
+    //ignore trail created between bike center to bike tail for collision calculation purpose
+    const trail =
+      this._trail.length >= this._cttSegNum
+        ? this._trail.slice(0, this._trail.length - this._cttSegNum)
+        : [];
+    return trail;
   };
 
   //Summary: Return color of trail

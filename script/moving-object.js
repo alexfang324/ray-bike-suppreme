@@ -23,22 +23,10 @@ export default class MovingObject {
     this._arena = document.getElementById('arena');
     const obj = document.createElement('img');
     obj.src = imgSrc;
-    obj.style.top = imgPosition[1] + 'px';
     obj.style.left = imgPosition[0] + 'px';
+    obj.style.top = imgPosition[1] + 'px';
     this._arena.appendChild(obj);
     this._element = obj;
-
-    //img dimension properties are only available once img has loaded. we want the initial
-    //dimension for future headPosition calculation so rotate only after recording the dimensions
-    obj.onload = () => {
-      this._imgWidth = parseFloat(obj.getBoundingClientRect().width.toFixed(4));
-      this._imgHeight = parseFloat(
-        obj.getBoundingClientRect().height.toFixed(4)
-      );
-      this._cttSegNum = Math.floor(this._imgHeight / 2 / this._speed) + 1;
-
-      obj.style.rotate = ImgRotationAngle[direction];
-    };
   }
 
   getImgPosition = () => {
@@ -140,7 +128,6 @@ export default class MovingObject {
 
   moveForward = (obj) => {
     const objElement = obj.getElement();
-
     switch (this._direction) {
       case Direction.up:
         this._imgPosition[1] -= this._speed;
@@ -170,15 +157,6 @@ export default class MovingObject {
   //Output: boolean of whether a collision happend
   //Assumption: assumed every obstacle segment is a horizontal or vertical line.
   hasCollided = (obstacle) => {
-    //ignore trail created between bike center to bike tail during collision calculation
-    const trailToIgnore =
-      this._trail.length >= this._cttSegNum
-        ? this._trail.slice(this._trail.length - this._cttSegNum)
-        : this._trail;
-    if (trailToIgnore.includes(obstacle)) {
-      return false;
-    }
-
     const bikeDir =
       this._headPosition[0] - this._tailPosition[0] == 0
         ? 'vertical'

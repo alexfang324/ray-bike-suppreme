@@ -1,5 +1,6 @@
 'use strict';
 import Obstacle from './obstacle.js';
+import { ObstacleType } from './enum.js';
 
 export default class Game {
   _SEGLENGTH = 1; //intrinsic segment length of the game
@@ -36,13 +37,29 @@ export default class Game {
     this._ARENA_CEN_POS = [this._ARENA_WIDTH / 2.0, this._ARENA_HEIGHT / 2.0];
 
     //add arena boundaries as obstacles using relative position of the area
-    this._obstacles.push(new Obstacle(0, this._ARENA_HEIGHT, 0, 0));
-    this._obstacles.push(new Obstacle(0, 0, this._ARENA_WIDTH, 0));
     this._obstacles.push(
-      new Obstacle(this._ARENA_WIDTH, 0, this._ARENA_WIDTH, this._ARENA_HEIGHT)
+      new Obstacle(0, this._ARENA_HEIGHT, 0, 0, ObstacleType.wall)
     );
     this._obstacles.push(
-      new Obstacle(0, this._ARENA_HEIGHT, this._ARENA_WIDTH, this._ARENA_HEIGHT)
+      new Obstacle(0, 0, this._ARENA_WIDTH, 0, ObstacleType.wall)
+    );
+    this._obstacles.push(
+      new Obstacle(
+        this._ARENA_WIDTH,
+        0,
+        this._ARENA_WIDTH,
+        this._ARENA_HEIGHT,
+        ObstacleType.wall
+      )
+    );
+    this._obstacles.push(
+      new Obstacle(
+        0,
+        this._ARENA_HEIGHT,
+        this._ARENA_WIDTH,
+        this._ARENA_HEIGHT,
+        ObstacleType.wall
+      )
     );
   };
 

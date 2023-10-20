@@ -8,7 +8,7 @@ import Projectile from './projectile.js';
 
 export default class TwoPlayerGame extends Game {
   _RAY_LIFETIME = 2000; //lifetime in miliseconds
-  _PROJ_SPEED = 5; //speed of projectile
+  _PROJ_SPEED = 10; //speed of projectile
   _MIN_OBS_HEIGHT = 20; //minimum obstacle height in px;
   _MAX_OBS_HEIGHT = 100; //max obstacle height in px;
   _BIKE1_ID = 'bike1';
@@ -245,7 +245,7 @@ export default class TwoPlayerGame extends Game {
   emitProjectile = (bike) => {
     this._projectiles.push(
       new Projectile(
-        bike.getImgPosition(),
+        bike.getCenterPosition(),
         bike.getDirection(),
         this._PROJ_SPEED,
         this._PROJ_IMG_PATH
@@ -254,12 +254,7 @@ export default class TwoPlayerGame extends Game {
   };
 
   evolveGame = () => {
-    const gameInterval = setInterval(() => {
-      //advance projection motion
-      this._projectiles.forEach((proj) => {
-        proj.moveForward(proj);
-      });
-
+    const setGameInterval = setInterval(() => {
       //advance bike motion and update its trail on canvas
       this._players.forEach((player, i) => {
         const bike = player.getBike();
@@ -274,30 +269,65 @@ export default class TwoPlayerGame extends Game {
       this._players.forEach((player) => {
         updatedObstacles = [
           ...updatedObstacles,
-          ...player.getBike().getTrail()
+          ...player.getBike().getTrailForCollisionCheck()
         ];
+      });
+
+      //advance projectile motion
+      this._projectiles.forEach((proj) => {
+        proj.moveForward(proj);
       });
 
       //increment score
       this.incrementScore();
 
-      //check for collision
-      for (const obs of updatedObstacles) {
-        const hasCollided = this._players.map((player) => {
-          return player.getBike().hasCollided(obs);
-        });
+      //check for collision with bikes
+      this._checkBikeCollision(updatedObstacles, setGameInterval);
 
-        if (hasCollided.includes(true)) {
-          clearInterval(gameInterval);
-          this.removeBikeEventListeners();
-          const winnerInd = hasCollided.indexOf(false);
-          this._players[winnerInd].updateScore(this._score);
-          this.renderGameOverPage(this._players[winnerInd]);
-          break;
-        }
-      }
+      //check for collision with laser
+      this._checkProjectileCollision(updatedObstacles);
     }, 30);
   };
+
+  _checkBikeCollision = (updatedObstacles, setGameInterval) => {
+    for (const player of this._players) {
+      const hasCollided = updatedObstacles.map((obs) => {
+        return player.getBike().hasCollided(obs);
+      });
+
+      if (hasCollided.includes(true)) {
+        clearInterval(setGameInterval);
+        this.removeBikeEventListeners();
+        const winnerInd = hasCollided.indexOf(false);
+        this._players[winnerInd].updateScore(this._score);
+        this.renderGameOverPage(this._players[winnerInd]);
+        break;
+      }
+    }
+  };
+
+  _checkProjectileCollision = (updatedObstacles) => {
+    for (const obs of updatedObstacles) {
+      this._projectiles.forEach((proj, i) => {
+        if (proj.hasCollided(obs)) {
+          //remove projectile from array and handle collidee
+          this._projectiles.splice(i, 1);
+          this._handleProjectileCollision(obs);
+        }
+      });
+    }
+  };
+
+  _handleProjectileCollision(obstacle) {
+    switch (obstacle.type) {
+      case ObstacleType.wall:
+        console.log('wall');
+        break;
+      default:
+        console.log('hit something');
+        break;
+    }
+  }
 
   renderGameOverPage = (winningPlayer) => {
     //switch from game page to game over page and wire the buttons in game over page
