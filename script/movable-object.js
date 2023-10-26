@@ -1,107 +1,74 @@
 import { Direction, ImgRotationAngle } from './enum.js';
 
 export default class MovableObject {
-  _imgPosition; //top left position of img when it's first loaded
-  _direction; //current direction of object's motion
-  _speed; //num pixel bike moves per game interation
-  _imgWidth; //img width when it's first loaded
-  _imgHeight; //img height when it's first loaded
-  _headPosition; //[x,y] position of object's head
-  _centerPosition; //[x,y] position of object's center
-  _tailPosition; //[x,y] position of object's tail
-  _element; //img html element of the object
-  _arena;
+  imgPosition; //top left position of img when it's first loaded
+  direction; //current direction of object's motion
+  speed; //num pixel bike moves per game interation
+  imgWidth; //img width when it's first loaded
+  imgHeight; //img height when it's first loaded
+  headPosition; //[x,y] position of object's head
+  centerPosition; //[x,y] position of object's center
+  tailPosition; //[x,y] position of object's tail
+  element; //img html element of the object
+  arena;
 
   constructor(imgPosition, direction, speed, imgSrc) {
-    this._imgPosition = [...imgPosition];
-    this._direction = direction;
-    this._speed = speed;
-    this._headPosition = this.calculateHeadPosition();
-    this._centerPosition = this.calculateCenterPosition();
-    this._tailPosition = this.calculateTailPosition();
+    this.imgPosition = [...imgPosition];
+    this.direction = direction;
+    this.speed = speed;
+    this.headPosition = this.calculateHeadPosition();
+    this.centerPosition = this.calculateCenterPosition();
+    this.tailPosition = this.calculateTailPosition();
 
-    this._arena = document.getElementById('arena');
+    this.arena = document.getElementById('arena');
     const obj = document.createElement('img');
     obj.src = imgSrc;
     obj.style.left = imgPosition[0] + 'px';
     obj.style.top = imgPosition[1] + 'px';
-    this._arena.appendChild(obj);
-    this._element = obj;
+    this.arena.appendChild(obj);
+    this.element = obj;
   }
-
-  getImgPosition = () => {
-    return this._imgPosition;
-  };
-
-  //Summary: return head position of the bike image
-  //Output: array of bike head position [x1, y1]
-  getHeadPosition = () => {
-    return this._headPosition;
-  };
-
-  //Summary: return center position of the bike image
-  //Output: array of bike center position [x1, y1]
-  getCenterPosition = () => {
-    return this._centerPosition;
-  };
-
-  //Summary: return tail position of the bike image
-  //Output: array of bike tail position [x1, y1]
-  getTailPosition = () => {
-    return this._tailPosition;
-  };
-
-  getElement = () => {
-    return this._element;
-  };
-
-  getDirection = () => {
-    return this._direction;
-  };
 
   //Summary: Calculate position of bike's head, given it's direction, using image position
   //         (top left of initial img) and initial img width and height.
   //Output: array of x, y of bike's head position.
 
   calculateHeadPosition = () => {
-    switch (this._direction) {
+    switch (this.direction) {
       case Direction.up:
-        return [
-          this._imgPosition[0] + this._imgWidth / 2.0,
-          this._imgPosition[1]
-        ];
+        return [this.imgPosition[0] + this.imgWidth / 2.0, this.imgPosition[1]];
       case Direction.down:
         return [
-          this._imgPosition[0] + this._imgWidth / 2.0,
-          this._imgPosition[1] + this._imgHeight
+          this.imgPosition[0] + this.imgWidth / 2.0,
+          this.imgPosition[1] + this.imgHeight
         ];
       case Direction.left:
         return [
-          this._imgPosition[0] - (this._imgHeight - this._imgWidth) / 2.0,
-          this._imgPosition[1] + this._imgHeight / 2.0
+          this.imgPosition[0] - (this.imgHeight - this.imgWidth) / 2.0,
+          this.imgPosition[1] + this.imgHeight / 2.0
         ];
       case Direction.right:
         return [
-          this._imgPosition[0] + (this._imgHeight + this._imgWidth) / 2.0,
-          this._imgPosition[1] + this._imgHeight / 2.0
+          this.imgPosition[0] + (this.imgHeight + this.imgWidth) / 2.0,
+          this.imgPosition[1] + this.imgHeight / 2.0
         ];
     }
   };
 
   calculateCenterPosition = () => {
     const position = this.calculateHeadPosition();
-    switch (this._direction) {
+    switch (this.direction) {
       case Direction.up:
-        position[1] = position[1] + this._imgHeight / 2;
+        position[1] = position[1] + this.imgHeight / 2;
         break;
       case Direction.down:
-        position[1] = position[1] - this._imgHeight / 2;
+        position[1] = position[1] - this.imgHeight / 2;
         break;
       case Direction.left:
-        position[0] = position[0] + this._imgHeight / 2;
+        position[0] = position[0] + this.imgHeight / 2;
         break;
       case Direction.right:
-        position[0] = position[0] - this._imgHeight / 2;
+        position[0] = position[0] - this.imgHeight / 2;
         break;
     }
     return position;
@@ -109,46 +76,46 @@ export default class MovableObject {
 
   calculateTailPosition = () => {
     const position = this.calculateHeadPosition();
-    switch (this._direction) {
+    switch (this.direction) {
       case Direction.up:
-        position[1] = position[1] + this._imgHeight;
+        position[1] = position[1] + this.imgHeight;
         break;
       case Direction.down:
-        position[1] = position[1] - this._imgHeight;
+        position[1] = position[1] - this.imgHeight;
         break;
       case Direction.left:
-        position[0] = position[0] + this._imgHeight;
+        position[0] = position[0] + this.imgHeight;
         break;
       case Direction.right:
-        position[0] = position[0] - this._imgHeight;
+        position[0] = position[0] - this.imgHeight;
         break;
     }
     return position;
   };
 
   moveForward = (obj) => {
-    const objElement = obj.getElement();
-    switch (this._direction) {
+    const objElement = obj.element;
+    switch (this.direction) {
       case Direction.up:
-        this._imgPosition[1] -= this._speed;
-        objElement.style.top = this._imgPosition[1] + 'px';
+        this.imgPosition[1] -= this.speed;
+        objElement.style.top = this.imgPosition[1] + 'px';
         break;
       case Direction.down:
-        this._imgPosition[1] += this._speed;
-        objElement.style.top = this._imgPosition[1] + 'px';
+        this.imgPosition[1] += this.speed;
+        objElement.style.top = this.imgPosition[1] + 'px';
         break;
       case Direction.left:
-        this._imgPosition[0] -= this._speed;
-        objElement.style.left = this._imgPosition[0] + 'px';
+        this.imgPosition[0] -= this.speed;
+        objElement.style.left = this.imgPosition[0] + 'px';
         break;
       case Direction.right:
-        this._imgPosition[0] += this._speed;
-        objElement.style.left = this._imgPosition[0] + 'px';
+        this.imgPosition[0] += this.speed;
+        objElement.style.left = this.imgPosition[0] + 'px';
         break;
     }
-    this._headPosition = this.calculateHeadPosition();
-    this._centerPosition = this.calculateCenterPosition();
-    this._tailPosition = this.calculateTailPosition();
+    this.headPosition = this.calculateHeadPosition();
+    this.centerPosition = this.calculateCenterPosition();
+    this.tailPosition = this.calculateTailPosition();
   };
 
   //Summary: Check if a bike's last movement collided with another game object (i.e. obstacles).
@@ -158,7 +125,7 @@ export default class MovableObject {
   //Assumption: assumed every obstacle segment is a horizontal or vertical line.
   hasCollided = (obstacle) => {
     const bikeDir =
-      this._headPosition[0] - this._tailPosition[0] == 0
+      this.headPosition[0] - this.tailPosition[0] == 0
         ? 'vertical'
         : 'horizontal';
     const obsDir = obstacle.x2 - obstacle.x1 == 0 ? 'vertical' : 'horizontal';
@@ -167,16 +134,16 @@ export default class MovableObject {
     const maxObjX = Math.max(obstacle.x1, obstacle.x2);
     const minObjY = Math.min(obstacle.y1, obstacle.y2);
     const maxObjY = Math.max(obstacle.y1, obstacle.y2);
-    const minBikeX = Math.min(this._tailPosition[0], this._headPosition[0]);
-    const maxBikeX = Math.max(this._tailPosition[0], this._headPosition[0]);
-    const minBikeY = Math.min(this._tailPosition[1], this._headPosition[1]);
-    const maxBikeY = Math.max(this._tailPosition[1], this._headPosition[1]);
+    const minBikeX = Math.min(this.tailPosition[0], this.headPosition[0]);
+    const maxBikeX = Math.max(this.tailPosition[0], this.headPosition[0]);
+    const minBikeY = Math.min(this.tailPosition[1], this.headPosition[1]);
+    const maxBikeY = Math.max(this.tailPosition[1], this.headPosition[1]);
 
     switch (true) {
       case bikeDir === 'horizontal' && obsDir === 'vertical':
         if (
-          this._headPosition[1] >= minObjY &&
-          this._headPosition[1] <= maxObjY &&
+          this.headPosition[1] >= minObjY &&
+          this.headPosition[1] <= maxObjY &&
           minBikeX <= obstacle.x1 &&
           maxBikeX >= obstacle.x1
         ) {
@@ -185,8 +152,8 @@ export default class MovableObject {
 
       case bikeDir === 'vertical' && obsDir === 'horizontal':
         if (
-          this._headPosition[0] >= minObjX &&
-          this._headPosition[0] <= maxObjX &&
+          this.headPosition[0] >= minObjX &&
+          this.headPosition[0] <= maxObjX &&
           minBikeY <= obstacle.y1 &&
           maxBikeY >= obstacle.y1
         ) {
@@ -194,7 +161,7 @@ export default class MovableObject {
         }
 
       case bikeDir === 'vertical' && obsDir === 'vertical':
-        const bikeX = this._headPosition[0];
+        const bikeX = this.headPosition[0];
         const objX = obstacle.x1;
         if (bikeX === objX) {
           if (
@@ -206,7 +173,7 @@ export default class MovableObject {
         }
 
       case bikeDir === 'horizontal' && obsDir === 'horizontal':
-        const bikeY = this._headPosition[1];
+        const bikeY = this.headPosition[1];
         const objY = obstacle.y1;
         if (bikeY === objY) {
           if (

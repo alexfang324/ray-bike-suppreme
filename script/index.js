@@ -5,7 +5,6 @@ let difficulty = 'easy';
 
 const openingPageElement = document.getElementById('opening-page');
 const gamePageElement = document.getElementById('game-page');
-const gameOverPageElement = document.getElementById('game-over-page');
 
 const loadGame = async () => {
   //set up start game button

@@ -7,42 +7,42 @@ import { Direction, ObstacleType } from './enum.js';
 import Projectile from './projectile.js';
 
 export default class TwoPlayerGame extends Game {
-  _RAY_LIFETIME = 2000; //lifetime in miliseconds
-  _PROJ_SPEED = 10; //speed of projectile
-  _MIN_OBS_HEIGHT = 20; //minimum obstacle height in px;
-  _MAX_OBS_HEIGHT = 100; //max obstacle height in px;
-  _BIKE1_ID = 'bike1';
-  _INITIAL_BIKE1_DIR = Direction.right;
-  _INITIAL_BIKE1_IMG_POS = [250, 250];
-  _BIKE2_ID = 'bike2';
-  _INITIAL_BIKE2_DIR = Direction.left;
-  _INITIAL_BIKE2_IMG_POS = [650, 250];
-  _OBS_IMG_PATH = '../img/rock.jpg'; //image path of stationary obstacle
-  _PROJ_IMG_PATH = '../img/laser.png'; //image path of projectile
+  RAY_LIFETIME = 2000; //lifetime in miliseconds
+  PROJ_SPEED = 10; //speed of projectile
+  MIN_OBS_HEIGHT = 20; //minimum obstacle height in px;
+  MAX_OBS_HEIGHT = 100; //max obstacle height in px;
+  BIKE1_ID = 'bike1';
+  INITIAL_BIKE1_DIR = Direction.right;
+  INITIAL_BIKE1_IMG_POS = [250, 250];
+  BIKE2_ID = 'bike2';
+  INITIAL_BIKE2_DIR = Direction.left;
+  INITIAL_BIKE2_IMG_POS = [650, 250];
+  OBS_IMG_PATH = '../img/rock.jpg'; //image path of stationary obstacle
+  PROJ_IMG_PATH = '../img/laser.png'; //image path of projectile
 
-  _difficulty; //game difficulty
-  _gamePageElement;
-  _gameOverPageElement;
-  _openingPageElement;
-  _playerName1;
-  _playerName2;
-  _score;
-  _projectiles = [];
+  difficulty; //game difficulty
+  gamePageElement;
+  gameOverPageElement;
+  openingPageElement;
+  playerName1;
+  playerName2;
+  score;
+  projectiles = [];
 
   constructor(difficulty, playerName1, playerName2) {
     super();
-    this._difficulty = difficulty;
-    this._playerName1 = playerName1;
-    this._playerName2 = playerName2;
-    this._openingPageElement = document.getElementById('opening-page');
-    this._gamePageElement = document.getElementById('game-page');
-    this._gameOverPageElement = document.getElementById('game-over-page');
+    this.difficulty = difficulty;
+    this.playerName1 = playerName1;
+    this.playerName2 = playerName2;
+    this.openingPageElement = document.getElementById('opening-page');
+    this.gamePageElement = document.getElementById('game-page');
+    this.gameOverPageElement = document.getElementById('game-over-page');
 
-    const player1 = new Player(this._playerName1);
-    this._players.push(player1);
+    const player1 = new Player(this.playerName1);
+    this.players.push(player1);
 
-    const player2 = new Player(this._playerName2);
-    this._players.push(player2);
+    const player2 = new Player(this.playerName2);
+    this.players.push(player2);
 
     //wire up game-over page buttons
     document
@@ -58,53 +58,53 @@ export default class TwoPlayerGame extends Game {
 
   startFreshGame = () => {
     //reset parameters and elements
-    this._gamePageElement.innerHTML = '';
-    this._score = 0;
-    this._GAME_START_TIME = Date.now();
-    this._obstacles = [];
-    this._trailCanvases = [];
+    this.gamePageElement.innerHTML = '';
+    this.score = 0;
+    this.GAME_START_TIME = Date.now();
+    this.obstacles = [];
+    this.trailCanvases = [];
 
-    this.setupScoreBoard(this._playerName1, this._playerName2);
+    this.setupScoreBoard(this.playerName1, this.playerName2);
     this.setupArena();
 
-    const bike1Element = document.getElementById(this._BIKE1_ID);
+    const bike1Element = document.getElementById(this.BIKE1_ID);
     if (bike1Element) {
       bike1Element.remove();
     }
     const bike1 = new Bike(
-      this._INITIAL_BIKE1_IMG_POS,
-      this._INITIAL_BIKE1_DIR,
-      this._BIKESPEED,
-      this._BIKE1_ID,
+      this.INITIAL_BIKE1_IMG_POS,
+      this.INITIAL_BIKE1_DIR,
+      this.BIKESPEED,
+      this.BIKE1_ID,
       ['a', 'd', 'w'],
       '../img/shopping-cart.jpg',
       'rgb(188, 19, 254)',
-      this._RAY_LIFETIME,
+      this.RAY_LIFETIME,
       this.emitProjectile
     );
-    this._players[0].setBike(bike1);
+    this.players[0].bike = bike1;
 
-    const bike2Element = document.getElementById(this._BIKE2_ID);
+    const bike2Element = document.getElementById(this.BIKE2_ID);
     if (bike2Element) {
       bike2Element.remove();
     }
     const bike2 = new Bike(
-      this._INITIAL_BIKE2_IMG_POS,
-      this._INITIAL_BIKE2_DIR,
-      this._BIKESPEED,
-      this._BIKE2_ID,
+      this.INITIAL_BIKE2_IMG_POS,
+      this.INITIAL_BIKE2_DIR,
+      this.BIKESPEED,
+      this.BIKE2_ID,
       ['ArrowLeft', 'ArrowRight', 'ArrowUp'],
       '../img/green-bike.jpg',
       'rgb(57, 255, 20)',
-      this._RAY_LIFETIME,
+      this.RAY_LIFETIME,
       this.emitProjectile
     );
-    this._players[1].setBike(bike2);
+    this.players[1].bike = bike2;
 
     this.setupCanvases();
-    if (this._difficulty === 'medium') {
+    if (this.difficulty === 'medium') {
       this.addObstacles(4);
-    } else if (this._difficulty === 'hard') {
+    } else if (this.difficulty === 'hard') {
       this.addObstacles(8);
     }
     this.setupBikeEventListeners();
@@ -118,27 +118,27 @@ export default class TwoPlayerGame extends Game {
     <p class="player-name">${playerName1}</p></div>
     <p id="player-score">0</p><div><p class="label">Player 2</p>
     <p class="player-name">${playerName2}</p></div>`;
-    this._gamePageElement.appendChild(scoreBoardElement);
+    this.gamePageElement.appendChild(scoreBoardElement);
   };
 
   addObstacles = (numObstacles) => {
     //list of arena objects, e.g. bike, rock
-    let arenaObjects = [...this._players.map((p) => p.getBike().getElement())];
+    let arenaObjects = [...this.players.map((p) => p.bike.element)];
 
     //get variable obstacle height
     for (let i = 0; i < numObstacles; i++) {
       const obsHeight =
-        this._MIN_OBS_HEIGHT +
-        Math.random() * (this._MAX_OBS_HEIGHT - this._MIN_OBS_HEIGHT);
+        this.MIN_OBS_HEIGHT +
+        Math.random() * (this.MAX_OBS_HEIGHT - this.MIN_OBS_HEIGHT);
 
       //add obstacle onto arena with initial arena-relative position [0,0]
       const obsElement = document.createElement('img');
-      obsElement.src = this._OBS_IMG_PATH;
+      obsElement.src = this.OBS_IMG_PATH;
       obsElement.classList.add('rock');
       obsElement.style.height = obsHeight + 'px';
       obsElement.style.top = '0px';
       obsElement.style.left = '0px';
-      this._arena.appendChild(obsElement);
+      this.arena.appendChild(obsElement);
 
       obsElement.onload = () => {
         const obsWidth = parseFloat(
@@ -152,8 +152,8 @@ export default class TwoPlayerGame extends Game {
 
           //arena relative position
           //randomly place an obstacle and make sure it's not on top of another obstacle
-          const left = Math.random() * (this._ARENA_WIDTH - obsWidth);
-          const top = Math.random() * (this._ARENA_HEIGHT - obsHeight);
+          const left = Math.random() * (this.ARENA_WIDTH - obsWidth);
+          const top = Math.random() * (this.ARENA_HEIGHT - obsHeight);
           obsElement.style.top = top + 'px';
           obsElement.style.left = left + 'px';
           const obsRect = obsElement.getBoundingClientRect();
@@ -171,7 +171,7 @@ export default class TwoPlayerGame extends Game {
             const height = obsRect.height;
             arenaObjects.push(obsElement);
             const obsId = Math.random();
-            this._obstacles.push(
+            this.obstacles.push(
               new Obstacle(
                 left,
                 top,
@@ -244,19 +244,19 @@ export default class TwoPlayerGame extends Game {
   }
 
   incrementScore = () => {
-    const newScore = Math.round((Date.now() - this._GAME_START_TIME) / 100);
-    this._score = newScore;
+    const newScore = Math.round((Date.now() - this.GAME_START_TIME) / 100);
+    this.score = newScore;
     const scoreElement = document.getElementById('player-score');
     scoreElement.textContent = `${newScore}`;
   };
 
   emitProjectile = (bike) => {
-    this._projectiles.push(
+    this.projectiles.push(
       new Projectile(
-        bike.getCenterPosition(),
-        bike.getDirection(),
-        this._PROJ_SPEED,
-        this._PROJ_IMG_PATH
+        bike.centerPosition,
+        bike.direction,
+        this.PROJ_SPEED,
+        this.PROJ_IMG_PATH
       )
     );
   };
@@ -264,8 +264,8 @@ export default class TwoPlayerGame extends Game {
   evolveGame = () => {
     const setGameInterval = setInterval(() => {
       //advance bike motion and update its trail on canvas
-      this._players.forEach((player, i) => {
-        const bike = player.getBike();
+      this.players.forEach((player, i) => {
+        const bike = player.bike;
         bike.moveForwardAndAddTrail();
         const obsToRemove = bike.removeExpiredTrail();
         this.eraseCanvasTrail(obsToRemove, i);
@@ -273,16 +273,16 @@ export default class TwoPlayerGame extends Game {
       });
 
       //add current bike trail to list of obstacle segments
-      let updatedObstacles = [...this._obstacles];
-      this._players.forEach((player) => {
+      let updatedObstacles = [...this.obstacles];
+      this.players.forEach((player) => {
         updatedObstacles = [
           ...updatedObstacles,
-          ...player.getBike().getTrailForCollisionCheck()
+          ...player.bike.getTrailForCollisionCheck()
         ];
       });
 
       //advance projectile motion
-      this._projectiles.forEach((proj) => {
+      this.projectiles.forEach((proj) => {
         proj.moveForward(proj);
       });
 
@@ -290,53 +290,51 @@ export default class TwoPlayerGame extends Game {
       this.incrementScore();
 
       //check for collision with bikes
-      this._checkBikeCollision(updatedObstacles, setGameInterval);
+      this.checkBikeCollision(updatedObstacles, setGameInterval);
 
       //check for collision with laser
-      this._checkProjectileCollision(updatedObstacles);
+      this.checkProjectileCollision(updatedObstacles);
     }, 30);
   };
 
-  _checkBikeCollision = (updatedObstacles, setGameInterval) => {
-    for (const player of this._players) {
+  checkBikeCollision = (updatedObstacles, setGameInterval) => {
+    for (const player of this.players) {
       const hasCollided = updatedObstacles.map((obs) => {
-        return player.getBike().hasCollided(obs);
+        return player.bike.hasCollided(obs);
       });
 
       if (hasCollided.includes(true)) {
         clearInterval(setGameInterval);
         this.removeBikeEventListeners();
         const winnerInd = hasCollided.indexOf(false);
-        this._players[winnerInd].updateScore(this._score);
-        this.renderGameOverPage(this._players[winnerInd]);
+        this.players[winnerInd].updateScore(this.score);
+        this.renderGameOverPage(this.players[winnerInd]);
         break;
       }
     }
   };
 
-  _checkProjectileCollision = (updatedObstacles) => {
+  checkProjectileCollision = (updatedObstacles) => {
     for (const obs of updatedObstacles) {
-      this._projectiles.forEach((proj, i) => {
+      this.projectiles.forEach((proj, i) => {
         if (proj.hasCollided(obs)) {
           //remove projectile object and html element and handle collidee situation
-          this._projectiles[i].getElement().remove();
-          this._projectiles.splice(i, 1);
-          this._handleProjectileCollision(obs);
+          this.projectiles[i].element.remove();
+          this.projectiles.splice(i, 1);
+          this.handleProjectileCollision(obs);
         }
       });
     }
   };
 
-  _handleProjectileCollision(obstacle) {
+  handleProjectileCollision(obstacle) {
     switch (obstacle.type) {
       case ObstacleType.wall:
         break;
       case ObstacleType.rock:
         //remove html element and the 4 obstacles object that forms the rock
         obstacle.element.remove();
-        this._obstacles = this._obstacles.filter(
-          (obs) => obs.id != obstacle.id
-        );
+        this.obstacles = this.obstacles.filter((obs) => obs.id != obstacle.id);
         break;
       case ObstacleType.ray:
         console.error('need to delete ray');
@@ -349,36 +347,34 @@ export default class TwoPlayerGame extends Game {
 
   renderGameOverPage = (winningPlayer) => {
     //switch from game page to game over page and wire the buttons in game over page
-    this._gamePageElement.setAttribute('hidden', 'true');
-    this._gameOverPageElement.removeAttribute('hidden');
+    this.gamePageElement.setAttribute('hidden', 'true');
+    this.gameOverPageElement.removeAttribute('hidden');
 
     //calculate and display stats to player
-    document.getElementById(
-      'winner-name'
-    ).innerHTML = `${winningPlayer.getName()}`;
+    document.getElementById('winner-name').innerHTML = `${winningPlayer.name}`;
     document.getElementById(
       'winner-score'
-    ).innerHTML = `You scored ${this._score} points!`;
+    ).innerHTML = `You scored ${this.score} points!`;
 
     const statsBoardElement = document.getElementById('score-stats');
-    statsBoardElement.innerHTML = `<p></p><p>${this._players[0].getName()}</p>
-    <p>${this._players[1].getName()}
+    statsBoardElement.innerHTML = `<p></p><p>${this.players[0].name}</p>
+    <p>${this.players[1].name}
     </p><p>Best Score</p>
-    <p>${this._players[0].getBestScore()}</p>
-    <p>${this._players[1].getBestScore()}</p>
+    <p>${this.players[0].bestScore}</p>
+    <p>${this.players[1].bestScore}</p>
     <p>Accumulated Score</p>
-    <p>${this._players[0].getAccumulatedScore()}</p>
-    <p>${this._players[1].getAccumulatedScore()}</p>`;
+    <p>${this.players[0].accumulatedScore}</p>
+    <p>${this.players[1].accumulatedScore}</p>`;
   };
 
   mainMenuBtnClicked = () => {
-    this._openingPageElement.removeAttribute('hidden');
-    this._gameOverPageElement.setAttribute('hidden', true);
+    this.openingPageElement.removeAttribute('hidden');
+    this.gameOverPageElement.setAttribute('hidden', true);
   };
 
   playAgainBtnClicked = () => {
-    this._gameOverPageElement.setAttribute('hidden', true);
-    this._gamePageElement.removeAttribute('hidden');
+    this.gameOverPageElement.setAttribute('hidden', true);
+    this.gamePageElement.removeAttribute('hidden');
     this.startFreshGame();
   };
 }
