@@ -4,8 +4,8 @@ import { ObstacleType } from './enum.js';
 
 export default class Game {
   SEGLENGTH = 1; //intrinsic segment length of the game
-  RAYWIDTH = 3;
-  BIKESPEED = 3;
+  RAYWIDTH = 3; //px width
+  BIKESPEED = 3 * this.SEGLENGTH;
   ARENA_WIDTH = 950; //pixel width of gameplay arena
   ARENA_HEIGHT = 500; //pixel height of gameplay arena
   ARENA_CEN_POS; //[x,y] position that's calculated at runtime

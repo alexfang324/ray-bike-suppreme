@@ -357,8 +357,19 @@ export default class TwoPlayerGame extends Game {
         trailSeg.y2 == seg.y2
       );
     });
-    this.eraseCanvasTrail(bike.trail.slice(0, index));
-    bike.trail = bike.trail.slice(index);
+
+    //extend the trail deletion further to allow the entire bike's width to pass through
+    //without touch the trail
+    const halfWidthOfWidestBike =
+      Math.max(
+        ...this.players.map((player) => {
+          return player.bike.imgWidth;
+        })
+      ) / 2;
+
+    const deletionIndex = index + halfWidthOfWidestBike / this.BIKESPEED;
+    index + this.eraseCanvasTrail(bike.trail.slice(0, deletionIndex));
+    bike.trail = bike.trail.slice(deletionIndex);
   };
 
   renderGameOverPage = (winningPlayer) => {
