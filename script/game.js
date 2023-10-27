@@ -13,10 +13,10 @@ export default class Game {
   ARENA_GRID_Y_NUM = 8; //number of background grid lines horizontally
   GAME_START_TIME = Date.now();
 
-  players = [];
   arena; // arena html element
+  trailCanvasElement; //canvas html elements
+  players = [];
   obstacles = []; //list of obstacles in the arena (not including bike trails)
-  trailCanvases = []; //canvas html elements
 
   constructor() {
     if (new.target === Game) {
@@ -64,13 +64,11 @@ export default class Game {
   };
 
   setupCanvases = () => {
-    this.players.forEach((i) => {
-      const canvasElement = document.createElement('canvas');
-      canvasElement.width = this.ARENA_WIDTH;
-      canvasElement.height = this.ARENA_HEIGHT;
-      document.getElementById('arena').appendChild(canvasElement);
-      this.trailCanvases.push(canvasElement);
-    });
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = this.ARENA_WIDTH;
+    canvasElement.height = this.ARENA_HEIGHT;
+    document.getElementById('arena').appendChild(canvasElement);
+    this.trailCanvasElement = canvasElement;
   };
 
   setupBikeEventListeners = () => {
@@ -86,27 +84,29 @@ export default class Game {
   };
 
   //always redraw drail from beginning to achieve the neon blur effect
-  drawCanvasTrail = (i) => {
-    const trailSegments = this.players[i].bike.trail;
-    const canvas = this.trailCanvases[i];
-    const ctx = canvas.getContext('2d');
-
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.shadowBlur = this.RAYWIDTH;
-    ctx.shadowColor = this.players[i].bike.trailColor;
-    ctx.beginPath();
-    trailSegments.forEach((seg) => {
-      ctx.moveTo(seg.x1, seg.y1);
-      ctx.lineTo(seg.x2, seg.y2);
+  drawCanvasTrail = () => {
+    const ctx = this.trailCanvasElement.getContext('2d');
+    this.players.forEach((player) => {
+      const trailSegments = player.bike.trail;
+      //set styles of trail
+      ctx.strokeStyle = player.bike.trailColor;
+      ctx.lineWidth = this.RAYWIDTH;
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.shadowBlur = this.RAYWIDTH;
+      ctx.shadowColor = player.bike.trailColor;
+      //define trail
+      ctx.beginPath();
+      trailSegments.forEach((seg) => {
+        ctx.moveTo(seg.x1, seg.y1);
+        ctx.lineTo(seg.x2, seg.y2);
+      });
+      //draw trail
+      ctx.stroke();
     });
-    ctx.strokeStyle = this.players[i].bike.trailColor;
-    ctx.lineWidth = this.RAYWIDTH;
-    ctx.stroke();
   };
 
   eraseCanvasTrail = (segsToRemove, i) => {
-    const canvas = this.trailCanvases[i];
-    const ctx = canvas.getContext('2d');
+    const ctx = this.trailCanvasElement.getContext('2d');
     for (const seg of segsToRemove) {
       const left = Math.min(seg.x1, seg.x2) - 2 * this.RAYWIDTH;
       const top = Math.min(seg.y1, seg.y2) - 2 * this.RAYWIDTH;
