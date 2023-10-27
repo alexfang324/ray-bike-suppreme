@@ -69,9 +69,10 @@ export default class Bike extends MovableObject {
 
     //add newst segment to trail with a ttl
     const ttl = new Date(new Date().getTime() + this.RAY_LIFETIME).getTime();
-    this.trail.push(new Obstacle(...this.centerSeg, null, null, ttl));
+    this.trail.push(new Obstacle(...this.centerSeg, 'trail', this.bikeId, ttl));
   };
 
+  //remove expired trail based on trail ttl
   removeExpiredTrail = () => {
     const now = new Date().getTime();
     const segToRemove = [];

@@ -105,7 +105,7 @@ export default class Game {
     });
   };
 
-  eraseCanvasTrail = (segsToRemove, i) => {
+  eraseCanvasTrail = (segsToRemove) => {
     const ctx = this.trailCanvasElement.getContext('2d');
     for (const seg of segsToRemove) {
       const left = Math.min(seg.x1, seg.x2) - 2 * this.RAYWIDTH;

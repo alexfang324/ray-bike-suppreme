@@ -7,7 +7,7 @@ import { Direction, ObstacleType } from './enum.js';
 import Projectile from './projectile.js';
 
 export default class TwoPlayerGame extends Game {
-  RAY_LIFETIME = 2000; //lifetime in miliseconds
+  RAY_LIFETIME = 8000; //lifetime in miliseconds
   PROJ_SPEED = 10; //speed of projectile
   MIN_OBS_HEIGHT = 20; //minimum obstacle height in px;
   MAX_OBS_HEIGHT = 100; //max obstacle height in px;
@@ -62,7 +62,6 @@ export default class TwoPlayerGame extends Game {
     this.score = 0;
     this.GAME_START_TIME = Date.now();
     this.obstacles = [];
-    this.trailCanvases = [];
 
     this.setupScoreBoard(this.playerName1, this.playerName2);
     this.setupArena();
@@ -268,7 +267,7 @@ export default class TwoPlayerGame extends Game {
         const bike = player.bike;
         bike.moveForwardAndAddTrail();
         const obsToRemove = bike.removeExpiredTrail();
-        this.eraseCanvasTrail(obsToRemove, i);
+        this.eraseCanvasTrail(obsToRemove);
         this.drawCanvasTrail(i);
       });
 
@@ -318,7 +317,7 @@ export default class TwoPlayerGame extends Game {
     for (const obs of updatedObstacles) {
       this.projectiles.forEach((proj, i) => {
         if (proj.hasCollided(obs)) {
-          //remove projectile object and html element and handle collidee situation
+          //remove projectile object and its html element and handle collidee situation
           this.projectiles[i].element.remove();
           this.projectiles.splice(i, 1);
           this.handleProjectileCollision(obs);
@@ -336,14 +335,31 @@ export default class TwoPlayerGame extends Game {
         obstacle.element.remove();
         this.obstacles = this.obstacles.filter((obs) => obs.id != obstacle.id);
         break;
-      case ObstacleType.ray:
-        console.error('need to delete ray');
+      case ObstacleType.trail:
+        this.removeTrailFrom(obstacle);
         break;
       default:
         console.log('hit something');
         break;
     }
   }
+
+  removeTrailFrom = (seg) => {
+    const bikeId = seg.ownerId;
+    const bike = this.players.filter((player) => {
+      return player.bike.bikeId == bikeId;
+    })[0].bike;
+    const index = bike.trail.findIndex((trailSeg) => {
+      return (
+        trailSeg.x1 == seg.x1 &&
+        trailSeg.x2 == seg.x2 &&
+        trailSeg.y1 == seg.y1 &&
+        trailSeg.y2 == seg.y2
+      );
+    });
+    this.eraseCanvasTrail(bike.trail.slice(0, index));
+    bike.trail = bike.trail.slice(index);
+  };
 
   renderGameOverPage = (winningPlayer) => {
     //switch from game page to game over page and wire the buttons in game over page
