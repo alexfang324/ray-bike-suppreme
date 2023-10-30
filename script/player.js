@@ -12,8 +12,8 @@ export default class Player {
     this.bestScore = 0;
   }
 
-  updateScore = (newScore) => {
+  updateScore(newScore) {
     this.accumulatedScore += newScore;
     this.bestScore = Math.max(newScore, this.bestScore);
-  };
+  }
 }

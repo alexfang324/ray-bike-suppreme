@@ -24,7 +24,7 @@ export default class Projectile extends MovableObject {
   }
 
   //Summary: align img center of projectile to that of the emitter.
-  alignProjectile = (centerPosition) => {
+  alignProjectile(centerPosition) {
     //update top left img position based on emitter's center position
     this.imgPosition = [
       centerPosition[0] - this.imgWidth / 2.0,
@@ -34,7 +34,7 @@ export default class Projectile extends MovableObject {
     //update it to the img element
     this.element.style.left = this.imgPosition[0] + 'px';
     this.element.style.top = this.imgPosition[1] + 'px';
-  };
+  }
 
   //
 }

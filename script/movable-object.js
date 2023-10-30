@@ -33,7 +33,7 @@ export default class MovableObject {
   //         (top left of initial img) and initial img width and height.
   //Output: array of x, y of bike's head position.
 
-  calculateHeadPosition = () => {
+  calculateHeadPosition() {
     switch (this.direction) {
       case Direction.up:
         return [this.imgPosition[0] + this.imgWidth / 2.0, this.imgPosition[1]];
@@ -53,9 +53,9 @@ export default class MovableObject {
           this.imgPosition[1] + this.imgHeight / 2.0
         ];
     }
-  };
+  }
 
-  calculateCenterPosition = () => {
+  calculateCenterPosition() {
     const position = this.calculateHeadPosition();
     switch (this.direction) {
       case Direction.up:
@@ -72,9 +72,9 @@ export default class MovableObject {
         break;
     }
     return position;
-  };
+  }
 
-  calculateTailPosition = () => {
+  calculateTailPosition() {
     const position = this.calculateHeadPosition();
     switch (this.direction) {
       case Direction.up:
@@ -91,9 +91,9 @@ export default class MovableObject {
         break;
     }
     return position;
-  };
+  }
 
-  moveForward = (obj) => {
+  moveForward(obj) {
     const objElement = obj.element;
     switch (this.direction) {
       case Direction.up:
@@ -116,14 +116,14 @@ export default class MovableObject {
     this.headPosition = this.calculateHeadPosition();
     this.centerPosition = this.calculateCenterPosition();
     this.tailPosition = this.calculateTailPosition();
-  };
+  }
 
   //Summary: Check if a bike's last movement collided with another game object (i.e. obstacles).
   //Input: centerSeg is an array [x_old, y_old, x_new, y_new], reprsenting bike center's last movement
   //       obstacle isa segment [x1,y1,x2,y2], e.g. wall or ray segment
   //Output: boolean of whether a collision happend
   //Assumption: assumed every obstacle segment is a horizontal or vertical line.
-  hasCollided = (obstacle) => {
+  hasCollided(obstacle) {
     const bikeDir =
       this.headPosition[0] - this.tailPosition[0] == 0
         ? 'vertical'
@@ -187,5 +187,5 @@ export default class MovableObject {
       default:
         return false;
     }
-  };
+  }
 }

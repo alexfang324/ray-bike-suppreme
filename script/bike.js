@@ -53,16 +53,16 @@ export default class Bike extends MovableObject {
     };
   }
 
-  getTrailForCollisionCheck = () => {
+  getTrailForCollisionCheck() {
     //ignore trail created between bike center to bike tail for collision calculation purpose
     const trail =
       this.trail.length >= this.cttSegNum
         ? this.trail.slice(0, this.trail.length - this.cttSegNum)
         : [];
     return trail;
-  };
+  }
 
-  moveForwardAndAddTrail = () => {
+  moveForwardAndAddTrail() {
     const oldCenterPostion = [...this.centerPosition]; //copy by value
     this.moveForward(this);
     this.centerSeg = [...oldCenterPostion, ...this.centerPosition];
@@ -70,10 +70,10 @@ export default class Bike extends MovableObject {
     //add newst segment to trail with a ttl
     const ttl = new Date(new Date().getTime() + this.RAY_LIFETIME).getTime();
     this.trail.push(new Obstacle(...this.centerSeg, 'trail', this.bikeId, ttl));
-  };
+  }
 
   //remove expired trail based on trail ttl
-  removeExpiredTrail = () => {
+  removeExpiredTrail() {
     const now = new Date().getTime();
     const segToRemove = [];
     while (this.trail[0].ttl < now) {
@@ -81,12 +81,12 @@ export default class Bike extends MovableObject {
       segToRemove.push(seg);
     }
     return segToRemove;
-  };
+  }
 
   //Summary: update bike's attribute based on key press
   //Input: key press event
   //Output: Null
-  updateBikeEvent = (key) => {
+  updateBikeEvent(key) {
     switch (key.toLowerCase()) {
       case this.kbControl[0].toLowerCase():
         this.direction = this.getNewDirection(-1);
@@ -98,19 +98,18 @@ export default class Bike extends MovableObject {
         this.emitProjectile(this);
         break;
     }
-    const bike = document.getElementById(this.bikeId);
-    bike.style.rotate = ImgRotationAngle[this.direction];
-  };
+    this.element.style.rotate = ImgRotationAngle[this.direction];
+  }
 
   //Summary: update bike's moving direction
   //Input: an increment or decrement of current direction along the DIR_ARRAY
   //Output: updated bike direction
-  getNewDirection = (change) => {
+  getNewDirection(change) {
     const dirIndex = this.DIR_ARRAY.indexOf(this.direction);
     if (dirIndex == 0 && change == -1) {
       return this.DIR_ARRAY[3];
     } else {
       return this.DIR_ARRAY[(dirIndex + change) % 4];
     }
-  };
+  }
 }

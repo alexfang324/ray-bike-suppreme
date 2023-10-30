@@ -24,7 +24,7 @@ export default class Game {
     }
   }
 
-  setupArena = () => {
+  setupArena() {
     const rootElement = document.getElementById('game-page');
     this.arena = document.createElement('div');
     this.arena.id = 'arena';
@@ -61,30 +61,30 @@ export default class Game {
         ObstacleType.wall
       )
     );
-  };
+  }
 
-  setupCanvases = () => {
+  setupCanvases() {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = this.ARENA_WIDTH;
     canvasElement.height = this.ARENA_HEIGHT;
     document.getElementById('arena').appendChild(canvasElement);
     this.trailCanvasElement = canvasElement;
-  };
+  }
 
-  setupBikeEventListeners = () => {
+  setupBikeEventListeners() {
     window.addEventListener('keydown', this.updateBikeEvent);
-  };
+  }
 
-  removeBikeEventListeners = () => {
+  removeBikeEventListeners() {
     window.removeEventListener('keydown', this.updateBikeEvent);
-  };
+  }
 
   updateBikeEvent = (event) => {
     this.players.forEach((player) => player.bike.updateBikeEvent(event.key));
   };
 
   //always redraw drail from beginning to achieve the neon blur effect
-  drawCanvasTrail = () => {
+  drawCanvasTrail() {
     const ctx = this.trailCanvasElement.getContext('2d');
     this.players.forEach((player) => {
       const trailSegments = player.bike.trail;
@@ -103,9 +103,9 @@ export default class Game {
       //draw trail
       ctx.stroke();
     });
-  };
+  }
 
-  eraseCanvasTrail = (segsToRemove) => {
+  eraseCanvasTrail(segsToRemove) {
     const ctx = this.trailCanvasElement.getContext('2d');
     for (const seg of segsToRemove) {
       const left = Math.min(seg.x1, seg.x2) - 2 * this.RAYWIDTH;
@@ -114,5 +114,5 @@ export default class Game {
       const height = Math.abs(seg.y1 - seg.y2) + 4 * this.RAYWIDTH;
       ctx.clearRect(left, top, width, height);
     }
-  };
+  }
 }
