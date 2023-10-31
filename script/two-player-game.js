@@ -8,6 +8,7 @@ import Projectile from './projectile.js';
 
 export default class TwoPlayerGame extends Game {
   RAY_LIFETIME = 8000; //lifetime in miliseconds
+  NUM_PROJ = 3; //# of laser a bike can emit
   PROJ_SPEED = 10; //speed of projectile
   MIN_OBS_HEIGHT = 20; //minimum obstacle height in px;
   MAX_OBS_HEIGHT = 100; //max obstacle height in px;
@@ -23,9 +24,11 @@ export default class TwoPlayerGame extends Game {
   PROJ_IMG_PATH = '../img/laser.png'; //image path of projectile
 
   difficulty; //game difficulty
-  gamePageElement;
-  gameOverPageElement;
   openingPageElement;
+  gamePageElement;
+  gameHeaderElement;
+  projectileRowElement;
+  gameOverPageElement;
   playerName1;
   playerName2;
   score;
@@ -65,7 +68,7 @@ export default class TwoPlayerGame extends Game {
     this.GAME_START_TIME = Date.now();
     this.obstacles = [];
 
-    this.setupScoreBoard(this.playerName1, this.playerName2);
+    this.setupGameHeader(this.playerName1, this.playerName2);
     this.setupArena();
 
     //delete the bike if it already exist (for play-again feature)
@@ -82,6 +85,7 @@ export default class TwoPlayerGame extends Game {
       '../img/shopping-cart.jpg',
       'rgb(188, 19, 254)',
       this.RAY_LIFETIME,
+      this.NUM_PROJ,
       this.emitProjectile
     );
     this.players[0].bike = bike1;
@@ -99,6 +103,7 @@ export default class TwoPlayerGame extends Game {
       '../img/green-bike.jpg',
       'rgb(57, 255, 20)',
       this.RAY_LIFETIME,
+      this.NUM_PROJ,
       this.emitProjectile
     );
     this.players[1].bike = bike2;
@@ -113,14 +118,35 @@ export default class TwoPlayerGame extends Game {
     this.evolveGame();
   }
 
-  setupScoreBoard(playerName1, playerName2) {
+  setupGameHeader(playerName1, playerName2) {
+    const gameHeaderElement = document.createElement('div');
+    gameHeaderElement.id ='game-header';
+    this.gameHeaderElement = gameHeaderElement;
+    this.gamePageElement.appendChild(gameHeaderElement);
+    this.setupScoreBoard(playerName1, playerName2);
+    this.setupProjectileBox();
+  }
+
+  setupScoreBoard(playerName1, playerName2){
     const scoreBoardElement = document.createElement('div');
     scoreBoardElement.classList.add('score-board');
-    scoreBoardElement.innerHTML = `<div><p class="label">Player 1</p>
+    scoreBoardElement.innerHTML = `<div class="score-box"><p class="label">Player 1</p>
     <p class="player-name">${playerName1}</p></div>
-    <p id="player-score">0</p><div><p class="label">Player 2</p>
+    <p id="player-score">0</p><div class="score-box"><p class="label">Player 2</p>
     <p class="player-name">${playerName2}</p></div>`;
-    this.gamePageElement.appendChild(scoreBoardElement);
+    this.gameHeaderElement.append(scoreBoardElement);
+  }
+
+  setupProjectileBox(){
+    const projectileRowElement =document.createElement('div');
+    projectileRowElement.id ='projectile-row';
+    projectileRowElement.innerHTML = `<div class="projectile-box"></div><div class="projectile-box"></div>`;
+    this.projectileRowElement = projectileRowElement;
+
+    projectileRowElement.childNodes.forEach((pbox)=>{
+      console.log(pbox);
+    })
+    this.gameHeaderElement.append(projectileRowElement);
   }
 
   addObstacles(numObstacles) {

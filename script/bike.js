@@ -4,9 +4,11 @@ import MovableObject from './movable-object.js';
 import Obstacle from './obstacle.js';
 
 export default class Bike extends MovableObject {
-  bikeId;
   DIR_ARRAY = ['up', 'right', 'down', 'left']; //order of bike dir as user hits the right key
+  
+  bikeId;
   RAY_LIFETIME;
+  projectileLeft;
   kbControl; //an array [up,down,left,right] keyboard control key of bike
   bikeId; //id field of bike's img html element
   centerSeg; //[x_old, y_old, x_new, y_new],evolution of bike center position during last interation
@@ -23,6 +25,7 @@ export default class Bike extends MovableObject {
     imgSrc,
     trailColor,
     rayLifetime,
+    numProjectile,
     emitProjectile
   ) {
     super(imgPosition, direction, speed, imgSrc);
@@ -36,6 +39,7 @@ export default class Bike extends MovableObject {
     bikeElement.classList.add('bike');
     this.trailColor = trailColor;
     this.RAY_LIFETIME = rayLifetime;
+    this.projectileLeft = numProjectile;
     this.emitProjectile = emitProjectile; //callback func for emitting a projectile
 
     //img dimension properties are only available once img has loaded. we want the initial
@@ -95,7 +99,10 @@ export default class Bike extends MovableObject {
         this.direction = this.getNewDirection(1);
         break;
       case this.kbControl[2].toLowerCase():
-        this.emitProjectile(this);
+        if (this.projectileLeft > 0){
+          this.emitProjectile(this);
+          this.projectileLeft--;
+        }
         break;
     }
     this.element.style.rotate = ImgRotationAngle[this.direction];
