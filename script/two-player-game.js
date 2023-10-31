@@ -49,11 +49,11 @@ export default class TwoPlayerGame extends Game {
     //wire up game-over page buttons
     document
       .getElementById('main-menu-btn')
-      .addEventListener('click', this.mainMenuBtnClicked);
+      .addEventListener('click', ()=>this.mainMenuBtnClicked());
 
     document
       .getElementById('play-again-btn')
-      .addEventListener('click', this.playAgainBtnClicked);
+      .addEventListener('click', ()=>this.playAgainBtnClicked());
 
     this.startFreshGame();
   }
@@ -105,9 +105,9 @@ export default class TwoPlayerGame extends Game {
 
     this.setupCanvases();
     if (this.difficulty === 'medium') {
-      this.addObstacles(MED_LEVEL_OBS_NUM);
+      this.addObstacles(this.MED_LEVEL_OBS_NUM);
     } else if (this.difficulty === 'hard') {
-      this.addObstacles(HARD_LEVEL_OBS_NUM);
+      this.addObstacles(this.HARD_LEVEL_OBS_NUM);
     }
     this.setupBikeEventListeners();
     this.evolveGame();
@@ -252,7 +252,7 @@ export default class TwoPlayerGame extends Game {
     scoreElement.textContent = `${newScore}`;
   }
 
-  emitProjectile(bike) {
+  emitProjectile = (bike)=> {
     this.projectiles.push(
       new Projectile(
         bike.centerPosition,
