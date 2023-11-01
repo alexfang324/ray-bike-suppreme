@@ -186,6 +186,7 @@ input {
 .player-name {
   font-size:30px;
   color:white;
+  margin:0px;
 }
 
 #player-score {
@@ -245,7 +246,7 @@ input {
 
 .bike {
     position: absolute;
-    height: 100px;
+    height: 80px;
     z-index: 100;
 }
 

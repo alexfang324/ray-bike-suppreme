@@ -9,19 +9,21 @@ import Projectile from './projectile.js';
 export default class TwoPlayerGame extends Game {
   RAY_LIFETIME = 8000; //lifetime in miliseconds
   NUM_PROJ = 5; //# of laser a bike can emit
-  PROJ_SPEED = 10; //speed of projectile
+  PROJ_SPEED = 20; //speed of projectile
   MIN_OBS_HEIGHT = 20; //minimum obstacle height in px;
   MAX_OBS_HEIGHT = 100; //max obstacle height in px;
   MED_LEVEL_OBS_NUM = 4;
   HARD_LEVEL_OBS_NUM = 8;
   BIKE1_ID = 'bike1';
   INITIAL_BIKE1_DIR = Direction.right;
-  INITIAL_BIKE1_IMG_POS = [150, 200]; //left and top position of bike
+  INITIAL_BIKE1_IMG_POS = [150, 185]; //left and top position of bike
   BIKE2_ID = 'bike2';
   INITIAL_BIKE2_DIR = Direction.left;
-  INITIAL_BIKE2_IMG_POS = [750, 200];
+  INITIAL_BIKE2_IMG_POS = [750, 185];
   OBS_IMG_PATH = '../img/rock.jpg'; //image path of stationary obstacle
   PROJ_IMG_PATH = '../img/laser.png'; //image path of projectile
+  lastTimestamp; //record last timestamp used for requestAnimateFrame of the main game loop
+  animFrameId; //requestAnimationFrame id for the main game loop
 
   difficulty; //game difficulty
   openingPageElement;
@@ -321,13 +323,20 @@ export default class TwoPlayerGame extends Game {
       } else {
         clearInterval(timeoutId);
         countDownTextElement.remove();
-        this.evolveGame();
+        this.animFrameId = requestAnimationFrame(this.evolveGame);
       }
     }, 1000);
   }
 
-  evolveGame() {
-    const setGameInterval = setInterval(() => {
+  evolveGame = (timestamp) => {
+    //initialize lasttimestamp during the the first loop
+    if (this.lastTimestamp === undefined) {
+      this.lastTimestamp = timestamp;
+    }
+
+    if (timestamp - this.lastTimestamp >= this.GAME_REFRESH_RATE) {
+      this.lastTimestamp = timestamp;
+
       //advance bike motion and update its trail on canvas
       this.players.forEach((player, i) => {
         const bike = player.bike;
@@ -355,21 +364,22 @@ export default class TwoPlayerGame extends Game {
       this.incrementScore();
 
       //check for collision with bikes
-      this.checkBikeCollision(updatedObstacles, setGameInterval);
+      this.checkBikeCollision(updatedObstacles);
 
       //check for collision with laser
       this.checkProjectileCollision(updatedObstacles);
-    }, 30);
-  }
+    }
+    this.animFrameId = requestAnimationFrame(this.evolveGame);
+  };
 
-  checkBikeCollision(updatedObstacles, setGameInterval) {
+  checkBikeCollision(updatedObstacles) {
     for (const player of this.players) {
       const hasCollided = updatedObstacles.map((obs) => {
         return player.bike.hasCollided(obs);
       });
 
       if (hasCollided.includes(true)) {
-        clearInterval(setGameInterval);
+        cancelAnimationFrame(this.animFrameId);
         this.removeBikeEventListeners();
         const winnerInd = hasCollided.indexOf(false);
         this.players[winnerInd].updateScore(this.score);

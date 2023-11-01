@@ -3,15 +3,15 @@ import Obstacle from './obstacle.js';
 import { ObstacleType } from './enum.js';
 
 export default class Game {
-  SEGLENGTH = 1; //intrinsic segment length of the game
-  RAYWIDTH = 3; //px width
-  BIKESPEED = 3 * this.SEGLENGTH;
+  RAYWIDTH = 3; //pixel width of trail
+  BIKESPEED = 5; //pixel distance moved per game interation
   ARENA_WIDTH = 900; //pixel width of gameplay arena
-  ARENA_HEIGHT = 500; //pixel height of gameplay arena
+  ARENA_HEIGHT = 450; //pixel height of gameplay arena
   ARENA_CEN_POS; //[x,y] position that's calculated at runtime
   ARENA_GRID_X_NUM = 15; //number of background grid lines horizontally
   ARENA_GRID_Y_NUM = 8; //number of background grid lines horizontally
   GAME_START_TIME = Date.now();
+  GAME_REFRESH_RATE = 30; //ms refresh rate, up to screen refresh rate
 
   arena; // arena html element
   trailCanvasElement; //canvas html elements
