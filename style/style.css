@@ -180,7 +180,7 @@ input {
   display:flex;
   flex-direction:column;
   align-items: center;
-  width:30%;
+  width:27%;
 }
 
 .player-name {
@@ -194,23 +194,38 @@ input {
   margin:0px;
 }
 
-#projectile-row{
+#proj-row{
   display:flex;
   justify-content:space-between;
   width:100%;
 }
 
-.projectile-box{
-  width:30%;
+.proj-box{
+  width:27%;
   height:50px;
   border: solid 2px grey;
   background-color: rgb(248, 246, 246);
+  border-radius: 10px;
 }
+
+.proj-icon{
+  height:100%;
+  aspect-ratio: 1 / 1;
+  display:inline-block;
+  text-align: center;
+
+}
+
+.proj-icon-img{
+  height: 100%;
+  aspect-ratio: 0.2 / 1;
+  transform: rotate(45deg);
+  }
+  
 
 #arena {
     position: relative;
     flex-shrink: 0;
-    /* background-color: #1c123c; */
     border: solid 3px rgb(188, 19, 254);
     margin:20px;
     border-radius: 10px;
@@ -237,7 +252,6 @@ input {
 .projectile {
   position: absolute;
   height: 50px;
-  /* z-index: 100; */
 }
 
 canvas {
@@ -246,6 +260,16 @@ canvas {
 
 .rock {
     position:absolute;
+}
+
+#game-start-count-down{
+ position:absolute;
+ top:30%;
+ left:45%;
+ z-index:2;
+ font-size: 100px;
+ color:red;
+
 }
 
 

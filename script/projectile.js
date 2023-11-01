@@ -6,6 +6,8 @@ export default class Projectile extends MovableObject {
     super(centerPosition, direction, speed, imgSrc);
     const projElement = this.element;
     projElement.classList.add('projectile');
+    //set image visibility to hidden since we haven't properly aligned the projectile relative to emitter
+    projElement.style.visibility = 'hidden';
 
     projElement.onload = () => {
       this.imgWidth = parseFloat(
@@ -14,12 +16,9 @@ export default class Projectile extends MovableObject {
       this.imgHeight = parseFloat(
         projElement.getBoundingClientRect().height.toFixed(4)
       );
-      //when the image is placed on screen, it won't be centered with the emitter because
-      //projectile doesn't have the same img dimension as the emitter so we've to realign
-      //it after it's been created in DOM
+      //align projectile's center based on bike's center position then show image
       this.alignProjectile(centerPosition);
-
-      projElement.style.rotate = ImgRotationAngle[direction];
+      projElement.style.visibility = 'visible';
     };
   }
 
@@ -34,7 +33,8 @@ export default class Projectile extends MovableObject {
     //update it to the img element
     this.element.style.left = this.imgPosition[0] + 'px';
     this.element.style.top = this.imgPosition[1] + 'px';
-  }
 
-  //
+    //align projectile along direction of bike motion
+    this.element.style.rotate = ImgRotationAngle[this.direction];
+  }
 }

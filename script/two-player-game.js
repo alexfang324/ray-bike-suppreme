@@ -8,7 +8,7 @@ import Projectile from './projectile.js';
 
 export default class TwoPlayerGame extends Game {
   RAY_LIFETIME = 8000; //lifetime in miliseconds
-  NUM_PROJ = 3; //# of laser a bike can emit
+  NUM_PROJ = 5; //# of laser a bike can emit
   PROJ_SPEED = 10; //speed of projectile
   MIN_OBS_HEIGHT = 20; //minimum obstacle height in px;
   MAX_OBS_HEIGHT = 100; //max obstacle height in px;
@@ -16,10 +16,10 @@ export default class TwoPlayerGame extends Game {
   HARD_LEVEL_OBS_NUM = 8;
   BIKE1_ID = 'bike1';
   INITIAL_BIKE1_DIR = Direction.right;
-  INITIAL_BIKE1_IMG_POS = [250, 250];
+  INITIAL_BIKE1_IMG_POS = [150, 200]; //left and top position of bike
   BIKE2_ID = 'bike2';
   INITIAL_BIKE2_DIR = Direction.left;
-  INITIAL_BIKE2_IMG_POS = [650, 250];
+  INITIAL_BIKE2_IMG_POS = [750, 200];
   OBS_IMG_PATH = '../img/rock.jpg'; //image path of stationary obstacle
   PROJ_IMG_PATH = '../img/laser.png'; //image path of projectile
 
@@ -27,7 +27,7 @@ export default class TwoPlayerGame extends Game {
   openingPageElement;
   gamePageElement;
   gameHeaderElement;
-  projectileRowElement;
+  projRowElement; //div element that contains projectile box with icon for each player
   gameOverPageElement;
   playerName1;
   playerName2;
@@ -52,11 +52,11 @@ export default class TwoPlayerGame extends Game {
     //wire up game-over page buttons
     document
       .getElementById('main-menu-btn')
-      .addEventListener('click', ()=>this.mainMenuBtnClicked());
+      .addEventListener('click', () => this.mainMenuBtnClicked());
 
     document
       .getElementById('play-again-btn')
-      .addEventListener('click', ()=>this.playAgainBtnClicked());
+      .addEventListener('click', () => this.playAgainBtnClicked());
 
     this.startFreshGame();
   }
@@ -82,7 +82,7 @@ export default class TwoPlayerGame extends Game {
       this.BIKESPEED,
       this.BIKE1_ID,
       ['a', 'd', 'w'],
-      '../img/shopping-cart.jpg',
+      '../img/red-bike.jpg',
       'rgb(188, 19, 254)',
       this.RAY_LIFETIME,
       this.NUM_PROJ,
@@ -115,19 +115,19 @@ export default class TwoPlayerGame extends Game {
       this.addObstacles(this.HARD_LEVEL_OBS_NUM);
     }
     this.setupBikeEventListeners();
-    this.evolveGame();
+    this.gameStartCountDown();
   }
 
   setupGameHeader(playerName1, playerName2) {
     const gameHeaderElement = document.createElement('div');
-    gameHeaderElement.id ='game-header';
+    gameHeaderElement.id = 'game-header';
     this.gameHeaderElement = gameHeaderElement;
     this.gamePageElement.appendChild(gameHeaderElement);
     this.setupScoreBoard(playerName1, playerName2);
     this.setupProjectileBox();
   }
 
-  setupScoreBoard(playerName1, playerName2){
+  setupScoreBoard(playerName1, playerName2) {
     const scoreBoardElement = document.createElement('div');
     scoreBoardElement.classList.add('score-board');
     scoreBoardElement.innerHTML = `<div class="score-box"><p class="label">Player 1</p>
@@ -137,16 +137,28 @@ export default class TwoPlayerGame extends Game {
     this.gameHeaderElement.append(scoreBoardElement);
   }
 
-  setupProjectileBox(){
-    const projectileRowElement =document.createElement('div');
-    projectileRowElement.id ='projectile-row';
-    projectileRowElement.innerHTML = `<div class="projectile-box"></div><div class="projectile-box"></div>`;
-    this.projectileRowElement = projectileRowElement;
+  setupProjectileBox() {
+    const projRowElement = document.createElement('div');
+    projRowElement.id = 'proj-row';
 
-    projectileRowElement.childNodes.forEach((pbox)=>{
-      console.log(pbox);
-    })
-    this.gameHeaderElement.append(projectileRowElement);
+    //dynamically generate projectile box id based on bike Id
+    const projId1 = this.BIKE1_ID + '-proj-box';
+    const projId2 = this.BIKE2_ID + '-proj-box';
+    //set up row element to hold two projectile box elements
+    projRowElement.innerHTML = `<div id=${projId1} class="proj-box"></div>
+    <div id=${projId2} class="proj-box"></div>`;
+    this.projRowElement = projRowElement;
+    //for each projectile box, add NUM_PROJ number of projectile img as icon
+    [...projRowElement.children].forEach((pbox) => {
+      for (let i = 0; i < this.NUM_PROJ; i++) {
+        const projIconElement = document.createElement('div');
+        projIconElement.classList.add('proj-icon');
+        projIconElement.innerHTML = `<img src=${this.PROJ_IMG_PATH} class="proj-icon-img"/>`;
+        pbox.append(projIconElement);
+      }
+    });
+
+    this.gameHeaderElement.append(projRowElement);
   }
 
   addObstacles(numObstacles) {
@@ -278,7 +290,9 @@ export default class TwoPlayerGame extends Game {
     scoreElement.textContent = `${newScore}`;
   }
 
-  emitProjectile = (bike)=> {
+  //call back function for bike when emit projectile key is pressed
+  emitProjectile = (bike) => {
+    //add projectile to list for collision checking
     this.projectiles.push(
       new Projectile(
         bike.centerPosition,
@@ -287,6 +301,29 @@ export default class TwoPlayerGame extends Game {
         this.PROJ_IMG_PATH
       )
     );
+    //remove a projectile icon from projectile box element
+    const projId = bike.bikeId + '-proj-box';
+    const projBox = document.getElementById(projId);
+    projBox.removeChild(projBox.children[0]);
+  };
+
+  gameStartCountDown() {
+    let counter = 3;
+    const countDownTextElement = document.createElement('p');
+    countDownTextElement.id = 'game-start-count-down';
+    countDownTextElement.innerHTML = counter;
+    this.arena.append(countDownTextElement);
+    const timeoutId = setInterval(() => {
+      if (counter) {
+        counter--;
+        const text = counter ? counter : 'GO';
+        countDownTextElement.innerHTML = text;
+      } else {
+        clearInterval(timeoutId);
+        countDownTextElement.remove();
+        this.evolveGame();
+      }
+    }, 1000);
   }
 
   evolveGame() {
