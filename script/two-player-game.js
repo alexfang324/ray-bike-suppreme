@@ -22,8 +22,10 @@ export default class TwoPlayerGame extends Game {
   INITIAL_BIKE2_IMG_POS = [750, 185];
   OBS_IMG_PATH = '../img/rock.jpg'; //image path of stationary obstacle
   PROJ_IMG_PATH = '../img/laser.png'; //image path of projectile
+  isRunning = false; //boolean to indicate the status of the game
   lastTimestamp; //record last timestamp used for requestAnimateFrame of the main game loop
   animFrameId; //requestAnimationFrame id for the main game loop
+  winningPlayer; //tracks the winning player object
 
   difficulty; //game difficulty
   openingPageElement;
@@ -54,11 +56,11 @@ export default class TwoPlayerGame extends Game {
     //wire up game-over page buttons
     document
       .getElementById('main-menu-btn')
-      .addEventListener('click', () => this.mainMenuBtnClicked());
+      .addEventListener('click', this.mainMenuBtnClicked);
 
     document
       .getElementById('play-again-btn')
-      .addEventListener('click', () => this.playAgainBtnClicked());
+      .addEventListener('click', this.playAgainBtnClicked);
 
     this.startFreshGame();
   }
@@ -67,17 +69,24 @@ export default class TwoPlayerGame extends Game {
     //reset parameters and elements
     this.gamePageElement.innerHTML = '';
     this.score = 0;
-    this.GAME_START_TIME = Date.now();
     this.obstacles = [];
-
-    this.setupGameHeader(this.playerName1, this.playerName2);
-    this.setupArena();
-
+    this.projectiles = [];
+    this.lastTimestamp = undefined;
+    this.winningPlayer = undefined;
     //delete the bike if it already exist (for play-again feature)
     const bike1Element = document.getElementById(this.BIKE1_ID);
     if (bike1Element) {
       bike1Element.remove();
     }
+    const bike2Element = document.getElementById(this.BIKE2_ID);
+    if (bike2Element) {
+      bike2Element.remove();
+    }
+
+    
+    this.setupGameHeader(this.playerName1, this.playerName2);
+    this.setupArena();
+
     const bike1 = new Bike(
       this.INITIAL_BIKE1_IMG_POS,
       this.INITIAL_BIKE1_DIR,
@@ -92,10 +101,6 @@ export default class TwoPlayerGame extends Game {
     );
     this.players[0].bike = bike1;
 
-    const bike2Element = document.getElementById(this.BIKE2_ID);
-    if (bike2Element) {
-      bike2Element.remove();
-    }
     const bike2 = new Bike(
       this.INITIAL_BIKE2_IMG_POS,
       this.INITIAL_BIKE2_DIR,
@@ -116,7 +121,6 @@ export default class TwoPlayerGame extends Game {
     } else if (this.difficulty === 'hard') {
       this.addObstacles(this.HARD_LEVEL_OBS_NUM);
     }
-    this.setupBikeEventListeners();
     this.gameStartCountDown();
   }
 
@@ -306,6 +310,7 @@ export default class TwoPlayerGame extends Game {
     //remove a projectile icon from projectile box element
     const projId = bike.bikeId + '-proj-box';
     const projBox = document.getElementById(projId);
+    console.log(this.projectiles);
     projBox.removeChild(projBox.children[0]);
   };
 
@@ -315,7 +320,7 @@ export default class TwoPlayerGame extends Game {
     countDownTextElement.id = 'game-start-count-down';
     countDownTextElement.innerHTML = counter;
     this.arena.append(countDownTextElement);
-    const timeoutId = setInterval(() => {
+    const timeoutId = setInterval(() => { 
       if (counter) {
         counter--;
         const text = counter ? counter : 'GO';
@@ -323,6 +328,11 @@ export default class TwoPlayerGame extends Game {
       } else {
         clearInterval(timeoutId);
         countDownTextElement.remove();
+
+        //starting the game
+        this.isRunning = true;
+        this.GAME_START_TIME = Date.now();
+        this.setupBikeEventListeners();
         this.animFrameId = requestAnimationFrame(this.evolveGame);
       }
     }, 1000);
@@ -343,7 +353,7 @@ export default class TwoPlayerGame extends Game {
         bike.moveForwardAndAddTrail();
         const obsToRemove = bike.removeExpiredTrail();
         this.eraseCanvasTrail(obsToRemove);
-        this.drawCanvasTrail(i);
+        this.drawCanvasTrail();
       });
 
       //add current bike trail to list of obstacle segments
@@ -369,7 +379,16 @@ export default class TwoPlayerGame extends Game {
       //check for collision with laser
       this.checkProjectileCollision(updatedObstacles);
     }
-    this.animFrameId = requestAnimationFrame(this.evolveGame);
+    //check if we should run the game loop again
+    if (this.isRunning){
+      this.animFrameId = requestAnimationFrame(this.evolveGame);
+    }else{
+      cancelAnimationFrame(this.animFrameId);
+      //remove event listeners, update score and render game-over page
+      this.removeBikeEventListeners();
+      this.winningPlayer.updateScore(this.score);
+      this.renderGameOverPage();
+    }
   };
 
   checkBikeCollision(updatedObstacles) {
@@ -379,26 +398,26 @@ export default class TwoPlayerGame extends Game {
       });
 
       if (hasCollided.includes(true)) {
-        cancelAnimationFrame(this.animFrameId);
-        this.removeBikeEventListeners();
+        //figure out the winning player and end the game
         const winnerInd = hasCollided.indexOf(false);
-        this.players[winnerInd].updateScore(this.score);
-        this.renderGameOverPage(this.players[winnerInd]);
-        break;
+        this.winningPlayer = this.players[winnerInd];
+        this.isRunning = false;
+        return;
       }
     }
   }
 
   checkProjectileCollision(updatedObstacles) {
     for (const obs of updatedObstacles) {
-      this.projectiles.forEach((proj, i) => {
-        if (proj.hasCollided(obs)) {
+      let i = this.projectiles.length;
+      while(i--) {
+        if (this.projectiles[i].hasCollided(obs)) {
           //remove projectile object and its html element and handle collidee situation
           this.projectiles[i].element.remove();
           this.projectiles.splice(i, 1);
           this.handleProjectileCollision(obs);
         }
-      });
+      };
     }
   }
 
@@ -409,13 +428,12 @@ export default class TwoPlayerGame extends Game {
       case ObstacleType.rock:
         //remove html element and the 4 obstacles object that forms the rock
         obstacle.element.remove();
-        this.obstacles = this.obstacles.filter((obs) => obs.id != obstacle.id);
+        this.obstacles = this.obstacles.filter((obs) => obs.ownerId != obstacle.ownerId);
         break;
       case ObstacleType.trail:
         this.removeTrailFrom(obstacle);
         break;
       default:
-        console.log('hit something');
         break;
     }
   }
@@ -448,13 +466,13 @@ export default class TwoPlayerGame extends Game {
     bike.trail = bike.trail.slice(deletionIndex);
   }
 
-  renderGameOverPage(winningPlayer) {
+  renderGameOverPage() {
     //switch from game page to game over page and wire the buttons in game over page
     this.gamePageElement.setAttribute('hidden', 'true');
     this.gameOverPageElement.removeAttribute('hidden');
 
     //calculate and display stats to player
-    document.getElementById('winner-name').innerHTML = `${winningPlayer.name}`;
+    document.getElementById('winner-name').innerHTML = `${this.winningPlayer.name}`;
     document.getElementById(
       'winner-score'
     ).innerHTML = `You scored ${this.score} points!`;
@@ -470,12 +488,12 @@ export default class TwoPlayerGame extends Game {
     <p>${this.players[1].accumulatedScore}</p>`;
   }
 
-  mainMenuBtnClicked() {
+  mainMenuBtnClicked = () => {
     this.openingPageElement.removeAttribute('hidden');
     this.gameOverPageElement.setAttribute('hidden', true);
   }
 
-  playAgainBtnClicked() {
+  playAgainBtnClicked = () => {
     this.gameOverPageElement.setAttribute('hidden', true);
     this.gamePageElement.removeAttribute('hidden');
     this.startFreshGame();
