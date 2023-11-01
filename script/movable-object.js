@@ -124,61 +124,61 @@ export default class MovableObject {
   //Output: boolean of whether a collision happend
   //Assumption: assumed every obstacle segment is a horizontal or vertical line.
   hasCollided(obstacle) {
-    const bikeDir =
+    const ObjDir =
       this.headPosition[0] - this.tailPosition[0] == 0
         ? 'vertical'
         : 'horizontal';
     const obsDir = obstacle.x2 - obstacle.x1 == 0 ? 'vertical' : 'horizontal';
 
-    const minObjX = Math.min(obstacle.x1, obstacle.x2);
-    const maxObjX = Math.max(obstacle.x1, obstacle.x2);
-    const minObjY = Math.min(obstacle.y1, obstacle.y2);
-    const maxObjY = Math.max(obstacle.y1, obstacle.y2);
-    const minBikeX = Math.min(this.tailPosition[0], this.headPosition[0]);
-    const maxBikeX = Math.max(this.tailPosition[0], this.headPosition[0]);
-    const minBikeY = Math.min(this.tailPosition[1], this.headPosition[1]);
-    const maxBikeY = Math.max(this.tailPosition[1], this.headPosition[1]);
+    const minObsX = Math.min(obstacle.x1, obstacle.x2);
+    const maxObsX = Math.max(obstacle.x1, obstacle.x2);
+    const minObsY = Math.min(obstacle.y1, obstacle.y2);
+    const maxObsY = Math.max(obstacle.y1, obstacle.y2);
+    const minObjX = Math.min(this.tailPosition[0], this.headPosition[0]);
+    const maxObjX = Math.max(this.tailPosition[0], this.headPosition[0]);
+    const minObjY = Math.min(this.tailPosition[1], this.headPosition[1]);
+    const maxObjY = Math.max(this.tailPosition[1], this.headPosition[1]);
 
     switch (true) {
-      case bikeDir === 'horizontal' && obsDir === 'vertical':
+      case ObjDir === 'horizontal' && obsDir === 'vertical':
         if (
-          this.headPosition[1] >= minObjY &&
-          this.headPosition[1] <= maxObjY &&
-          minBikeX <= obstacle.x1 &&
-          maxBikeX >= obstacle.x1
+          this.headPosition[1] >= minObsY &&
+          this.headPosition[1] <= maxObsY &&
+          minObjX <= obstacle.x1 &&
+          maxObjX >= obstacle.x1
         ) {
           return true;
         }
 
-      case bikeDir === 'vertical' && obsDir === 'horizontal':
+      case ObjDir === 'vertical' && obsDir === 'horizontal':
         if (
-          this.headPosition[0] >= minObjX &&
-          this.headPosition[0] <= maxObjX &&
-          minBikeY <= obstacle.y1 &&
-          maxBikeY >= obstacle.y1
+          this.headPosition[0] >= minObsX &&
+          this.headPosition[0] <= maxObsX &&
+          minObjY <= obstacle.y1 &&
+          maxObjY >= obstacle.y1
         ) {
           return true;
         }
 
-      case bikeDir === 'vertical' && obsDir === 'vertical':
-        const bikeX = this.headPosition[0];
-        const objX = obstacle.x1;
-        if (bikeX === objX) {
+      case ObjDir === 'vertical' && obsDir === 'vertical':
+        const ObjX = this.headPosition[0];
+        const ObsX = obstacle.x1;
+        if (ObjX === ObsX) {
           if (
-            (maxBikeY >= minObjY && maxBikeY <= maxObjY) ||
-            (minBikeY >= minObjY && minBikeY <= maxObjY)
+            (maxObjY >= minObsY && maxObjY <= maxObsY) ||
+            (minObjY >= minObsY && minObjY <= maxObsY)
           ) {
             return true;
           }
         }
 
-      case bikeDir === 'horizontal' && obsDir === 'horizontal':
-        const bikeY = this.headPosition[1];
-        const objY = obstacle.y1;
-        if (bikeY === objY) {
+      case ObjDir === 'horizontal' && obsDir === 'horizontal':
+        const ObjY = this.headPosition[1];
+        const ObsY = obstacle.y1;
+        if (ObjY === ObsY) {
           if (
-            (maxBikeX >= minObjX && maxBikeX <= maxObjX) ||
-            (minBikeX >= minObjX && minBikeX <= maxObjX)
+            (maxObjX >= minObsX && maxObjX <= maxObsX) ||
+            (minObjX >= minObsX && minObjX <= maxObsX)
           ) {
             return true;
           }

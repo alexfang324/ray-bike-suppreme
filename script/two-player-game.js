@@ -83,7 +83,6 @@ export default class TwoPlayerGame extends Game {
       bike2Element.remove();
     }
 
-    
     this.setupGameHeader(this.playerName1, this.playerName2);
     this.setupArena();
 
@@ -316,10 +315,10 @@ export default class TwoPlayerGame extends Game {
   gameStartCountDown() {
     let counter = 3;
     const countDownTextElement = document.createElement('div');
-    countDownTextElement.classList.add('pop-up-text')
+    countDownTextElement.classList.add('pop-up-text');
     countDownTextElement.innerHTML = counter;
     this.arena.append(countDownTextElement);
-    const timeoutId = setInterval(() => { 
+    const timeoutId = setInterval(() => {
       if (counter) {
         counter--;
         const text = counter ? counter : 'GO';
@@ -379,9 +378,9 @@ export default class TwoPlayerGame extends Game {
       this.checkProjectileCollision(updatedObstacles);
     }
     //check if we should run the game loop again
-    if (this.isRunning){
+    if (this.isRunning) {
       this.animFrameId = requestAnimationFrame(this.evolveGame);
-    }else{
+    } else {
       cancelAnimationFrame(this.animFrameId);
       this.endGame();
     }
@@ -406,14 +405,14 @@ export default class TwoPlayerGame extends Game {
   checkProjectileCollision(updatedObstacles) {
     for (const obs of updatedObstacles) {
       let i = this.projectiles.length;
-      while(i--) {
+      while (i--) {
         if (this.projectiles[i].hasCollided(obs)) {
           //remove projectile object and its html element and handle collidee situation
           this.projectiles[i].element.remove();
           this.projectiles.splice(i, 1);
           this.handleProjectileCollision(obs);
         }
-      };
+      }
     }
   }
 
@@ -424,7 +423,9 @@ export default class TwoPlayerGame extends Game {
       case ObstacleType.rock:
         //remove html element and the 4 obstacles object that forms the rock
         obstacle.element.remove();
-        this.obstacles = this.obstacles.filter((obs) => obs.ownerId != obstacle.ownerId);
+        this.obstacles = this.obstacles.filter(
+          (obs) => obs.ownerId != obstacle.ownerId
+        );
         break;
       case ObstacleType.trail:
         this.removeTrailFrom(obstacle);
@@ -462,22 +463,20 @@ export default class TwoPlayerGame extends Game {
     bike.trail = bike.trail.slice(deletionIndex);
   }
 
-endGame(){
-  //display Game Over text for 2 seconds
-  const endGameTextElement = document.createElement('div');
-  endGameTextElement.classList.add('pop-up-text')
-  endGameTextElement.innerHTML = 'Game Over';
-  this.arena.append(endGameTextElement);
-  const timeoutId = setTimeout(()=>{
-    endGameTextElement.remove()
-    //remove event listeners, update score and render game-over page
-    this.removeBikeEventListeners();
-    this.winningPlayer.updateScore(this.score);
-    this.renderGameOverPage();
-  },200000)
-
-  
-}
+  endGame() {
+    //display Game Over text for 2 seconds
+    const endGameTextElement = document.createElement('div');
+    endGameTextElement.classList.add('pop-up-text');
+    endGameTextElement.innerHTML = 'Game Over';
+    this.arena.append(endGameTextElement);
+    const timeoutId = setTimeout(() => {
+      endGameTextElement.remove();
+      //remove event listeners, update score and render game-over page
+      this.removeBikeEventListeners();
+      this.winningPlayer.updateScore(this.score);
+      this.renderGameOverPage();
+    }, 2000);
+  }
 
   renderGameOverPage() {
     //switch from game page to game over page and wire the buttons in game over page
@@ -485,7 +484,9 @@ endGame(){
     this.gameOverPageElement.removeAttribute('hidden');
 
     //calculate and display stats to player
-    document.getElementById('winner-name').innerHTML = `${this.winningPlayer.name}`;
+    document.getElementById(
+      'winner-name'
+    ).innerHTML = `${this.winningPlayer.name}`;
     document.getElementById(
       'winner-score'
     ).innerHTML = `You scored ${this.score} points!`;
@@ -504,11 +505,11 @@ endGame(){
   mainMenuBtnClicked = () => {
     this.openingPageElement.removeAttribute('hidden');
     this.gameOverPageElement.setAttribute('hidden', true);
-  }
+  };
 
   playAgainBtnClicked = () => {
     this.gameOverPageElement.setAttribute('hidden', true);
     this.gamePageElement.removeAttribute('hidden');
     this.startFreshGame();
-  }
+  };
 }
