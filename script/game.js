@@ -1,21 +1,22 @@
 'use strict';
 import Obstacle from './obstacle.js';
+import { ObstacleType } from './enum.js';
 
 export default class Game {
-  _SEGLENGTH = 1; //intrinsic segment length of the game
-  _RAYWIDTH = 3;
-  _BIKESPEED = 3;
-  _ARENA_WIDTH = 950; //pixel width of gameplay arena
-  _ARENA_HEIGHT = 500; //pixel height of gameplay arena
-  _ARENA_CEN_POS; //[x,y] position that's calculated at runtime
-  _ARENA_GRID_X_NUM = 15; //number of background grid lines horizontally
-  _ARENA_GRID_Y_NUM = 8; //number of background grid lines horizontally
-  _GAME_START_TIME = Date.now();
+  RAYWIDTH = 3; //pixel width of trail
+  BIKESPEED = 5; //pixel distance moved per game interation
+  ARENA_WIDTH = 900; //pixel width of gameplay arena
+  ARENA_HEIGHT = 450; //pixel height of gameplay arena
+  ARENA_CEN_POS; //[x,y] position that's calculated at runtime
+  ARENA_GRID_X_NUM = 15; //number of background grid lines horizontally
+  ARENA_GRID_Y_NUM = 8; //number of background grid lines horizontally
+  GAME_START_TIME = Date.now();
+  GAME_REFRESH_RATE = 30; //ms refresh rate, up to screen refresh rate
 
-  _players = [];
-  _arena; // arena html element
-  _obstacles = []; //list of obstacles in the arena (not including bike trails)
-  _trailCanvases = []; //canvas html elements
+  arena; // arena html element
+  trailCanvasElement; //canvas html elements
+  players = [];
+  obstacles = []; //list of obstacles in the arena (not including bike trails)
 
   constructor() {
     if (new.target === Game) {
@@ -23,80 +24,95 @@ export default class Game {
     }
   }
 
-  setupArena = () => {
+  setupArena() {
     const rootElement = document.getElementById('game-page');
-    this._arena = document.createElement('div');
-    this._arena.id = 'arena';
-    this._arena.style.width = this._ARENA_WIDTH + 'px';
-    this._arena.style.height = this._ARENA_HEIGHT + 'px';
-    this._arena.style.backgroundSize = `${
-      this._ARENA_WIDTH / this._ARENA_GRID_X_NUM
-    }px ${this._ARENA_HEIGHT / this._ARENA_GRID_Y_NUM}px`;
-    rootElement.appendChild(this._arena);
-    this._ARENA_CEN_POS = [this._ARENA_WIDTH / 2.0, this._ARENA_HEIGHT / 2.0];
+    this.arena = document.createElement('div');
+    this.arena.id = 'arena';
+    this.arena.style.width = this.ARENA_WIDTH + 'px';
+    this.arena.style.height = this.ARENA_HEIGHT + 'px';
+    this.arena.style.backgroundSize = `${
+      this.ARENA_WIDTH / this.ARENA_GRID_X_NUM
+    }px ${this.ARENA_HEIGHT / this.ARENA_GRID_Y_NUM}px`;
+    rootElement.appendChild(this.arena);
+    this.ARENA_CEN_POS = [this.ARENA_WIDTH / 2.0, this.ARENA_HEIGHT / 2.0];
 
     //add arena boundaries as obstacles using relative position of the area
-    this._obstacles.push(new Obstacle(0, this._ARENA_HEIGHT, 0, 0));
-    this._obstacles.push(new Obstacle(0, 0, this._ARENA_WIDTH, 0));
-    this._obstacles.push(
-      new Obstacle(this._ARENA_WIDTH, 0, this._ARENA_WIDTH, this._ARENA_HEIGHT)
+    this.obstacles.push(
+      new Obstacle(0, this.ARENA_HEIGHT, 0, 0, ObstacleType.wall)
     );
-    this._obstacles.push(
-      new Obstacle(0, this._ARENA_HEIGHT, this._ARENA_WIDTH, this._ARENA_HEIGHT)
+    this.obstacles.push(
+      new Obstacle(0, 0, this.ARENA_WIDTH, 0, ObstacleType.wall)
     );
+    this.obstacles.push(
+      new Obstacle(
+        this.ARENA_WIDTH,
+        0,
+        this.ARENA_WIDTH,
+        this.ARENA_HEIGHT,
+        ObstacleType.wall
+      )
+    );
+    this.obstacles.push(
+      new Obstacle(
+        0,
+        this.ARENA_HEIGHT,
+        this.ARENA_WIDTH,
+        this.ARENA_HEIGHT,
+        ObstacleType.wall
+      )
+    );
+  }
+
+  setupCanvases() {
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = this.ARENA_WIDTH;
+    canvasElement.height = this.ARENA_HEIGHT;
+    document.getElementById('arena').appendChild(canvasElement);
+    this.trailCanvasElement = canvasElement;
+  }
+
+  setupBikeEventListeners() {
+    window.addEventListener('keydown', this.updateBikeEvent);
+  }
+
+  removeBikeEventListeners() {
+    window.removeEventListener('keydown', this.updateBikeEvent);
+  }
+
+  updateBikeEvent = (event) => {
+    this.players.forEach((player) => player.bike.updateBikeEvent(event.key));
   };
 
-  setupCanvases = () => {
-    this._players.forEach((i) => {
-      const canvasElement = document.createElement('canvas');
-      canvasElement.width = this._ARENA_WIDTH;
-      canvasElement.height = this._ARENA_HEIGHT;
-      document.getElementById('arena').appendChild(canvasElement);
-      this._trailCanvases.push(canvasElement);
+  //always redraw drail from beginning to achieve the neon blur effect
+  drawCanvasTrail() {
+    const ctx = this.trailCanvasElement.getContext('2d');
+    this.players.forEach((player) => {
+      const trailSegments = player.bike.trail;
+      //set styles of trail
+      ctx.strokeStyle = player.bike.trailColor;
+      ctx.lineWidth = this.RAYWIDTH;
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.shadowBlur = this.RAYWIDTH;
+      ctx.shadowColor = player.bike.trailColor;
+      //define trail
+      ctx.beginPath();
+      trailSegments.forEach((seg) => {
+        ctx.moveTo(seg.x1, seg.y1);
+        ctx.lineTo(seg.x2, seg.y2);
+      });
+      //draw trail
+      ctx.stroke();
     });
-  };
+  }
 
-  setupBikeEventListeners = () => {
-    window.addEventListener('keydown', this.updateBikeDirection);
-  };
-
-  removeBikeEventListeners = () => {
-    window.removeEventListener('keydown', this.updateBikeDirection);
-  };
-
-  updateBikeDirection = (event) => {
-    this._players.forEach((player) =>
-      player.getBike().updateDirection(event.key)
-    );
-  };
-
-  drawTrail = (i) => {
-    const trailSegments = this._players[i].getBike().getTrail();
-    const canvas = this._trailCanvases[i];
-    const ctx = canvas.getContext('2d');
-
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.shadowBlur = this._RAYWIDTH;
-    ctx.shadowColor = this._players[i].getBike().getTrailColor();
-    ctx.beginPath();
-    trailSegments.forEach((seg) => {
-      ctx.moveTo(seg.x1, seg.y1);
-      ctx.lineTo(seg.x2, seg.y2);
-    });
-    ctx.strokeStyle = this._players[i].getBike().getTrailColor();
-    ctx.lineWidth = this._RAYWIDTH;
-    ctx.stroke();
-  };
-
-  eraseTrail = (segsToRemove, i) => {
-    const canvas = this._trailCanvases[i];
-    const ctx = canvas.getContext('2d');
+  eraseCanvasTrail(segsToRemove) {
+    const ctx = this.trailCanvasElement.getContext('2d');
     for (const seg of segsToRemove) {
-      const left = Math.min(seg.x1, seg.x2) - 2 * this._RAYWIDTH;
-      const top = Math.min(seg.y1, seg.y2) - 2 * this._RAYWIDTH;
-      const width = Math.abs(seg.x1 - seg.x2) + 4 * this._RAYWIDTH;
-      const height = Math.abs(seg.y1 - seg.y2) + 4 * this._RAYWIDTH;
+      const left = Math.min(seg.x1, seg.x2) - 2 * this.RAYWIDTH;
+      const top = Math.min(seg.y1, seg.y2) - 2 * this.RAYWIDTH;
+      const width = Math.abs(seg.x1 - seg.x2) + 4 * this.RAYWIDTH;
+      const height = Math.abs(seg.y1 - seg.y2) + 4 * this.RAYWIDTH;
       ctx.clearRect(left, top, width, height);
     }
-  };
+  }
 }
