@@ -310,14 +310,13 @@ export default class TwoPlayerGame extends Game {
     //remove a projectile icon from projectile box element
     const projId = bike.bikeId + '-proj-box';
     const projBox = document.getElementById(projId);
-    console.log(this.projectiles);
     projBox.removeChild(projBox.children[0]);
   };
 
   gameStartCountDown() {
     let counter = 3;
-    const countDownTextElement = document.createElement('p');
-    countDownTextElement.id = 'game-start-count-down';
+    const countDownTextElement = document.createElement('div');
+    countDownTextElement.classList.add('pop-up-text')
     countDownTextElement.innerHTML = counter;
     this.arena.append(countDownTextElement);
     const timeoutId = setInterval(() => { 
@@ -384,10 +383,7 @@ export default class TwoPlayerGame extends Game {
       this.animFrameId = requestAnimationFrame(this.evolveGame);
     }else{
       cancelAnimationFrame(this.animFrameId);
-      //remove event listeners, update score and render game-over page
-      this.removeBikeEventListeners();
-      this.winningPlayer.updateScore(this.score);
-      this.renderGameOverPage();
+      this.endGame();
     }
   };
 
@@ -465,6 +461,23 @@ export default class TwoPlayerGame extends Game {
     index + this.eraseCanvasTrail(bike.trail.slice(0, deletionIndex));
     bike.trail = bike.trail.slice(deletionIndex);
   }
+
+endGame(){
+  //display Game Over text for 2 seconds
+  const endGameTextElement = document.createElement('div');
+  endGameTextElement.classList.add('pop-up-text')
+  endGameTextElement.innerHTML = 'Game Over';
+  this.arena.append(endGameTextElement);
+  const timeoutId = setTimeout(()=>{
+    endGameTextElement.remove()
+    //remove event listeners, update score and render game-over page
+    this.removeBikeEventListeners();
+    this.winningPlayer.updateScore(this.score);
+    this.renderGameOverPage();
+  },200000)
+
+  
+}
 
   renderGameOverPage() {
     //switch from game page to game over page and wire the buttons in game over page

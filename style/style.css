@@ -263,11 +263,14 @@ canvas {
     position:absolute;
 }
 
-#game-start-count-down{
+.pop-up-text{
  position:absolute;
- top:30%;
- left:45%;
- z-index:2;
+ width:100%;
+ top: 50%;
+ left: 50%;
+ transform: translate(-50%, -50%);
+ text-align: center;
+ z-index:100;
  font-size: 100px;
  color:red;
 
