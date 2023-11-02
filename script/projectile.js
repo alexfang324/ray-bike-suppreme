@@ -10,12 +10,11 @@ export default class Projectile extends MovableObject {
     projElement.style.visibility = 'hidden';
 
     projElement.onload = () => {
-      this.imgWidth = parseFloat(
-        projElement.getBoundingClientRect().width.toFixed(4)
-      );
-      this.imgHeight = parseFloat(
-        projElement.getBoundingClientRect().height.toFixed(4)
-      );
+      const imgSpec = projElement.getBoundingClientRect();
+      this.imgWidth = imgSpec.width;
+      this.imgHeight = imgSpec.height;
+      this.calculateImgBoundaries();
+
       //align projectile's center based on bike's center position then show image
       this.alignProjectile(centerPosition);
       projElement.style.visibility = 'visible';

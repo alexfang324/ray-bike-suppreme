@@ -5,7 +5,7 @@ import Obstacle from './obstacle.js';
 
 export default class Bike extends MovableObject {
   DIR_ARRAY = ['up', 'right', 'down', 'left']; //order of bike dir as user hits the right key
-  
+
   bikeId;
   RAY_LIFETIME;
   projectileLeft;
@@ -45,15 +45,16 @@ export default class Bike extends MovableObject {
     //img dimension properties are only available once img has loaded. we want the initial
     //dimension for future headPosition calculation so rotate only after recording the dimensions
     bikeElement.onload = () => {
-      this.imgWidth = parseFloat(
-        bikeElement.getBoundingClientRect().width.toFixed(4)
-      );
-      this.imgHeight = parseFloat(
-        bikeElement.getBoundingClientRect().height.toFixed(4)
-      );
-      this.cttSegNum = Math.floor(this.imgHeight / 2 / this.speed) + 1;
+      const imgSpec = bikeElement.getBoundingClientRect();
+      this.imgWidth = imgSpec.width;
+      this.imgHeight = imgSpec.height;
 
+      //calculate how many trail segment behind the bike to ignore during collision check
+      this.cttSegNum =
+        Math.floor((this.imgHeight + this.imgWidth) / 2 / this.speed) + 10;
+      //rotate loaded image to its initial direction
       bikeElement.style.rotate = ImgRotationAngle[direction];
+      this.boundaries = this.calculateImgBoundaries();
     };
   }
 
@@ -99,7 +100,7 @@ export default class Bike extends MovableObject {
         this.direction = this.getNewDirection(1);
         break;
       case this.kbControl[2].toLowerCase():
-        if (this.projectileLeft > 0){
+        if (this.projectileLeft > 0) {
           this.emitProjectile(this);
           this.projectileLeft--;
         }

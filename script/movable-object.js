@@ -11,6 +11,7 @@ export default class MovableObject {
   tailPosition; //[x,y] position of object's tail
   element; //img html element of the object
   arena;
+  boundaries; //array of [x1,x2,y1,y2] line segments that defines the img boundaries of object
 
   constructor(imgPosition, direction, speed, imgSrc) {
     this.imgPosition = [...imgPosition];
@@ -93,6 +94,35 @@ export default class MovableObject {
     return position;
   }
 
+  calculateImgBoundaries() {
+    //calculate boundaries of the bike image
+    const x1 = this.imgPosition[0];
+    const y1 = this.imgPosition[1];
+    let x2;
+    let y2;
+    //depending on current object diretion, x2 and y2 relates to initial img height and width differently
+    switch (this.direction) {
+      case Direction.up:
+      case Direction.down:
+        x2 = this.imgPosition[0] + this.imgWidth;
+        y2 = this.imgPosition[1] + this.imgHeight;
+        break;
+      case Direction.left:
+      case Direction.right:
+        x2 = this.imgPosition[0] + (this.imgWidth + this.imgHeight) / 2;
+        y2 = this.imgPosition[1] + (this.imgWidth + this.imgHeight) / 2;
+        break;
+    }
+    //return the four segments that forms the box around the object image
+    return [
+      [x1, y1, x2, y1],
+      [x2, y1, x2, y2],
+      [x2, y2, x1, y2],
+      [x1, y2, x1, y1]
+    ];
+  }
+
+  //move object forward by updating DOM position and its related class properties
   moveForward(obj) {
     const objElement = obj.element;
     switch (this.direction) {
@@ -116,69 +146,70 @@ export default class MovableObject {
     this.headPosition = this.calculateHeadPosition();
     this.centerPosition = this.calculateCenterPosition();
     this.tailPosition = this.calculateTailPosition();
+    this.boundaries = this.calculateImgBoundaries();
   }
 
-  //Summary: Check if a bike's last movement collided with another game object (i.e. obstacles).
-  //Input: centerSeg is an array [x_old, y_old, x_new, y_new], reprsenting bike center's last movement
-  //       obstacle isa segment [x1,y1,x2,y2], e.g. wall or ray segment
-  //Output: boolean of whether a collision happend
-  //Assumption: assumed every obstacle segment is a horizontal or vertical line.
   hasCollided(obstacle) {
-    const ObjDir =
-      this.headPosition[0] - this.tailPosition[0] == 0
-        ? 'vertical'
-        : 'horizontal';
-    const obsDir = obstacle.x2 - obstacle.x1 == 0 ? 'vertical' : 'horizontal';
+    const obsPosition = [obstacle.x1, obstacle.y1, obstacle.x2, obstacle.y2];
+    const hasCollided = this.boundaries.map((b) => {
+      return this.hasCrossed(b, obsPosition);
+    });
+    return hasCollided.includes(true);
+  }
 
-    const minObsX = Math.min(obstacle.x1, obstacle.x2);
-    const maxObsX = Math.max(obstacle.x1, obstacle.x2);
-    const minObsY = Math.min(obstacle.y1, obstacle.y2);
-    const maxObsY = Math.max(obstacle.y1, obstacle.y2);
-    const minObjX = Math.min(this.tailPosition[0], this.headPosition[0]);
-    const maxObjX = Math.max(this.tailPosition[0], this.headPosition[0]);
-    const minObjY = Math.min(this.tailPosition[1], this.headPosition[1]);
-    const maxObjY = Math.max(this.tailPosition[1], this.headPosition[1]);
+  hasCrossed(seg1, seg2) {
+    const seg1Dir = seg1[2] - seg1[0] == 0 ? 'vertical' : 'horizontal';
+    const seg2Dir = seg2[2] - seg2[0] == 0 ? 'vertical' : 'horizontal';
+
+    const minSeg1X = Math.min(seg1[0], seg1[2]);
+    const maxSeg1X = Math.max(seg1[0], seg1[2]);
+    const minSeg1Y = Math.min(seg1[1], seg1[3]);
+    const maxSeg1Y = Math.max(seg1[1], seg1[3]);
+    const minSeg2X = Math.min(seg2[0], seg2[2]);
+    const maxSeg2X = Math.max(seg2[0], seg2[2]);
+    const minSeg2Y = Math.min(seg2[1], seg2[3]);
+    const maxSeg2Y = Math.max(seg2[1], seg2[3]);
 
     switch (true) {
-      case ObjDir === 'horizontal' && obsDir === 'vertical':
+      case seg1Dir === 'horizontal' && seg2Dir === 'vertical':
         if (
-          this.headPosition[1] >= minObsY &&
-          this.headPosition[1] <= maxObsY &&
-          minObjX <= obstacle.x1 &&
-          maxObjX >= obstacle.x1
+          seg1[1] >= minSeg2Y &&
+          seg1[1] <= maxSeg2Y &&
+          minSeg1X <= seg2[0] &&
+          maxSeg1X >= seg2[0]
         ) {
           return true;
         }
 
-      case ObjDir === 'vertical' && obsDir === 'horizontal':
+      case seg1Dir === 'vertical' && seg2Dir === 'horizontal':
         if (
-          this.headPosition[0] >= minObsX &&
-          this.headPosition[0] <= maxObsX &&
-          minObjY <= obstacle.y1 &&
-          maxObjY >= obstacle.y1
+          seg1[0] >= minSeg2X &&
+          seg1[0] <= maxSeg2X &&
+          minSeg1Y <= seg2[1] &&
+          maxSeg1Y >= seg2[1]
         ) {
           return true;
         }
 
-      case ObjDir === 'vertical' && obsDir === 'vertical':
-        const ObjX = this.headPosition[0];
-        const ObsX = obstacle.x1;
-        if (ObjX === ObsX) {
+      case seg1Dir === 'vertical' && seg2Dir === 'vertical':
+        const seg1X = seg1[0];
+        const seg2X = seg2[0];
+        if (seg1X === seg2X) {
           if (
-            (maxObjY >= minObsY && maxObjY <= maxObsY) ||
-            (minObjY >= minObsY && minObjY <= maxObsY)
+            (maxSeg1Y >= minSeg2Y && maxSeg1Y <= maxSeg2Y) ||
+            (minSeg1Y >= minSeg2Y && minSeg1Y <= maxSeg2Y)
           ) {
             return true;
           }
         }
 
-      case ObjDir === 'horizontal' && obsDir === 'horizontal':
-        const ObjY = this.headPosition[1];
-        const ObsY = obstacle.y1;
-        if (ObjY === ObsY) {
+      case seg1Dir === 'horizontal' && seg2Dir === 'horizontal':
+        const seg1Y = seg1[1];
+        const seg2Y = seg2[1];
+        if (seg1Y === seg2Y) {
           if (
-            (maxObjX >= minObsX && maxObjX <= maxObsX) ||
-            (minObjX >= minObsX && minObjX <= maxObsX)
+            (maxSeg1X >= minSeg2X && maxSeg1X <= maxSeg2X) ||
+            (minSeg1X >= minSeg2X && minSeg1X <= maxSeg2X)
           ) {
             return true;
           }

@@ -458,8 +458,9 @@ export default class TwoPlayerGame extends Game {
         })
       ) / 2;
 
-    const deletionIndex = index + halfWidthOfWidestBike / this.BIKESPEED;
-    index + this.eraseCanvasTrail(bike.trail.slice(0, deletionIndex));
+    const deletionIndex =
+      Math.ceil(index + halfWidthOfWidestBike / this.BIKESPEED) + 5;
+    this.eraseCanvasTrail(bike.trail.slice(0, deletionIndex));
     bike.trail = bike.trail.slice(deletionIndex);
   }
 
