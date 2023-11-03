@@ -1,5 +1,5 @@
 'use strict';
-import { ImgRotationAngle } from './enum.js';
+import { ImgRotationAngle, Direction } from './enum.js';
 import MovableObject from './movable-object.js';
 import Obstacle from './obstacle.js';
 
@@ -54,6 +54,7 @@ export default class Bike extends MovableObject {
         Math.floor((this.imgHeight + this.imgWidth) / 2 / this.speed) + 10;
       //rotate loaded image to its initial direction
       bikeElement.style.rotate = ImgRotationAngle[direction];
+      this.imgPosition = this.calculateImgPosBasedOnNewDir();
       this.boundaries = this.calculateImgBoundaries();
     };
   }
@@ -107,6 +108,9 @@ export default class Bike extends MovableObject {
         break;
     }
     this.element.style.rotate = ImgRotationAngle[this.direction];
+    const imgSpec = this.element.getBoundingClientRect();
+    // this.imgPosition = [imgSpec.left-this.arena.style.left-200, imgSpec.top-this.arena.style.top-200];
+    this.imgPosition = this.calculateImgPosBasedOnNewDir();
   }
 
   //Summary: update bike's moving direction
@@ -120,4 +124,20 @@ export default class Bike extends MovableObject {
       return this.DIR_ARRAY[(dirIndex + change) % 4];
     }
   }
+
+    //calculate the new [left,top] position of an image when a new direction is given
+    calculateImgPosBasedOnNewDir(){
+      switch (this.direction){
+        //when img points from left/right to top/down
+        case Direction.up:
+        case Direction.down:
+          return [this.imgPosition[0] + (this.imgHeight - this.imgWidth) / 2,
+        this.imgPosition[1] + (this.imgWidth - this.imgHeight) / 2];
+        //when img points from top/down to left/right
+        case Direction.left:
+        case Direction.right:
+          return [this.imgPosition[0] + (this.imgWidth - this.imgHeight) / 2,
+          this.imgPosition[1] + (this.imgHeight - this.imgWidth) / 2];
+      }
+    }
 }
