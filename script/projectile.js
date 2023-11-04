@@ -1,5 +1,4 @@
 import MovableObject from './movable-object.js';
-import { ImgRotationAngle } from './enum.js';
 
 export default class Projectile extends MovableObject {
   constructor(centerPosition, direction, speed, imgSrc) {
@@ -11,8 +10,8 @@ export default class Projectile extends MovableObject {
 
     projElement.onload = () => {
       const imgSpec = projElement.getBoundingClientRect();
-      this.imgWidth = imgSpec.width;
-      this.imgHeight = imgSpec.height;
+      this.objWidth = imgSpec.width;
+      this.objHeight = imgSpec.height;
       this.calculateImgBoundaries();
 
       //align projectile's center based on bike's center position then show image
@@ -24,16 +23,17 @@ export default class Projectile extends MovableObject {
   //Summary: align img center of projectile to that of the emitter.
   alignProjectile(centerPosition) {
     //update top left img position based on emitter's center position
-    this.imgPosition = [
-      centerPosition[0] - this.imgWidth / 2.0,
-      centerPosition[1] - this.imgHeight / 2.0
+    this.objPosition = [
+      centerPosition[0] - this.objWidth / 2.0,
+      centerPosition[1] - this.objHeight / 2.0
     ];
 
     //update it to the img element
-    this.element.style.left = this.imgPosition[0] + 'px';
-    this.element.style.top = this.imgPosition[1] + 'px';
+    this.element.style.left = this.objPosition[0] + 'px';
+    this.element.style.top = this.objPosition[1] + 'px';
 
     //align projectile along direction of bike motion
-    this.element.style.rotate = ImgRotationAngle[this.direction];
+    this.rotate();
+    this.boundaries = this.calculateImgBoundaries();
   }
 }

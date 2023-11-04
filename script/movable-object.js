@@ -1,11 +1,12 @@
 import { Direction, ImgRotationAngle } from './enum.js';
 
 export default class MovableObject {
-  imgPosition; //top left position of img when it's first loaded
+  objPosition; //top left position of object img on DOM
+  imgPosition; //top left position of obj img when it's first loaded to DOM
   direction; //current direction of object's motion
   speed; //num pixel bike moves per game interation
-  imgWidth; //img width when it's first loaded
-  imgHeight; //img height when it's first loaded
+  objWidth; //img width when it's first loaded
+  objHeight; //img height when it's first loaded
   headPosition; //[x,y] position of object's head
   centerPosition; //[x,y] position of object's center
   tailPosition; //[x,y] position of object's tail
@@ -13,8 +14,9 @@ export default class MovableObject {
   arena;
   boundaries; //array of [x1,x2,y1,y2] line segments that defines the img boundaries of object
 
-  constructor(imgPosition, direction, speed, imgSrc) {
-    this.imgPosition = [...imgPosition];
+  constructor(objPosition, direction, speed, imgSrc) {
+    this.objPosition = [...objPosition];
+    this.imgPosition = [...objPosition];
     this.direction = direction;
     this.speed = speed;
     this.headPosition = this.calculateHeadPosition();
@@ -24,8 +26,8 @@ export default class MovableObject {
     this.arena = document.getElementById('arena');
     const obj = document.createElement('img');
     obj.src = imgSrc;
-    obj.style.left = imgPosition[0] + 'px';
-    obj.style.top = imgPosition[1] + 'px';
+    obj.style.left = objPosition[0] + 'px';
+    obj.style.top = objPosition[1] + 'px';
     this.arena.appendChild(obj);
     this.element = obj;
   }
@@ -37,21 +39,18 @@ export default class MovableObject {
   calculateHeadPosition() {
     switch (this.direction) {
       case Direction.up:
-        return [this.imgPosition[0] + this.imgWidth / 2.0, this.imgPosition[1]];
+        return [this.objPosition[0] + this.objWidth / 2, this.objPosition[1]];
       case Direction.down:
         return [
-          this.imgPosition[0] + this.imgWidth / 2.0,
-          this.imgPosition[1] + this.imgHeight
+          this.objPosition[0] + this.objWidth / 2,
+          this.objPosition[1] + this.objHeight
         ];
       case Direction.left:
-        return [
-          this.imgPosition[0] - (this.imgHeight - this.imgWidth) / 2.0,
-          this.imgPosition[1] + this.imgHeight / 2.0
-        ];
+        return [this.objPosition[0], this.objPosition[1] + this.objHeight / 2];
       case Direction.right:
         return [
-          this.imgPosition[0] + (this.imgHeight + this.imgWidth) / 2.0,
-          this.imgPosition[1] + this.imgHeight / 2.0
+          this.objPosition[0] + this.objWidth,
+          this.objPosition[1] + this.objHeight / 2
         ];
     }
   }
@@ -60,16 +59,16 @@ export default class MovableObject {
     const position = this.calculateHeadPosition();
     switch (this.direction) {
       case Direction.up:
-        position[1] = position[1] + this.imgHeight / 2;
+        position[1] = position[1] + this.objHeight / 2;
         break;
       case Direction.down:
-        position[1] = position[1] - this.imgHeight / 2;
+        position[1] = position[1] - this.objHeight / 2;
         break;
       case Direction.left:
-        position[0] = position[0] + this.imgHeight / 2;
+        position[0] = position[0] + this.objWidth / 2;
         break;
       case Direction.right:
-        position[0] = position[0] - this.imgHeight / 2;
+        position[0] = position[0] - this.objWidth / 2;
         break;
     }
     return position;
@@ -79,16 +78,16 @@ export default class MovableObject {
     const position = this.calculateHeadPosition();
     switch (this.direction) {
       case Direction.up:
-        position[1] = position[1] + this.imgHeight;
+        position[1] = position[1] + this.objHeight;
         break;
       case Direction.down:
-        position[1] = position[1] - this.imgHeight;
+        position[1] = position[1] - this.objHeight;
         break;
       case Direction.left:
-        position[0] = position[0] + this.imgHeight;
+        position[0] = position[0] + this.objWidth;
         break;
       case Direction.right:
-        position[0] = position[0] - this.imgHeight;
+        position[0] = position[0] - this.objWidth;
         break;
     }
     return position;
@@ -96,24 +95,10 @@ export default class MovableObject {
 
   calculateImgBoundaries() {
     //calculate boundaries of the bike image
-    const x1 = this.imgPosition[0];
-    const y1 = this.imgPosition[1];
-    let x2;
-    let y2;
-    //depending on current object diretion, x2 and y2 relates to initial img height and width differently
-    switch (this.direction) {
-      case Direction.up:
-      case Direction.down:
-        x2 = this.imgPosition[0] + this.imgWidth;
-        y2 = this.imgPosition[1] + this.imgHeight;
-        break;
-      case Direction.left:
-      case Direction.right:
-        x2 = this.imgPosition[0] + (this.imgWidth + this.imgHeight) / 2;
-        y2 = this.imgPosition[1] + (this.imgWidth + this.imgHeight) / 2;
-        break;
-    }
-    //return the four segments that forms the box around the object image
+    const x1 = this.objPosition[0];
+    const y1 = this.objPosition[1];
+    const x2 = this.objPosition[0] + this.objWidth;
+    const y2 = this.objPosition[1] + this.objHeight;
     return [
       [x1, y1, x2, y1],
       [x2, y1, x2, y2],
@@ -122,23 +107,48 @@ export default class MovableObject {
     ];
   }
 
+  //calculate the new [left,top] position and dimension of the obj when a new direction is given
+  rotate() {
+    this.element.style.transform = `rotate(${
+      ImgRotationAngle[this.direction]
+    })`;
+    // update obj width and height accordingly
+    const imgSpec = this.element.getBoundingClientRect();
+    this.objWidth = imgSpec.width;
+    this.objHeight = imgSpec.height;
+
+    //update the expected [left,top] position of the bike object. We don't update the image element top
+    //left position because even though the displayed image position has changed, we did it through
+    //css rotate from the original top left position when the img was in its up-right position.
+    //The actual image top left position hasn't changed
+    const arenaSpec = this.arena.getBoundingClientRect();
+    this.objPosition = [
+      imgSpec.left - arenaSpec.left,
+      imgSpec.top - arenaSpec.top
+    ];
+  }
+
   //move object forward by updating DOM position and its related class properties
   moveForward(obj) {
     const objElement = obj.element;
     switch (this.direction) {
       case Direction.up:
+        this.objPosition[1] -= this.speed;
         this.imgPosition[1] -= this.speed;
         objElement.style.top = this.imgPosition[1] + 'px';
         break;
       case Direction.down:
+        this.objPosition[1] += this.speed;
         this.imgPosition[1] += this.speed;
         objElement.style.top = this.imgPosition[1] + 'px';
         break;
       case Direction.left:
+        this.objPosition[0] -= this.speed;
         this.imgPosition[0] -= this.speed;
         objElement.style.left = this.imgPosition[0] + 'px';
         break;
       case Direction.right:
+        this.objPosition[0] += this.speed;
         this.imgPosition[0] += this.speed;
         objElement.style.left = this.imgPosition[0] + 'px';
         break;

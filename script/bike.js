@@ -17,7 +17,7 @@ export default class Bike extends MovableObject {
   cttSegNum; //number of segments needed to span from bike center to bike tail
 
   constructor(
-    imgPosition,
+    objPosition,
     direction,
     speed,
     bikeId,
@@ -28,7 +28,7 @@ export default class Bike extends MovableObject {
     numProjectile,
     emitProjectile
   ) {
-    super(imgPosition, direction, speed, imgSrc);
+    super(objPosition, direction, speed, imgSrc);
     this.kbControl = kbControl;
     this.bikeId = bikeId;
     this.centerSeg = [...this.centerPosition, ...this.centerPosition];
@@ -46,14 +46,14 @@ export default class Bike extends MovableObject {
     //dimension for future headPosition calculation so rotate only after recording the dimensions
     bikeElement.onload = () => {
       const imgSpec = bikeElement.getBoundingClientRect();
-      this.imgWidth = imgSpec.width;
-      this.imgHeight = imgSpec.height;
+      this.objWidth = imgSpec.width;
+      this.objHeight = imgSpec.height;
 
       //calculate how many trail segment behind the bike to ignore during collision check
       this.cttSegNum =
-        Math.floor((this.imgHeight + this.imgWidth) / 2 / this.speed) + 10;
+        Math.floor((this.objHeight + this.objWidth) / 2 / this.speed) + 1;
       //rotate loaded image to its initial direction
-      this.rotateImage();
+      this.rotate();
       this.boundaries = this.calculateImgBoundaries();
     };
   }
@@ -95,11 +95,11 @@ export default class Bike extends MovableObject {
     switch (key.toLowerCase()) {
       case this.kbControl[0].toLowerCase():
         this.direction = this.getNewDirection(-1);
-        this.rotateImage();
+        this.rotate();
         break;
       case this.kbControl[1].toLowerCase():
         this.direction = this.getNewDirection(1);
-        this.rotateImage();
+        this.rotate();
         break;
       case this.kbControl[2].toLowerCase():
         if (this.projectileLeft > 0) {
@@ -119,46 +119,6 @@ export default class Bike extends MovableObject {
       return this.DIR_ARRAY[3];
     } else {
       return this.DIR_ARRAY[(dirIndex + change) % 4];
-    }
-  }
-
-  //calculate the new [left,top] position of an image when a new direction is given
-  rotateImage() {
-    this.element.style.transform = `rotate(${
-      ImgRotationAngle[this.direction]
-    })`;
-    //update img width and height accordingly
-    // const imgSpec = this.element.getBoundingClientRect();
-    // this.imgWidth = imgSpec.width;
-    // this.imgHeight = imgSpec.height;
-
-    //update the expected [left,top] position of the bike. We don't update the image element top
-    //left position because even though the displayed image position has changed, we did it through
-    //css rotate from the original top left position when the img was in its up-right position.
-    //The actual image top left position hasn't changed
-
-    // const arenaSpec = this.arena.getBoundingClientRect();
-    // this.imgPosition = [
-    //   imgSpec.left - arenaSpec.left,
-    //   imgSpec.top - arenaSpec.top
-    // ];
-
-    this.imgPosition = this.calculateImgPosBasedOnNewDir();
-  }
-
-  calculateImgPosBasedOnNewDir() {
-    switch (this.direction) {
-      //when img points from left/right to top/down
-      case Direction.up:
-      case Direction.down:
-        return this.imgPosition;
-      //when img points from top/down to left/right
-      case Direction.left:
-      case Direction.right:
-        return [
-          this.imgPosition[0] + (this.imgWidth - this.imgHeight) / 2,
-          this.imgPosition[1] + (this.imgHeight - this.imgWidth) / 2
-        ];
     }
   }
 }

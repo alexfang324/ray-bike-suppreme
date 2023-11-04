@@ -16,10 +16,10 @@ export default class TwoPlayerGame extends Game {
   HARD_LEVEL_OBS_NUM = 8;
   BIKE1_ID = 'bike1';
   INITIAL_BIKE1_DIR = Direction.right;
-  INITIAL_BIKE1_IMG_POS = [150, 160]; //left and top position of bike
+  INITIAL_BIKE1_IMG_POS = [150, 180]; //left and top position of bike
   BIKE2_ID = 'bike2';
-  INITIAL_BIKE2_DIR = Direction.up;
-  INITIAL_BIKE2_IMG_POS = [750, 160];
+  INITIAL_BIKE2_DIR = Direction.left;
+  INITIAL_BIKE2_IMG_POS = [750, 180];
   OBS_IMG_PATH = '../img/rock.jpg'; //image path of stationary obstacle
   PROJ_IMG_PATH = '../img/laser.png'; //image path of projectile
   isRunning = false; //boolean to indicate the status of the game
@@ -186,9 +186,7 @@ export default class TwoPlayerGame extends Game {
       this.arena.appendChild(obsElement);
 
       obsElement.onload = () => {
-        const obsWidth = parseFloat(
-          obsElement.getBoundingClientRect().width.toFixed(4)
-        );
+        const obsWidth = obsElement.getBoundingClientRect().width;
 
         let attempts = 20;
         while (attempts) {
@@ -454,12 +452,12 @@ export default class TwoPlayerGame extends Game {
     const halfWidthOfWidestBike =
       Math.max(
         ...this.players.map((player) => {
-          return player.bike.imgWidth;
+          return player.bike.objWidth;
         })
       ) / 2;
 
     const deletionIndex =
-      Math.ceil(index + halfWidthOfWidestBike / this.BIKESPEED) + 5;
+      Math.ceil(index + halfWidthOfWidestBike / this.BIKESPEED) + 1;
     this.eraseCanvasTrail(bike.trail.slice(0, deletionIndex));
     bike.trail = bike.trail.slice(deletionIndex);
   }

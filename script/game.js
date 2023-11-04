@@ -4,7 +4,7 @@ import { ObstacleType } from './enum.js';
 
 export default class Game {
   RAYWIDTH = 3; //pixel width of trail
-  BIKESPEED = 0; //pixel distance moved per game interation
+  BIKESPEED = 3; //pixel distance moved per game interation
   ARENA_WIDTH = 900; //pixel width of gameplay arena
   ARENA_HEIGHT = 450; //pixel height of gameplay arena
   ARENA_CEN_POS; //[x,y] position that's calculated at runtime
@@ -103,18 +103,18 @@ export default class Game {
       //draw trail
       ctx.stroke();
 
-      ///////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////////
       //drawing box on bike boundaries
-      ctx.strokeStyle = 'red';
-      ctx.lineWidth = '2';
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.shadowBlur = 0;
-      ctx.beginPath();
-      player.bike.boundaries.forEach((b) => {
-        ctx.moveTo(b[0], b[1]);
-        ctx.lineTo(b[2], b[3]);
-      });
-      ctx.stroke();
+      // ctx.strokeStyle = 'red';
+      // ctx.lineWidth = '2';
+      // ctx.globalCompositeOperation = 'source-over';
+      // ctx.shadowBlur = 0;
+      // ctx.beginPath();
+      // player.bike.boundaries.forEach((b) => {
+      //   ctx.moveTo(b[0], b[1]);
+      //   ctx.lineTo(b[2], b[3]);
+      // });
+      // ctx.stroke();
     });
   }
 
