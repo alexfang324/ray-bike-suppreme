@@ -16,10 +16,10 @@ export default class TwoPlayerGame extends Game {
   HARD_LEVEL_OBS_NUM = 8;
   BIKE1_ID = 'bike1';
   INITIAL_BIKE1_DIR = Direction.right;
-  INITIAL_BIKE1_IMG_POS = [150, 185]; //left and top position of bike
+  INITIAL_BIKE1_IMG_POS = [150, 160]; //left and top position of bike
   BIKE2_ID = 'bike2';
-  INITIAL_BIKE2_DIR = Direction.left;
-  INITIAL_BIKE2_IMG_POS = [750, 185];
+  INITIAL_BIKE2_DIR = Direction.up;
+  INITIAL_BIKE2_IMG_POS = [750, 160];
   OBS_IMG_PATH = '../img/rock.jpg'; //image path of stationary obstacle
   PROJ_IMG_PATH = '../img/laser.png'; //image path of projectile
   isRunning = false; //boolean to indicate the status of the game

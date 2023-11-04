@@ -94,7 +94,6 @@ export default class MovableObject {
     return position;
   }
 
-
   calculateImgBoundaries() {
     //calculate boundaries of the bike image
     const x1 = this.imgPosition[0];
