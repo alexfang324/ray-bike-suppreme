@@ -87,10 +87,10 @@ export default class TwoPlayerGame extends Game {
     this.setupArena();
 
     const bike1 = new Bike(
+      this.BIKE1_ID,
       this.INITIAL_BIKE1_IMG_POS,
       this.INITIAL_BIKE1_DIR,
       this.BIKESPEED,
-      this.BIKE1_ID,
       ['a', 'd', 'w'],
       '../img/red-bike.jpg',
       'rgb(188, 19, 254)',
@@ -101,10 +101,10 @@ export default class TwoPlayerGame extends Game {
     this.players[0].bike = bike1;
 
     const bike2 = new Bike(
+      this.BIKE2_ID,
       this.INITIAL_BIKE2_IMG_POS,
       this.INITIAL_BIKE2_DIR,
       this.BIKESPEED,
-      this.BIKE2_ID,
       ['ArrowLeft', 'ArrowRight', 'ArrowUp'],
       '../img/green-bike.jpg',
       'rgb(57, 255, 20)',
@@ -215,41 +215,41 @@ export default class TwoPlayerGame extends Game {
             arenaObjects.push(obsElement);
             const obsId = Math.random();
             this.obstacles.push(
-              new Obstacle(
+              new Obstacle([
                 left,
                 top,
                 left + width,
-                top,
+                top],
                 ObstacleType.rock,
                 obsId,
                 null,
                 obsElement
               ),
-              new Obstacle(
+              new Obstacle([
                 left + width,
                 top,
                 left + width,
-                top + height,
+                top + height],
                 ObstacleType.rock,
                 obsId,
                 null,
                 obsElement
               ),
-              new Obstacle(
+              new Obstacle([
                 left,
                 top + height,
                 left + width,
-                top + height,
+                top + height],
                 ObstacleType.rock,
                 obsId,
                 null,
                 obsElement
               ),
-              new Obstacle(
+              new Obstacle([
                 left,
                 top,
                 left,
-                top + height,
+                top + height],
                 ObstacleType.rock,
                 obsId,
                 null,
@@ -296,8 +296,9 @@ export default class TwoPlayerGame extends Game {
   //call back function for bike when emit projectile key is pressed
   emitProjectile = (bike) => {
     //add projectile to list for collision checking
+    const projId = Math.random();
     this.projectiles.push(
-      new Projectile(
+      new Projectile(projId,
         bike.centerPosition,
         bike.direction,
         this.PROJ_SPEED,
@@ -305,8 +306,8 @@ export default class TwoPlayerGame extends Game {
       )
     );
     //remove a projectile icon from projectile box element
-    const projId = bike.bikeId + '-proj-box';
-    const projBox = document.getElementById(projId);
+    const iconId = bike.id + '-proj-box';
+    const projBox = document.getElementById(iconId);
     projBox.removeChild(projBox.children[0]);
   };
 
@@ -352,11 +353,12 @@ export default class TwoPlayerGame extends Game {
         this.drawCanvasTrail();
       });
 
-      //add current bike trail to list of obstacle segments
+      //add current bike trail and bike boundaries to list of obstacle segments
       let updatedObstacles = [...this.obstacles];
       this.players.forEach((player) => {
         updatedObstacles = [
           ...updatedObstacles,
+          ...player.bike.boundaries,
           ...player.bike.getTrailForCollisionCheck()
         ];
       });
@@ -436,14 +438,11 @@ export default class TwoPlayerGame extends Game {
   removeTrailFrom(seg) {
     const bikeId = seg.ownerId;
     const bike = this.players.filter((player) => {
-      return player.bike.bikeId == bikeId;
+      return player.bike.id == bikeId;
     })[0].bike;
     const index = bike.trail.findIndex((trailSeg) => {
       return (
-        trailSeg.x1 == seg.x1 &&
-        trailSeg.x2 == seg.x2 &&
-        trailSeg.y1 == seg.y1 &&
-        trailSeg.y2 == seg.y2
+        trailSeg.position == seg.position
       );
     });
 

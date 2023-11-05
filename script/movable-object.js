@@ -1,6 +1,8 @@
-import { Direction, ImgRotationAngle } from './enum.js';
+import { Direction, ImgRotationAngle, ObstacleType } from './enum.js';
+import Obstacle from './obstacle.js';
 
 export default class MovableObject {
+  id; //id field of object
   objPosition; //top left position of object img on DOM
   imgPosition; //top left position of obj img when it's first loaded to DOM
   direction; //current direction of object's motion
@@ -12,9 +14,10 @@ export default class MovableObject {
   tailPosition; //[x,y] position of object's tail
   element; //img html element of the object
   arena;
-  boundaries; //array of [x1,x2,y1,y2] line segments that defines the img boundaries of object
+  boundaries; //array of Obstacle objects that defines the img boundaries of the MovableObject
 
-  constructor(objPosition, direction, speed, imgSrc) {
+  constructor(id, objPosition, direction, speed, imgSrc) {
+    this.id = id;
     this.objPosition = [...objPosition];
     this.imgPosition = [...objPosition];
     this.direction = direction;
@@ -93,17 +96,17 @@ export default class MovableObject {
     return position;
   }
 
-  calculateImgBoundaries() {
+  calculateBoundaryObstacles(obsType) {
     //calculate boundaries of the bike image
     const x1 = this.objPosition[0];
     const y1 = this.objPosition[1];
     const x2 = this.objPosition[0] + this.objWidth;
     const y2 = this.objPosition[1] + this.objHeight;
     return [
-      [x1, y1, x2, y1],
-      [x2, y1, x2, y2],
-      [x2, y2, x1, y2],
-      [x1, y2, x1, y1]
+      new Obstacle([x1, y1, x2, y1],obsType, this.id),
+      new Obstacle([x2, y1, x2, y2],obsType, this.id),
+      new Obstacle([x2, y2, x1, y2],obsType, this.id),
+      new Obstacle([x1, y2, x1, y1],obsType, this.id)
     ];
   }
 
@@ -156,13 +159,18 @@ export default class MovableObject {
     this.headPosition = this.calculateHeadPosition();
     this.centerPosition = this.calculateCenterPosition();
     this.tailPosition = this.calculateTailPosition();
-    this.boundaries = this.calculateImgBoundaries();
+    this.boundaries = this.calculateBoundaryObstacles();
   }
 
   hasCollided(obstacle) {
-    const obsPosition = [obstacle.x1, obstacle.y1, obstacle.x2, obstacle.y2];
+    //return false if bike is seeing its own boundaries
+    if (this.id == obstacle.ownerId && obstacle.type == ObstacleType.bike){
+      return false;
+    }
+
+    //else check for collision
     const hasCollided = this.boundaries.map((b) => {
-      return this.hasCrossed(b, obsPosition);
+      return this.hasCrossed(b.position, obstacle.position);
     });
     return hasCollided.includes(true);
   }

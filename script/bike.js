@@ -1,26 +1,23 @@
 'use strict';
-import { ImgRotationAngle, Direction } from './enum.js';
+import { ObstacleType } from './enum.js';
 import MovableObject from './movable-object.js';
 import Obstacle from './obstacle.js';
 
 export default class Bike extends MovableObject {
   DIR_ARRAY = ['up', 'right', 'down', 'left']; //order of bike dir as user hits the right key
-
-  bikeId;
   RAY_LIFETIME;
   projectileLeft;
   kbControl; //an array [up,down,left,right] keyboard control key of bike
-  bikeId; //id field of bike's img html element
   centerSeg; //[x_old, y_old, x_new, y_new],evolution of bike center position during last interation
   trail; // a list of Obstacle object representing the segment the bike has travelled over
   trailColor; //color of the trail
   cttSegNum; //number of segments needed to span from bike center to bike tail
 
   constructor(
+    id,
     objPosition,
     direction,
     speed,
-    bikeId,
     kbControl,
     imgSrc,
     trailColor,
@@ -28,14 +25,12 @@ export default class Bike extends MovableObject {
     numProjectile,
     emitProjectile
   ) {
-    super(objPosition, direction, speed, imgSrc);
+    super(id, objPosition, direction, speed, imgSrc);
     this.kbControl = kbControl;
-    this.bikeId = bikeId;
     this.centerSeg = [...this.centerPosition, ...this.centerPosition];
     this.trail = [];
-    this.bikeId = bikeId;
     const bikeElement = this.element;
-    bikeElement.id = bikeId;
+    bikeElement.id = id;
     bikeElement.classList.add('bike');
     this.trailColor = trailColor;
     this.RAY_LIFETIME = rayLifetime;
@@ -54,7 +49,7 @@ export default class Bike extends MovableObject {
         Math.floor((this.objHeight + this.objWidth) / 2 / this.speed) + 1;
       //rotate loaded image to its initial direction
       this.rotate();
-      this.boundaries = this.calculateImgBoundaries();
+      this.boundaries = this.calculateBoundaryObstacles(ObstacleType.bike);
     };
   }
 
@@ -74,7 +69,7 @@ export default class Bike extends MovableObject {
 
     //add newst segment to trail with a ttl
     const ttl = new Date(new Date().getTime() + this.RAY_LIFETIME).getTime();
-    this.trail.push(new Obstacle(...this.centerSeg, 'trail', this.bikeId, ttl));
+    this.trail.push(new Obstacle(this.centerSeg, ObstacleType.trail, this.id, ttl));
   }
 
   //remove expired trail based on trail ttl

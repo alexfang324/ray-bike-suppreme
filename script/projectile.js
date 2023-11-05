@@ -1,8 +1,9 @@
+import { ObstacleType } from './enum.js';
 import MovableObject from './movable-object.js';
 
 export default class Projectile extends MovableObject {
-  constructor(centerPosition, direction, speed, imgSrc) {
-    super(centerPosition, direction, speed, imgSrc);
+  constructor(id, centerPosition, direction, speed, imgSrc) {
+    super(id, centerPosition, direction, speed, imgSrc);
     const projElement = this.element;
     projElement.classList.add('projectile');
     //set image visibility to hidden since we haven't properly aligned the projectile relative to emitter
@@ -12,7 +13,6 @@ export default class Projectile extends MovableObject {
       const imgSpec = projElement.getBoundingClientRect();
       this.objWidth = imgSpec.width;
       this.objHeight = imgSpec.height;
-      this.calculateImgBoundaries();
 
       //align projectile's center based on bike's center position then show image
       this.alignProjectile(centerPosition);
@@ -34,6 +34,6 @@ export default class Projectile extends MovableObject {
 
     //align projectile along direction of bike motion
     this.rotate();
-    this.boundaries = this.calculateImgBoundaries();
+    this.boundaries = this.calculateBoundaryObstacles(ObstacleType.projectile);
   }
 }
