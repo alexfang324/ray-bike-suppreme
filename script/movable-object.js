@@ -3,8 +3,10 @@ import Obstacle from './obstacle.js';
 
 export default class MovableObject {
   id; //id field of object
-  objPosition; //top left position of object img on DOM
-  imgPosition; //top left position of obj img when it's first loaded to DOM
+  groupId; //used to identify related movable objects (bike and its projectile and boundary obstacles)
+  obsType; //obstacle type for the obstacle objects that will form its boundaries
+  objPosition; //top left position of object img as appeared on screen (or as received through getBoundingClientRect method)
+  imgPosition; //top left position of object img before rotate is performed (which doesn't change DOM top left values)
   direction; //current direction of object's motion
   speed; //num pixel bike moves per game interation
   objWidth; //img width when it's first loaded
@@ -16,8 +18,9 @@ export default class MovableObject {
   arena;
   boundaries; //array of Obstacle objects that defines the img boundaries of the MovableObject
 
-  constructor(id, objPosition, direction, speed, imgSrc) {
+  constructor(id, groupId, objPosition, direction, speed, imgSrc) {
     this.id = id;
+    this.groupId = groupId;
     this.objPosition = [...objPosition];
     this.imgPosition = [...objPosition];
     this.direction = direction;
@@ -26,6 +29,7 @@ export default class MovableObject {
     this.centerPosition = this.calculateCenterPosition();
     this.tailPosition = this.calculateTailPosition();
 
+    //create img html element and add append to arena element
     this.arena = document.getElementById('arena');
     const obj = document.createElement('img');
     obj.src = imgSrc;
@@ -96,17 +100,17 @@ export default class MovableObject {
     return position;
   }
 
-  calculateBoundaryObstacles(obsType) {
+  calculateBoundaryObstacles() {
     //calculate boundaries of the bike image
     const x1 = this.objPosition[0];
     const y1 = this.objPosition[1];
     const x2 = this.objPosition[0] + this.objWidth;
     const y2 = this.objPosition[1] + this.objHeight;
     return [
-      new Obstacle([x1, y1, x2, y1],obsType, this.id),
-      new Obstacle([x2, y1, x2, y2],obsType, this.id),
-      new Obstacle([x2, y2, x1, y2],obsType, this.id),
-      new Obstacle([x1, y2, x1, y1],obsType, this.id)
+      new Obstacle([x1, y1, x2, y1], this.obsType, this.groupId),
+      new Obstacle([x2, y1, x2, y2], this.obsType, this.groupId),
+      new Obstacle([x2, y2, x1, y2], this.obsType, this.groupId),
+      new Obstacle([x1, y2, x1, y1], this.obsType, this.groupId)
     ];
   }
 
@@ -164,10 +168,9 @@ export default class MovableObject {
 
   hasCollided(obstacle) {
     //return false if bike is seeing its own boundaries
-    if (this.id == obstacle.ownerId && obstacle.type == ObstacleType.bike){
+    if (this.id == obstacle.ownerId && obstacle.type == ObstacleType.bike) {
       return false;
     }
-
     //else check for collision
     const hasCollided = this.boundaries.map((b) => {
       return this.hasCrossed(b.position, obstacle.position);

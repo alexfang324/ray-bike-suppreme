@@ -15,6 +15,7 @@ export default class Bike extends MovableObject {
 
   constructor(
     id,
+    groupId,
     objPosition,
     direction,
     speed,
@@ -25,7 +26,7 @@ export default class Bike extends MovableObject {
     numProjectile,
     emitProjectile
   ) {
-    super(id, objPosition, direction, speed, imgSrc);
+    super(id, groupId, objPosition, direction, speed, imgSrc);
     this.kbControl = kbControl;
     this.centerSeg = [...this.centerPosition, ...this.centerPosition];
     this.trail = [];
@@ -36,6 +37,7 @@ export default class Bike extends MovableObject {
     this.RAY_LIFETIME = rayLifetime;
     this.projectileLeft = numProjectile;
     this.emitProjectile = emitProjectile; //callback func for emitting a projectile
+    this.obsType = ObstacleType.bike;
 
     //img dimension properties are only available once img has loaded. we want the initial
     //dimension for future headPosition calculation so rotate only after recording the dimensions
@@ -49,7 +51,7 @@ export default class Bike extends MovableObject {
         Math.floor((this.objHeight + this.objWidth) / 2 / this.speed) + 1;
       //rotate loaded image to its initial direction
       this.rotate();
-      this.boundaries = this.calculateBoundaryObstacles(ObstacleType.bike);
+      this.boundaries = this.calculateBoundaryObstacles();
     };
   }
 
@@ -69,7 +71,9 @@ export default class Bike extends MovableObject {
 
     //add newst segment to trail with a ttl
     const ttl = new Date(new Date().getTime() + this.RAY_LIFETIME).getTime();
-    this.trail.push(new Obstacle(this.centerSeg, ObstacleType.trail, this.id, ttl));
+    this.trail.push(
+      new Obstacle(this.centerSeg, ObstacleType.trail, this.id, ttl)
+    );
   }
 
   //remove expired trail based on trail ttl

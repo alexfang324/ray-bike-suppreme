@@ -44,20 +44,14 @@ export default class Game {
       new Obstacle([0, 0, this.ARENA_WIDTH, 0], ObstacleType.wall)
     );
     this.obstacles.push(
-      new Obstacle([
-        this.ARENA_WIDTH,
-        0,
-        this.ARENA_WIDTH,
-        this.ARENA_HEIGHT],
+      new Obstacle(
+        [this.ARENA_WIDTH, 0, this.ARENA_WIDTH, this.ARENA_HEIGHT],
         ObstacleType.wall
       )
     );
     this.obstacles.push(
-      new Obstacle([
-        0,
-        this.ARENA_HEIGHT,
-        this.ARENA_WIDTH,
-        this.ARENA_HEIGHT],
+      new Obstacle(
+        [0, this.ARENA_HEIGHT, this.ARENA_WIDTH, this.ARENA_HEIGHT],
         ObstacleType.wall
       )
     );
@@ -98,25 +92,25 @@ export default class Game {
       ctx.beginPath();
       trailSegments.forEach((seg) => {
         const pos = seg.position;
-        ctx.moveTo(pos[0],pos[1]);
-        ctx.lineTo(pos[2],pos[3]);
+        ctx.moveTo(pos[0], pos[1]);
+        ctx.lineTo(pos[2], pos[3]);
       });
       //draw trail
       ctx.stroke();
 
       //////////////////////////////////////////////////////////////////////////////
-      // drawing box on bike boundaries
-      ctx.strokeStyle = 'red';
-      ctx.lineWidth = '2';
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.shadowBlur = 0;
-      ctx.beginPath();
-      player.bike.boundaries.forEach((b) => {
-        const pos = b.position;
-        ctx.moveTo(pos[0],pos[1]);
-        ctx.lineTo(pos[2],pos[3]);
-      });
-      ctx.stroke();
+      // // drawing box on bike boundaries
+      // ctx.strokeStyle = 'red';
+      // ctx.lineWidth = '2';
+      // ctx.globalCompositeOperation = 'source-over';
+      // ctx.shadowBlur = 0;
+      // ctx.beginPath();
+      // player.bike.boundaries.forEach((b) => {
+      //   const pos = b.position;
+      //   ctx.moveTo(pos[0],pos[1]);
+      //   ctx.lineTo(pos[2],pos[3]);
+      // });
+      // ctx.stroke();
     });
   }
 
@@ -124,10 +118,10 @@ export default class Game {
     const ctx = this.trailCanvasElement.getContext('2d');
     for (const seg of segsToRemove) {
       const pos = seg.position;
-      const left = Math.min(pos[0],pos[1]) - 2 * this.RAYWIDTH;
-      const top = Math.min(pos[2],pos[3]) - 2 * this.RAYWIDTH;
-      const width = Math.abs(pos[0],pos[1]) + 4 * this.RAYWIDTH;
-      const height = Math.abs(pos[2],pos[3]) + 4 * this.RAYWIDTH;
+      const left = Math.min(pos[0], pos[2]) - 2 * this.RAYWIDTH;
+      const top = Math.min(pos[1], pos[3]) - 2 * this.RAYWIDTH;
+      const width = Math.abs(pos[2] - pos[0]) + 4 * this.RAYWIDTH;
+      const height = Math.abs(pos[3] - pos[1]) + 4 * this.RAYWIDTH;
       ctx.clearRect(left, top, width, height);
     }
   }

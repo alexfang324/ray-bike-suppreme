@@ -88,6 +88,7 @@ export default class TwoPlayerGame extends Game {
 
     const bike1 = new Bike(
       this.BIKE1_ID,
+      this.BIKE1_ID,
       this.INITIAL_BIKE1_IMG_POS,
       this.INITIAL_BIKE1_DIR,
       this.BIKESPEED,
@@ -101,6 +102,7 @@ export default class TwoPlayerGame extends Game {
     this.players[0].bike = bike1;
 
     const bike2 = new Bike(
+      this.BIKE2_ID,
       this.BIKE2_ID,
       this.INITIAL_BIKE2_IMG_POS,
       this.INITIAL_BIKE2_DIR,
@@ -215,41 +217,29 @@ export default class TwoPlayerGame extends Game {
             arenaObjects.push(obsElement);
             const obsId = Math.random();
             this.obstacles.push(
-              new Obstacle([
-                left,
-                top,
-                left + width,
-                top],
+              new Obstacle(
+                [left, top, left + width, top],
                 ObstacleType.rock,
                 obsId,
                 null,
                 obsElement
               ),
-              new Obstacle([
-                left + width,
-                top,
-                left + width,
-                top + height],
+              new Obstacle(
+                [left + width, top, left + width, top + height],
                 ObstacleType.rock,
                 obsId,
                 null,
                 obsElement
               ),
-              new Obstacle([
-                left,
-                top + height,
-                left + width,
-                top + height],
+              new Obstacle(
+                [left, top + height, left + width, top + height],
                 ObstacleType.rock,
                 obsId,
                 null,
                 obsElement
               ),
-              new Obstacle([
-                left,
-                top,
-                left,
-                top + height],
+              new Obstacle(
+                [left, top, left, top + height],
                 ObstacleType.rock,
                 obsId,
                 null,
@@ -298,7 +288,9 @@ export default class TwoPlayerGame extends Game {
     //add projectile to list for collision checking
     const projId = Math.random();
     this.projectiles.push(
-      new Projectile(projId,
+      new Projectile(
+        projId,
+        bike.id,
         bike.centerPosition,
         bike.direction,
         this.PROJ_SPEED,
@@ -394,8 +386,7 @@ export default class TwoPlayerGame extends Game {
 
       if (hasCollided.includes(true)) {
         //figure out the winning player and end the game
-        const winnerInd = hasCollided.indexOf(false);
-        this.winningPlayer = this.players[winnerInd];
+        this.winningPlayer = this.players.filter((p) => p != player)[0];
         this.isRunning = false;
         return;
       }
@@ -407,20 +398,24 @@ export default class TwoPlayerGame extends Game {
       let i = this.projectiles.length;
       while (i--) {
         if (this.projectiles[i].hasCollided(obs)) {
-          //remove projectile object and its html element and handle collidee situation
-          this.projectiles[i].element.remove();
-          this.projectiles.splice(i, 1);
-          this.handleProjectileCollision(obs);
+          this.handleProjectileCollision(obs, i);
         }
       }
     }
   }
 
-  handleProjectileCollision(obstacle) {
+  //pIndex is the index in projectiles array that we need to handle collision of
+  handleProjectileCollision(obstacle, pIndex) {
     switch (obstacle.type) {
       case ObstacleType.wall:
+        //remove projectile object and its html element and handle collidee situation
+        this.projectiles[pIndex].element.remove();
+        this.projectiles.splice(pIndex, 1);
         break;
       case ObstacleType.rock:
+        //remove projectile object and its html element and handle collidee situation
+        this.projectiles[pIndex].element.remove();
+        this.projectiles.splice(pIndex, 1);
         //remove html element and the 4 obstacles object that forms the rock
         obstacle.element.remove();
         this.obstacles = this.obstacles.filter(
@@ -428,7 +423,24 @@ export default class TwoPlayerGame extends Game {
         );
         break;
       case ObstacleType.trail:
+        //remove projectile object and its html element and handle collidee situation
+        this.projectiles[pIndex].element.remove();
+        this.projectiles.splice(pIndex, 1);
         this.removeTrailFrom(obstacle);
+        break;
+      case ObstacleType.bike:
+        //only end game if projectile from player A hits player B else ignore
+        const projectileGroupId = this.projectiles[pIndex].groupId;
+        if (obstacle.ownerId != projectileGroupId) {
+          //find out the winner and signal game has ended
+          this.winningPlayer = this.players.filter(
+            (player) => player.bike.id == projectileGroupId
+          )[0];
+          this.isRunning = false;
+          //remove projectile object and its html element and handle collidee situation
+          this.projectiles[pIndex].element.remove();
+          this.projectiles.splice(pIndex, 1);
+        }
         break;
       default:
         break;
@@ -441,9 +453,7 @@ export default class TwoPlayerGame extends Game {
       return player.bike.id == bikeId;
     })[0].bike;
     const index = bike.trail.findIndex((trailSeg) => {
-      return (
-        trailSeg.position == seg.position
-      );
+      return trailSeg.position == seg.position;
     });
 
     //extend the trail deletion further to allow the entire bike img to pass through
@@ -456,6 +466,8 @@ export default class TwoPlayerGame extends Game {
       ) / 2;
 
     const deletionIndex =
+      //plus two below because one account the seg that crossed with projectile and one to handle
+      //edge case when bike touches one end of the ray as it passes by
       Math.ceil(index + halfWidthOfWidestBike / this.BIKESPEED) + 2;
     this.eraseCanvasTrail(bike.trail.slice(0, deletionIndex));
     bike.trail = bike.trail.slice(deletionIndex);

@@ -249,14 +249,16 @@ input {
     box-sizing: border-box;
     position: absolute;
     height: 80px;
-    z-index: 100;
+    z-index: 1;
     padding:0;
     margin:0;
 }
 
 .projectile {
+  box-sizing: border-box;
   position: absolute;
   height: 50px;
+  z-index: 2;
 }
 
 canvas {
