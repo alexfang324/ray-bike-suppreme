@@ -227,8 +227,9 @@ input {
 #arena {
     position: relative;
     flex-shrink: 0;
-    border: solid 3px rgb(188, 19, 254);
+    border: solid 2px rgb(188, 19, 254);
     margin:20px;
+    padding:0;
     border-radius: 10px;
     background-image:
     linear-gradient(to right, rgb(188, 19, 254) 2px, transparent 1px),
@@ -245,18 +246,28 @@ input {
 }
 
 .bike {
+    box-sizing: border-box;
     position: absolute;
     height: 80px;
-    z-index: 100;
+    z-index: 1;
+    padding:0;
+    margin:0;
 }
 
 .projectile {
+  box-sizing: border-box;
   position: absolute;
   height: 50px;
+  z-index: 2;
 }
 
 canvas {
+    box-sizing: border-box;
     position:absolute;
+    width:100%;
+    height:100%;
+    padding:0;
+    margin:0;
 }
 
 .rock {

@@ -4,7 +4,7 @@ import { ObstacleType } from './enum.js';
 
 export default class Game {
   RAYWIDTH = 3; //pixel width of trail
-  BIKESPEED = 5; //pixel distance moved per game interation
+  BIKESPEED = 3; //pixel distance moved per game interation
   ARENA_WIDTH = 900; //pixel width of gameplay arena
   ARENA_HEIGHT = 450; //pixel height of gameplay arena
   ARENA_CEN_POS; //[x,y] position that's calculated at runtime
@@ -38,26 +38,20 @@ export default class Game {
 
     //add arena boundaries as obstacles using relative position of the area
     this.obstacles.push(
-      new Obstacle(0, this.ARENA_HEIGHT, 0, 0, ObstacleType.wall)
+      new Obstacle([0, this.ARENA_HEIGHT, 0, 0], ObstacleType.wall)
     );
     this.obstacles.push(
-      new Obstacle(0, 0, this.ARENA_WIDTH, 0, ObstacleType.wall)
+      new Obstacle([0, 0, this.ARENA_WIDTH, 0], ObstacleType.wall)
     );
     this.obstacles.push(
       new Obstacle(
-        this.ARENA_WIDTH,
-        0,
-        this.ARENA_WIDTH,
-        this.ARENA_HEIGHT,
+        [this.ARENA_WIDTH, 0, this.ARENA_WIDTH, this.ARENA_HEIGHT],
         ObstacleType.wall
       )
     );
     this.obstacles.push(
       new Obstacle(
-        0,
-        this.ARENA_HEIGHT,
-        this.ARENA_WIDTH,
-        this.ARENA_HEIGHT,
+        [0, this.ARENA_HEIGHT, this.ARENA_WIDTH, this.ARENA_HEIGHT],
         ObstacleType.wall
       )
     );
@@ -97,21 +91,37 @@ export default class Game {
       //define trail
       ctx.beginPath();
       trailSegments.forEach((seg) => {
-        ctx.moveTo(seg.x1, seg.y1);
-        ctx.lineTo(seg.x2, seg.y2);
+        const pos = seg.position;
+        ctx.moveTo(pos[0], pos[1]);
+        ctx.lineTo(pos[2], pos[3]);
       });
       //draw trail
       ctx.stroke();
+
+      //////////////////////////////////////////////////////////////////////////////
+      // // drawing box on bike boundaries
+      // ctx.strokeStyle = 'red';
+      // ctx.lineWidth = '2';
+      // ctx.globalCompositeOperation = 'source-over';
+      // ctx.shadowBlur = 0;
+      // ctx.beginPath();
+      // player.bike.boundaries.forEach((b) => {
+      //   const pos = b.position;
+      //   ctx.moveTo(pos[0],pos[1]);
+      //   ctx.lineTo(pos[2],pos[3]);
+      // });
+      // ctx.stroke();
     });
   }
 
   eraseCanvasTrail(segsToRemove) {
     const ctx = this.trailCanvasElement.getContext('2d');
     for (const seg of segsToRemove) {
-      const left = Math.min(seg.x1, seg.x2) - 2 * this.RAYWIDTH;
-      const top = Math.min(seg.y1, seg.y2) - 2 * this.RAYWIDTH;
-      const width = Math.abs(seg.x1 - seg.x2) + 4 * this.RAYWIDTH;
-      const height = Math.abs(seg.y1 - seg.y2) + 4 * this.RAYWIDTH;
+      const pos = seg.position;
+      const left = Math.min(pos[0], pos[2]) - 2 * this.RAYWIDTH;
+      const top = Math.min(pos[1], pos[3]) - 2 * this.RAYWIDTH;
+      const width = Math.abs(pos[2] - pos[0]) + 4 * this.RAYWIDTH;
+      const height = Math.abs(pos[3] - pos[1]) + 4 * this.RAYWIDTH;
       ctx.clearRect(left, top, width, height);
     }
   }

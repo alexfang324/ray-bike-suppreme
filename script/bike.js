@@ -1,26 +1,24 @@
 'use strict';
-import { ImgRotationAngle } from './enum.js';
+import { ObstacleType } from './enum.js';
 import MovableObject from './movable-object.js';
 import Obstacle from './obstacle.js';
 
 export default class Bike extends MovableObject {
   DIR_ARRAY = ['up', 'right', 'down', 'left']; //order of bike dir as user hits the right key
-  
-  bikeId;
   RAY_LIFETIME;
   projectileLeft;
   kbControl; //an array [up,down,left,right] keyboard control key of bike
-  bikeId; //id field of bike's img html element
   centerSeg; //[x_old, y_old, x_new, y_new],evolution of bike center position during last interation
   trail; // a list of Obstacle object representing the segment the bike has travelled over
   trailColor; //color of the trail
   cttSegNum; //number of segments needed to span from bike center to bike tail
 
   constructor(
-    imgPosition,
+    id,
+    groupId,
+    objPosition,
     direction,
     speed,
-    bikeId,
     kbControl,
     imgSrc,
     trailColor,
@@ -28,32 +26,32 @@ export default class Bike extends MovableObject {
     numProjectile,
     emitProjectile
   ) {
-    super(imgPosition, direction, speed, imgSrc);
+    super(id, groupId, objPosition, direction, speed, imgSrc);
     this.kbControl = kbControl;
-    this.bikeId = bikeId;
     this.centerSeg = [...this.centerPosition, ...this.centerPosition];
     this.trail = [];
-    this.bikeId = bikeId;
     const bikeElement = this.element;
-    bikeElement.id = bikeId;
+    bikeElement.id = id;
     bikeElement.classList.add('bike');
     this.trailColor = trailColor;
     this.RAY_LIFETIME = rayLifetime;
     this.projectileLeft = numProjectile;
     this.emitProjectile = emitProjectile; //callback func for emitting a projectile
+    this.obsType = ObstacleType.bike;
 
     //img dimension properties are only available once img has loaded. we want the initial
     //dimension for future headPosition calculation so rotate only after recording the dimensions
     bikeElement.onload = () => {
-      this.imgWidth = parseFloat(
-        bikeElement.getBoundingClientRect().width.toFixed(4)
-      );
-      this.imgHeight = parseFloat(
-        bikeElement.getBoundingClientRect().height.toFixed(4)
-      );
-      this.cttSegNum = Math.floor(this.imgHeight / 2 / this.speed) + 1;
+      const imgSpec = bikeElement.getBoundingClientRect();
+      this.objWidth = imgSpec.width;
+      this.objHeight = imgSpec.height;
 
-      bikeElement.style.rotate = ImgRotationAngle[direction];
+      //calculate how many trail segment behind the bike to ignore during collision check
+      this.cttSegNum =
+        Math.floor((this.objHeight + this.objWidth) / 2 / this.speed) + 1;
+      //rotate loaded image to its initial direction
+      this.rotate();
+      this.boundaries = this.calculateBoundaryObstacles();
     };
   }
 
@@ -73,7 +71,9 @@ export default class Bike extends MovableObject {
 
     //add newst segment to trail with a ttl
     const ttl = new Date(new Date().getTime() + this.RAY_LIFETIME).getTime();
-    this.trail.push(new Obstacle(...this.centerSeg, 'trail', this.bikeId, ttl));
+    this.trail.push(
+      new Obstacle(this.centerSeg, ObstacleType.trail, this.id, ttl)
+    );
   }
 
   //remove expired trail based on trail ttl
@@ -94,18 +94,19 @@ export default class Bike extends MovableObject {
     switch (key.toLowerCase()) {
       case this.kbControl[0].toLowerCase():
         this.direction = this.getNewDirection(-1);
+        this.rotate();
         break;
       case this.kbControl[1].toLowerCase():
         this.direction = this.getNewDirection(1);
+        this.rotate();
         break;
       case this.kbControl[2].toLowerCase():
-        if (this.projectileLeft > 0){
+        if (this.projectileLeft > 0) {
           this.emitProjectile(this);
           this.projectileLeft--;
         }
         break;
     }
-    this.element.style.rotate = ImgRotationAngle[this.direction];
   }
 
   //Summary: update bike's moving direction
