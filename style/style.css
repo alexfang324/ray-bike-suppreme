@@ -321,3 +321,8 @@ canvas {
 #score-stats > p{
   font-size: 1.5em;
 }
+
+#play-again-btn, #main-menu-btn{
+  font-size: 20px;
+  background-color:orange;
+}

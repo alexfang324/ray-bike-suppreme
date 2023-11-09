@@ -2,21 +2,21 @@ import { Direction, ImgRotationAngle, ObstacleType } from './enum.js';
 import Obstacle from './obstacle.js';
 
 export default class MovableObject {
-  id; //id field of object
-  groupId; //used to identify related movable objects (bike and its projectile and boundary obstacles)
-  obsType; //obstacle type for the obstacle objects that will form its boundaries
-  objPosition; //top left position of object img as appeared on screen (or as received through getBoundingClientRect method)
-  imgPosition; //top left position of object img before rotate is performed (which doesn't change DOM top left values)
+  id; //id of this object instance
+  groupId; //used to identify related MovableObject instances (bike and its projectile and boundary obstacles)
+  speed; //num pixel moved per game loop interation
   direction; //current direction of object's motion
-  speed; //num pixel bike moves per game interation
-  objWidth; //img width when it's first loaded
-  objHeight; //img height when it's first loaded
-  headPosition; //[x,y] position of object's head
-  centerPosition; //[x,y] position of object's center
-  tailPosition; //[x,y] position of object's tail
-  element; //img html element of the object
-  arena;
-  boundaries; //array of Obstacle objects that defines the img boundaries of the MovableObject
+  objWidth; //img width
+  objHeight; //img height
+  headPosition; //[top, left] position of object's head
+  centerPosition; //[top, left] position of object's center
+  tailPosition; //[top, left] position of object's tail
+  obsType; //obstacle type for the Obstacle instances that will form its boundaries
+  boundaries; //array of Obstacle instances that defines the boundaries of this object on screen
+  objPosition; //top left position of object img as appeared on screen (i.e. as received through getBoundingClientRect method)
+  imgPosition; //top left position of object img before rotate is performed (which doesn't change DOM top left values)
+  element; //html img element of the object
+  arenaElement = document.getElementById('arena');
 
   constructor(id, groupId, objPosition, direction, speed, imgSrc) {
     this.id = id;
@@ -29,19 +29,14 @@ export default class MovableObject {
     this.centerPosition = this.calculateCenterPosition();
     this.tailPosition = this.calculateTailPosition();
 
-    //create img html element and add append to arena element
-    this.arena = document.getElementById('arena');
+    //create html img element of this object and append to arena element
     const obj = document.createElement('img');
     obj.src = imgSrc;
     obj.style.left = objPosition[0] + 'px';
     obj.style.top = objPosition[1] + 'px';
-    this.arena.appendChild(obj);
+    this.arenaElement.appendChild(obj);
     this.element = obj;
   }
-
-  //Summary: Calculate position of bike's head, given it's direction, using image position
-  //         (top left of initial img) and initial img width and height.
-  //Output: array of x, y of bike's head position.
 
   calculateHeadPosition() {
     switch (this.direction) {
@@ -128,7 +123,7 @@ export default class MovableObject {
     //left position because even though the displayed image position has changed, we did it through
     //css rotate from the original top left position when the img was in its up-right position.
     //The actual image top left position hasn't changed
-    const arenaSpec = this.arena.getBoundingClientRect();
+    const arenaSpec = this.arenaElement.getBoundingClientRect();
     this.objPosition = [
       imgSpec.left - arenaSpec.left,
       imgSpec.top - arenaSpec.top

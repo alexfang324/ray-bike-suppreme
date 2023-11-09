@@ -1,5 +1,5 @@
 'use strict';
-import TwoPlayerGame from './two-player-game.js';
+import Game from './game.js';
 
 //Parameters
 let difficulty = 'easy';
@@ -14,8 +14,8 @@ const inputElement1 = document.getElementById('name1');
 const inputElement2 = document.getElementById('name2');
 const gamePageElement = document.getElementById('game-page');
 
-//wire up opening page default options and event listener
-function loadGame() {
+//Summary: wire up opening page default options and event listener
+function loadOpeningPage() {
   //set up start game button
   startGameBtn.addEventListener('click', startGame);
 
@@ -26,28 +26,34 @@ function loadGame() {
   });
 }
 
-//unselect all diffulty mode and select the one clicked.
+//Summary: unselect all diffulty mode and select the one clicked.
+//Input: click event of the mode selected
 function selectDifficultyMode(event) {
+  event.preventDefault();
+  //unselect all modes
   difficultyModes.forEach((element) => {
     element.children[0].classList.remove('active');
   });
+  //select the mode clicked
   event.target.classList.add('active');
   difficulty = event.target.getAttribute('value');
 }
 
-//load game page and start the selected game
+//Summary: load game page and start game
 function startGame() {
+  //hide opening page and show game page
   openingPageElement.setAttribute('hidden', 'true');
   gamePageElement.removeAttribute('hidden');
+  //clear opening page input field
   const playerName1 = inputElement1.value;
   const playerName2 = inputElement2.value;
   inputElement1.value = '';
   inputElement2.value = '';
-
-  new TwoPlayerGame(difficulty, playerName1, playerName2);
+  //start game
+  new Game(difficulty, playerName1, playerName2);
 }
 
 //Entry point for the game
 document.addEventListener('DOMContentLoaded', () => {
-  loadGame();
+  loadOpeningPage();
 });
