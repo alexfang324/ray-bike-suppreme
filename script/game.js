@@ -11,47 +11,53 @@ export default class Game {
   /////////////////////////////////////////////////////////////////////////////////
 
   //GAME-RELATED CONSTANT
-  GAME_REFRESH_RATE = 30; //ms refresh rate, up to screen refresh rate
-  MED_LEVEL_OBS_NUM = 4;
-  HARD_LEVEL_OBS_NUM = 8;
-  MIN_OBS_HEIGHT = 20; //minimum obstacle height in px;
-  MAX_OBS_HEIGHT = 100; //max obstacle height in px;
+  GAME_REFRESH_RATE = 30; //miliseconds to wait before advance the game by one game loop
+  MED_LEVEL_OBS_NUM = 4; //number of rock obstacles for medium difficulty
+  HARD_LEVEL_OBS_NUM = 8; //number of rock obstacles for hard difficulty
+  MIN_OBS_HEIGHT = 20; //minimum pixel height or rock obstacle
+  MAX_OBS_HEIGHT = 100; //maximum pixel height or rock obstacle
   OBS_IMG_PATH = '../img/rock.jpg'; //image path of stationary obstacle
   PROJ_IMG_PATH = '../img/laser.png'; //image path of projectile
 
   //ARENA-RELATED CONSTANTS
   ARENA_WIDTH = 900; //pixel width of gameplay arena
   ARENA_HEIGHT = 450; //pixel height of gameplay arena
-  ARENA_GRID_X_NUM = 15; //number of background grid lines horizontally
-  ARENA_GRID_Y_NUM = 8; //number of background grid lines horizontally
+  ARENA_GRID_X_NUM = 15; //number of horizontal arena background grid lines
+  ARENA_GRID_Y_NUM = 8; //number of vertical arena background grid lines
 
   //BIKE-RELATED CONSTANT
-  RAYWIDTH = 3; //pixel width of trail
-  RAY_LIFETIME = 8000; //lifetime in miliseconds
-  NUM_PROJ = 5; //# of laser a bike can emit
-  BIKESPEED = 3; //pixel distance moved per game interation
-  PROJ_SPEED = 20; //speed of projectile
+  RAYWIDTH = 3; //pixel width of ray trail
+  RAY_LIFETIME = 8000; //milisecond lifetime of ray trail
+  NUM_PROJ = 5; //number of projectile a bike can emit
+  BIKESPEED = 3; //pixel distance bike will move per game loop iteration
+  PROJ_SPEED = 20; //pixel distance projectile will move per game loop iteration
   BIKE1_ID = 'bike1';
+  BIKE1_IMG = '../img/red-bike.jpg';
+  BIKE1_CONTROL = ['a', 'd', 'w']; //[turn-left, emit-projectile, turn-right] keys for bike1
+  BIKE1_TRAIL_COLOR = 'rgb(188, 19, 254)';
   INITIAL_BIKE1_DIR = Direction.right;
-  INITIAL_BIKE1_IMG_POS = [150, 180]; //left and top position of bike
+  INITIAL_BIKE1_IMG_POS = [150, 180]; //left and top position of bike1
   BIKE2_ID = 'bike2';
+  BIKE2_IMG = '../img/green-bike.jpg';
+  BIKE2_CONTROL = ['ArrowLeft', 'ArrowRight', 'ArrowUp']; //[turn-left, emit-projectile, turn-right] keys for bike1
+  BIKE2_TRAIL_COLOR = 'rgb(57, 255, 20)';
   INITIAL_BIKE2_DIR = Direction.left;
-  INITIAL_BIKE2_IMG_POS = [750, 180];
+  INITIAL_BIKE2_IMG_POS = [750, 180]; //left and top position of bike2
 
   //Game-related Properties
   difficulty; //game difficulty
   isRunning = false; //boolean to indicate the status of the game
-  gameStartTime;
+  gameStartTime; //record the timestamp when we enter the main game loop for the first time
   lastTimestamp; //record last timestamp used for requestAnimateFrame of the main game loop
   animFrameId; //requestAnimationFrame id for the main game loop
   winningPlayer; //tracks the winning player object
   playerName1;
   playerName2;
-  score;
-  projectiles = [];
-  arena; // arena html element
-  players = [];
-  obstacles = []; //list of obstacles in the arena (not including bike trails)
+  score; //score of the current game
+  projectiles = []; //array of projectile-type Obstacle instances in the arena
+  arenaElement; // html div element representing the arena
+  players = []; //array of players in the game
+  obstacles = []; //array of Obstacle instances in the arena (not including bike trails)
 
   //DOM-related Properties
   openingPageElement;
@@ -148,15 +154,15 @@ export default class Game {
   setupArena() {
     //create an arena element and add to DOM
     const rootElement = document.getElementById('game-page');
-    this.arena = document.createElement('div');
-    this.arena.id = 'arena';
-    this.arena.style.width = this.ARENA_WIDTH + 'px';
-    this.arena.style.height = this.ARENA_HEIGHT + 'px';
+    this.arenaElement = document.createElement('div');
+    this.arenaElement.id = 'arena';
+    this.arenaElement.style.width = this.ARENA_WIDTH + 'px';
+    this.arenaElement.style.height = this.ARENA_HEIGHT + 'px';
     //this line together,with css, draws the gridlines for the arena
-    this.arena.style.backgroundSize = `${
+    this.arenaElement.style.backgroundSize = `${
       this.ARENA_WIDTH / this.ARENA_GRID_X_NUM
     }px ${this.ARENA_HEIGHT / this.ARENA_GRID_Y_NUM}px`;
-    rootElement.appendChild(this.arena);
+    rootElement.appendChild(this.arenaElement);
 
     //add arena boundaries as Obstacle objects using relative position of the arena
     this.obstacles.push(
@@ -277,9 +283,9 @@ export default class Game {
       this.INITIAL_BIKE1_IMG_POS,
       this.INITIAL_BIKE1_DIR,
       this.BIKESPEED,
-      ['a', 'd', 'w'],
-      '../img/red-bike.jpg',
-      'rgb(188, 19, 254)',
+      this.BIKE1_CONTROL,
+      this.BIKE1_IMG,
+      this.BIKE1_TRAIL_COLOR,
       this.RAY_LIFETIME,
       this.NUM_PROJ,
       this.emitProjectile
@@ -292,9 +298,9 @@ export default class Game {
       this.INITIAL_BIKE2_IMG_POS,
       this.INITIAL_BIKE2_DIR,
       this.BIKESPEED,
-      ['ArrowLeft', 'ArrowRight', 'ArrowUp'],
-      '../img/green-bike.jpg',
-      'rgb(57, 255, 20)',
+      this.BIKE2_CONTROL,
+      this.BIKE2_IMG,
+      this.BIKE2_TRAIL_COLOR,
       this.RAY_LIFETIME,
       this.NUM_PROJ,
       this.emitProjectile
@@ -330,7 +336,7 @@ export default class Game {
       obsElement.style.height = obsHeight + 'px';
       obsElement.style.top = '0px';
       obsElement.style.left = '0px';
-      this.arena.appendChild(obsElement);
+      this.arenaElement.appendChild(obsElement);
 
       //when it's loaded into DOM, randomly places it on the arena
       obsElement.onload = () => {
@@ -438,7 +444,7 @@ export default class Game {
     const countDownTextElement = document.createElement('div');
     countDownTextElement.classList.add('pop-up-text');
     countDownTextElement.innerHTML = counter;
-    this.arena.append(countDownTextElement);
+    this.arenaElement.append(countDownTextElement);
     //using setInterval to update countdown text
     const timeoutId = setInterval(() => {
       if (counter) {
@@ -521,7 +527,7 @@ export default class Game {
     const endGameTextElement = document.createElement('div');
     endGameTextElement.classList.add('pop-up-text');
     endGameTextElement.innerHTML = 'Game Over';
-    this.arena.append(endGameTextElement);
+    this.arenaElement.append(endGameTextElement);
     const timeoutId = setTimeout(() => {
       endGameTextElement.remove();
       //remove event listeners, update score and render game-over page

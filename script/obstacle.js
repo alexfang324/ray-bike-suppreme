@@ -3,13 +3,12 @@
 export default class Obstacle {
   constructor(
     position, //[x1,y1,x2,y2] of the line segment representing the obstacle
-    type = null,
-    ownerId = null, //used to relate to owner. e.g. 4 sides of a rock would all have the same
-    //html tag id of the rock element and all trails segs will have the id of the bike element
+    type = null, //null or one of values from ObstacleType enum
+    ownerId = null, //used to relate to owner. e.g. rock boundary to the rock html img element or trail segment to its bike
     ttl = null, //time to live in milliseconds
     element = null //html element of the obstacle
   ) {
-    this.position = position
+    this.position = position;
     this.type = type;
     this.ownerId = ownerId;
     this.ttl = ttl;

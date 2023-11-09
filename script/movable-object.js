@@ -8,13 +8,12 @@ export default class MovableObject {
   direction; //current direction of object's motion
   objWidth; //img width
   objHeight; //img height
-  headPosition; //[top, left] position of object's head
-  centerPosition; //[top, left] position of object's center
-  tailPosition; //[top, left] position of object's tail
   obsType; //obstacle type for the Obstacle instances that will form its boundaries
   boundaries; //array of Obstacle instances that defines the boundaries of this object on screen
   objPosition; //top left position of object img as appeared on screen (i.e. as received through getBoundingClientRect method)
   imgPosition; //top left position of object img before rotate is performed (which doesn't change DOM top left values)
+  headPosition; //[top, left] position of object's head
+  centerPosition; //[top, left] position of object's center
   element; //html img element of the object
   arenaElement = document.getElementById('arena');
 
@@ -27,7 +26,6 @@ export default class MovableObject {
     this.speed = speed;
     this.headPosition = this.calculateHeadPosition();
     this.centerPosition = this.calculateCenterPosition();
-    this.tailPosition = this.calculateTailPosition();
 
     //create html img element of this object and append to arena element
     const obj = document.createElement('img');
@@ -76,31 +74,16 @@ export default class MovableObject {
     return position;
   }
 
-  calculateTailPosition() {
-    const position = this.calculateHeadPosition();
-    switch (this.direction) {
-      case Direction.up:
-        position[1] = position[1] + this.objHeight;
-        break;
-      case Direction.down:
-        position[1] = position[1] - this.objHeight;
-        break;
-      case Direction.left:
-        position[0] = position[0] + this.objWidth;
-        break;
-      case Direction.right:
-        position[0] = position[0] - this.objWidth;
-        break;
-    }
-    return position;
-  }
-
+  //Summary: calculate object's boundaries using its apparent top left position on the screen
+  //instead of its elemental values because css rotate doesn't change these values
+  //Output: an array of Obstacle instances represent the object boundaries
   calculateBoundaryObstacles() {
-    //calculate boundaries of the bike image
+    //calculate the x and y bounds of the bike image
     const x1 = this.objPosition[0];
     const y1 = this.objPosition[1];
     const x2 = this.objPosition[0] + this.objWidth;
     const y2 = this.objPosition[1] + this.objHeight;
+    //create the array
     return [
       new Obstacle([x1, y1, x2, y1], this.obsType, this.groupId),
       new Obstacle([x2, y1, x2, y2], this.obsType, this.groupId),
@@ -109,7 +92,8 @@ export default class MovableObject {
     ];
   }
 
-  //calculate the new [left,top] position and dimension of the obj when a new direction is given
+  //Summary: calculate the new [left,top] position and dimension of the object when a new
+  //direction is given
   rotate() {
     this.element.style.transform = `rotate(${
       ImgRotationAngle[this.direction]
@@ -130,7 +114,8 @@ export default class MovableObject {
     ];
   }
 
-  //move object forward by updating DOM position and its related class properties
+  //Summary: move object forward by updating DOM position and its related position and
+  //boundaries properties
   moveForward(obj) {
     const objElement = obj.element;
     switch (this.direction) {
@@ -157,10 +142,11 @@ export default class MovableObject {
     }
     this.headPosition = this.calculateHeadPosition();
     this.centerPosition = this.calculateCenterPosition();
-    this.tailPosition = this.calculateTailPosition();
     this.boundaries = this.calculateBoundaryObstacles();
   }
 
+  //Summary: check if any of the object's boundary has collided with the given obstacle
+  //Input: an Obstacle instance
   hasCollided(obstacle) {
     //return false if bike is seeing its own boundaries
     if (this.id == obstacle.ownerId && obstacle.type == ObstacleType.bike) {
@@ -173,10 +159,15 @@ export default class MovableObject {
     return hasCollided.includes(true);
   }
 
+  //Summary: check if two line segments crossed (includes ends touching each other)
+  //Input: both are of [x1, y1, x2, y2] format
+  //Output: boolean of if they cross
   hasCrossed(seg1, seg2) {
+    //determine the direction of it segment
     const seg1Dir = seg1[2] - seg1[0] == 0 ? 'vertical' : 'horizontal';
     const seg2Dir = seg2[2] - seg2[0] == 0 ? 'vertical' : 'horizontal';
 
+    //get the x and y bounds of each segment
     const minSeg1X = Math.min(seg1[0], seg1[2]);
     const maxSeg1X = Math.max(seg1[0], seg1[2]);
     const minSeg1Y = Math.min(seg1[1], seg1[3]);
@@ -187,6 +178,9 @@ export default class MovableObject {
     const maxSeg2Y = Math.max(seg2[1], seg2[3]);
 
     switch (true) {
+      //perpendicular lines cross when the y value of the horizontal line
+      //is within y range of the vertical line and the x value of the vertical
+      //line is within the x range of the horizontal line
       case seg1Dir === 'horizontal' && seg2Dir === 'vertical':
         if (
           seg1[1] >= minSeg2Y &&
@@ -207,6 +201,8 @@ export default class MovableObject {
           return true;
         }
 
+      //parallel lines overlap(i.e. cross) when one of its ends is within the
+      //range of the other line
       case seg1Dir === 'vertical' && seg2Dir === 'vertical':
         const seg1X = seg1[0];
         const seg2X = seg2[0];

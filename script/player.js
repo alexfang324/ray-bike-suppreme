@@ -12,6 +12,7 @@ export default class Player {
     this.bestScore = 0;
   }
 
+  //Summary: caclculate the accumulated and the best-so-far score
   updateScore(newScore) {
     this.accumulatedScore += newScore;
     this.bestScore = Math.max(newScore, this.bestScore);
