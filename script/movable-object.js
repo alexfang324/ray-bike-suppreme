@@ -148,8 +148,12 @@ export default class MovableObject {
   //Summary: check if any of the object's boundary has collided with the given obstacle
   //Input: an Obstacle instance
   hasCollided(obstacle) {
-    //return false if bike is seeing its own boundaries
-    if (this.id == obstacle.ownerId && obstacle.type == ObstacleType.bike) {
+    //return false if bike is seeing its own boundaries or projectile
+    if (
+      this.id == obstacle.ownerId &&
+      (obstacle.type == ObstacleType.bike ||
+        obstacle.type == ObstacleType.projectile)
+    ) {
       return false;
     }
     //else check for collision

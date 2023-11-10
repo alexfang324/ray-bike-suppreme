@@ -487,7 +487,8 @@ export default class Game {
       });
 
       //build a list of current obstacles that exist in the arena. We do this because
-      //the length each bike trail can get updated during each game loop
+      //the content of each bike trail array and projectile array can get updated during
+      //each game loop
       let updatedObstacles = [...this.obstacles];
       this.players.forEach((player) => {
         updatedObstacles = [
@@ -495,6 +496,11 @@ export default class Game {
           ...player.bike.boundaries,
           ...player.bike.getTrailForCollisionCheck()
         ];
+      });
+
+      //add projectile boundaries to udpatedObstacles as well
+      this.projectiles.forEach((p) => {
+        updatedObstacles.push(...p.boundaries);
       });
 
       //advance projectile motion
@@ -592,9 +598,11 @@ export default class Game {
     for (const obs of updatedObstacles) {
       let i = this.projectiles.length;
       //looping from the end of array is necessary because the projectile that has collided
-      //will be removed in place when we handle the collision
+      //will be removed in place when we handle the collision and forward loop will skip over
+      //projectile unexpectedly. The first existential condition check is also needed because
+      //two projectiles might be removed at once if they collide with each other
       while (i--) {
-        if (this.projectiles[i].hasCollided(obs)) {
+        if (this.projectiles[i] && this.projectiles[i].hasCollided(obs)) {
           this.handleProjectileCollision(obs, i);
         }
       }
@@ -605,17 +613,18 @@ export default class Game {
   //Input: obstacle is an Obstacle instance
   //pIndex is the index of the collided projectile in the projectiles array properties of Game
   handleProjectileCollision(obstacle, pIndex) {
+    const projectile = this.projectiles[pIndex];
     switch (obstacle.type) {
       //if wall, only remove projectile itself
       case ObstacleType.wall:
         //remove projectile object and its html element
-        this.projectiles[pIndex].element.remove();
+        projectile.element.remove();
         this.projectiles.splice(pIndex, 1);
         break;
       //If rock, remove rock and projectile
       case ObstacleType.rock:
         //remove projectile object and its html element
-        this.projectiles[pIndex].element.remove();
+        projectile.element.remove();
         this.projectiles.splice(pIndex, 1);
         //remove html element and the 4 Obstacle isntance that represent the rock
         obstacle.element.remove();
@@ -626,14 +635,14 @@ export default class Game {
       //If trail, remove trail segments from contact point and remove projectile
       case ObstacleType.trail:
         //remove projectile object and its html element
-        this.projectiles[pIndex].element.remove();
+        projectile.element.remove();
         this.projectiles.splice(pIndex, 1);
         //remove all trailing trail from point of contact
         this.removeTrailFrom(obstacle);
         break;
       //If bike, end game if projectile from player A hits player B else ignore
       case ObstacleType.bike:
-        const projectileGroupId = this.projectiles[pIndex].groupId;
+        const projectileGroupId = projectile.groupId;
         if (obstacle.ownerId != projectileGroupId) {
           //game ended, find out the winner and signal game has ended
           this.winningPlayer = this.players.filter(
@@ -641,10 +650,26 @@ export default class Game {
           )[0];
           this.isRunning = false;
           //remove projectile object and its html element
-          this.projectiles[pIndex].element.remove();
+          projectile.element.remove();
           this.projectiles.splice(pIndex, 1);
         }
         break;
+      //if another projecticle, delete them both from screen
+      case ObstacleType.projectile:
+        //find the other projectile in projectile array and its index in array
+        const otherProjectile = this.projectiles.filter(
+          (p) => p.groupId === obstacle.ownerId
+        )[0];
+        const otherProjectileIndex = this.projectiles.indexOf(otherProjectile);
+        //if the collision between two projectile boundary obstacles are not from
+        //the same projectile, then emove both projectiles from array and from screne
+        if (projectile.id != otherProjectile.id) {
+          //remove both projectile object and their html element
+          projectile.element.remove();
+          this.projectiles.splice(pIndex, 1);
+          otherProjectile.element.remove();
+          this.projectiles.splice(otherProjectileIndex, 1);
+        }
     }
   }
 
