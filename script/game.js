@@ -579,15 +579,23 @@ export default class Game {
   //Input: an array of Obstacle instances
   checkBikeCollision(updatedObstacles) {
     for (const player of this.players) {
-      const hasCollided = updatedObstacles.map((obs) => {
-        return player.bike.hasCollided(obs);
-      });
-
-      if (hasCollided.includes(true)) {
-        //figure out the winning player and end the game
-        this.winningPlayer = this.players.filter((p) => p != player)[0];
-        this.isRunning = false;
-        return;
+      for (const obs of updatedObstacles) {
+        //check collision between bike and every Obstacle instance
+        if (player.bike.hasCollided(obs)) {
+          //if bike collided with its own boundary or laser, ignore it and move on
+          switch (true) {
+            case player.bike.id == obs.ownerId && obs.type == ObstacleType.bike:
+            case player.bike.id == obs.ownerId &&
+              obs.type == ObstacleType.projectile:
+              break;
+            //if bike collided with other things, declare the other bike's player as winner
+            default:
+              //figure out the winning player and end the game
+              this.winningPlayer = this.players.filter((p) => p != player)[0];
+              this.isRunning = false;
+              return;
+          }
+        }
       }
     }
   }
