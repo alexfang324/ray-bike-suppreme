@@ -1,5 +1,5 @@
-import { Direction, ImgRotationAngle, ObstacleType } from './enum.js';
-import Obstacle from './obstacle.js';
+import { Direction, ImgRotationAngle, ObstacleType } from "./enum.js";
+import Obstacle from "./obstacle.js";
 
 export default class MovableObject {
   id; //id of this object instance
@@ -15,7 +15,7 @@ export default class MovableObject {
   headPosition; //[top, left] position of object's head
   centerPosition; //[top, left] position of object's center
   element; //html img element of the object
-  arenaElement = document.getElementById('arena');
+  arenaElement = document.getElementById("arena");
 
   constructor(id, groupId, objPosition, direction, speed, imgSrc) {
     this.id = id;
@@ -26,12 +26,13 @@ export default class MovableObject {
     this.speed = speed;
     this.headPosition = this.calculateHeadPosition();
     this.centerPosition = this.calculateCenterPosition();
+    this.boundaries = [];
 
     //create html img element of this object and append to arena element
-    const obj = document.createElement('img');
+    const obj = document.createElement("img");
     obj.src = imgSrc;
-    obj.style.left = objPosition[0] + 'px';
-    obj.style.top = objPosition[1] + 'px';
+    obj.style.left = objPosition[0] + "px";
+    obj.style.top = objPosition[1] + "px";
     this.arenaElement.appendChild(obj);
     this.element = obj;
   }
@@ -43,14 +44,14 @@ export default class MovableObject {
       case Direction.down:
         return [
           this.objPosition[0] + this.objWidth / 2,
-          this.objPosition[1] + this.objHeight
+          this.objPosition[1] + this.objHeight,
         ];
       case Direction.left:
         return [this.objPosition[0], this.objPosition[1] + this.objHeight / 2];
       case Direction.right:
         return [
           this.objPosition[0] + this.objWidth,
-          this.objPosition[1] + this.objHeight / 2
+          this.objPosition[1] + this.objHeight / 2,
         ];
     }
   }
@@ -88,7 +89,7 @@ export default class MovableObject {
       new Obstacle([x1, y1, x2, y1], this.obsType, this.groupId),
       new Obstacle([x2, y1, x2, y2], this.obsType, this.groupId),
       new Obstacle([x2, y2, x1, y2], this.obsType, this.groupId),
-      new Obstacle([x1, y2, x1, y1], this.obsType, this.groupId)
+      new Obstacle([x1, y2, x1, y1], this.obsType, this.groupId),
     ];
   }
 
@@ -110,7 +111,7 @@ export default class MovableObject {
     const arenaSpec = this.arenaElement.getBoundingClientRect();
     this.objPosition = [
       imgSpec.left - arenaSpec.left,
-      imgSpec.top - arenaSpec.top
+      imgSpec.top - arenaSpec.top,
     ];
   }
 
@@ -122,22 +123,22 @@ export default class MovableObject {
       case Direction.up:
         this.objPosition[1] -= this.speed;
         this.imgPosition[1] -= this.speed;
-        objElement.style.top = this.imgPosition[1] + 'px';
+        objElement.style.top = this.imgPosition[1] + "px";
         break;
       case Direction.down:
         this.objPosition[1] += this.speed;
         this.imgPosition[1] += this.speed;
-        objElement.style.top = this.imgPosition[1] + 'px';
+        objElement.style.top = this.imgPosition[1] + "px";
         break;
       case Direction.left:
         this.objPosition[0] -= this.speed;
         this.imgPosition[0] -= this.speed;
-        objElement.style.left = this.imgPosition[0] + 'px';
+        objElement.style.left = this.imgPosition[0] + "px";
         break;
       case Direction.right:
         this.objPosition[0] += this.speed;
         this.imgPosition[0] += this.speed;
-        objElement.style.left = this.imgPosition[0] + 'px';
+        objElement.style.left = this.imgPosition[0] + "px";
         break;
     }
     this.headPosition = this.calculateHeadPosition();
@@ -159,8 +160,8 @@ export default class MovableObject {
   //Output: boolean of if they cross
   hasCrossed(seg1, seg2) {
     //determine the direction of it segment
-    const seg1Dir = seg1[2] - seg1[0] == 0 ? 'vertical' : 'horizontal';
-    const seg2Dir = seg2[2] - seg2[0] == 0 ? 'vertical' : 'horizontal';
+    const seg1Dir = seg1[2] - seg1[0] == 0 ? "vertical" : "horizontal";
+    const seg2Dir = seg2[2] - seg2[0] == 0 ? "vertical" : "horizontal";
 
     //get the x and y bounds of each segment
     const minSeg1X = Math.min(seg1[0], seg1[2]);
@@ -176,7 +177,7 @@ export default class MovableObject {
       //perpendicular lines cross when the y value of the horizontal line
       //is within y range of the vertical line and the x value of the vertical
       //line is within the x range of the horizontal line
-      case seg1Dir === 'horizontal' && seg2Dir === 'vertical':
+      case seg1Dir === "horizontal" && seg2Dir === "vertical":
         if (
           seg1[1] >= minSeg2Y &&
           seg1[1] <= maxSeg2Y &&
@@ -186,7 +187,7 @@ export default class MovableObject {
           return true;
         }
 
-      case seg1Dir === 'vertical' && seg2Dir === 'horizontal':
+      case seg1Dir === "vertical" && seg2Dir === "horizontal":
         if (
           seg1[0] >= minSeg2X &&
           seg1[0] <= maxSeg2X &&
@@ -198,7 +199,7 @@ export default class MovableObject {
 
       //parallel lines overlap(i.e. cross) when one of its ends is within the
       //range of the other line
-      case seg1Dir === 'vertical' && seg2Dir === 'vertical':
+      case seg1Dir === "vertical" && seg2Dir === "vertical":
         const seg1X = seg1[0];
         const seg2X = seg2[0];
         if (seg1X === seg2X) {
@@ -210,7 +211,7 @@ export default class MovableObject {
           }
         }
 
-      case seg1Dir === 'horizontal' && seg2Dir === 'horizontal':
+      case seg1Dir === "horizontal" && seg2Dir === "horizontal":
         const seg1Y = seg1[1];
         const seg2Y = seg2[1];
         if (seg1Y === seg2Y) {
