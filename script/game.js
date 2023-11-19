@@ -14,8 +14,8 @@ export default class Game {
   GAME_REFRESH_RATE = 30; //miliseconds to wait before advance the game by one game loop
   MED_LEVEL_OBS_NUM = 4; //number of rock obstacles for medium difficulty
   HARD_LEVEL_OBS_NUM = 8; //number of rock obstacles for hard difficulty
-  MIN_OBS_HEIGHT = 20; //minimum pixel height or rock obstacle
-  MAX_OBS_HEIGHT = 100; //maximum pixel height or rock obstacle
+  MIN_OBS_HEIGHT = 40; //minimum pixel height or rock obstacle
+  MAX_OBS_HEIGHT = 80; //maximum pixel height or rock obstacle
   OBS_IMG_PATH = "../img/rock.jpg"; //image path of stationary obstacle
   PROJ_IMG_PATH = "../img/laser.png"; //image path of projectile
 
@@ -324,8 +324,8 @@ export default class Game {
 
         //max attempt 20 before moving on
         let attempts = 20;
+        let overlap = false;
         while (attempts) {
-          let overlap = false;
           attempts -= 1;
 
           //randomly place the rock using arena relative position
@@ -384,18 +384,19 @@ export default class Game {
               )
             );
             break;
-          } else {
-            //delete this rock elmenet from DOM even it can't be placed within allowed attempts
-            obsElement.remove();
           }
+        }
+        ////delete this rock elmenet from DOM even if it can't be placed within allowed attempts
+        if (overlap){
+          obsElement.remove();
         }
       };
     }
   }
 
   //Summary: check if two rectangular html image elements have overlap
-  //overlap is true when a corner of an image 1 is within both the x-range
-  //and y-range of image 2.
+  //overlap is true when a corner of an image is within both the x-range
+  //and y-range of the other image.
   //Input: inputs are DOMRect objects that are returned from calling getBoundingClientRect()
   //       on an html element
   checkImageOverlap(rect1, rect2) {
@@ -408,12 +409,19 @@ export default class Game {
     const minY2 = rect2.top;
     const maxY2 = rect2.top + rect2.height;
 
-    const inXRange =
-      (minX2 > minX1 && minX2 < maxX1) || (maxX2 > minX1 && maxX2 < maxX1);
+    //expression for checking if a corner of rect1 is contained in rect2
+    const rect1InXRange =
+      (minX1 >= minX2 && minX1 <= maxX2) || (maxX1 >= minX2 && maxX1 <= maxX2);
+    const rect1InYRange =
+      (minY1 >= minY2 && minY1 <= maxY2) || (maxY1 >= minY2 && maxY1 <= maxY2);
 
-    const inYRange =
-      (minY2 > minY1 && minY2 < maxY1) || (maxY2 > minY1 && maxY2 < maxY1);
-    return inXRange && inYRange;
+    //expression for checking if a corner of rect2 is contained in rect1
+    const rect2InXRange =
+      (minX2 >= minX1 && minX2 <= maxX1) || (maxX2 >= minX1 && maxX2 <= maxX1);
+    const rect2InYRange =
+      (minY2 >= minY1 && minY2 <= maxY1) || (maxY2 >= minY1 && maxY2 <= maxY1);
+
+    return (rect1InXRange && rect1InYRange) || (rect2InXRange && rect2InYRange);
   }
 
   //Summary: count down to game start then invoke the core game loop.
@@ -636,7 +644,7 @@ export default class Game {
         //remove all trailing trail from point of contact
         this.removeTrailFrom(obstacle);
         break;
-      //If bike, end game if projectile from player A hits player B else ignore
+      //If bike, end game when projectile from player A hits player B else ignore collision
       case ObstacleType.bike:
         const projectileGroupId = projectile.groupId;
         if (obstacle.ownerId != projectileGroupId) {
@@ -645,9 +653,6 @@ export default class Game {
             (player) => player.bike.id == projectileGroupId
           )[0];
           this.isRunning = false;
-          //remove projectile object and its html element
-          projectile.element.remove();
-          this.projectiles.splice(pIndex, 1);
         }
         break;
       //if collided with projecticle from another bike, delete both from screen
