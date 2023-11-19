@@ -143,7 +143,7 @@ input {
 
 #difficulty-mode > li > a.active,
 #difficulty-mode > li > a:hover {
-  color: red;
+  color: purple;
   font-weight: 500;
   background-color: skyblue;
 }

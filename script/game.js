@@ -1,9 +1,9 @@
-"use strict";
-import Player from "./player.js";
-import Bike from "./bike.js";
-import Obstacle from "./obstacle.js";
-import { Direction, ObstacleType } from "./enum.js";
-import Projectile from "./projectile.js";
+'use strict';
+import Player from './player.js';
+import Bike from './bike.js';
+import Obstacle from './obstacle.js';
+import { Direction, ObstacleType } from './enum.js';
+import Projectile from './projectile.js';
 
 export default class Game {
   /////////////////////////////////////////////////////////////////////////////////
@@ -16,9 +16,11 @@ export default class Game {
   HARD_LEVEL_OBS_NUM = 8; //number of rock obstacles for hard difficulty
   MIN_OBS_HEIGHT = 40; //minimum pixel height or rock obstacle
   MAX_OBS_HEIGHT = 80; //maximum pixel height or rock obstacle
-  MAX_OBS_PLACEMENT_ATTEMPTS = 20 //number of attempts to find a free non-overlapping location to place rock obstacles
-  OBS_IMG_PATH = "../img/rock.jpg"; //image path of stationary obstacle
-  PROJ_IMG_PATH = "../img/laser.png"; //image path of projectile
+  NO_ROCK_BOUND_X = 50; //pixel distance to the left and right of bike where rock can't be placed at game start
+  NO_ROCK_BOUND_Y = 10; //pixel distance to the top and bottom of bike where rock can't be placed at game start
+  MAX_OBS_PLACEMENT_ATTEMPTS = 40; //number of attempts to find a free non-overlapping location to place rock obstacles
+  OBS_IMG_PATH = '../img/rock.jpg'; //image path of stationary obstacle
+  PROJ_IMG_PATH = '../img/laser.png'; //image path of projectile
 
   //ARENA-RELATED CONSTANTS
   ARENA_WIDTH = 900; //pixel width of gameplay arena
@@ -32,16 +34,16 @@ export default class Game {
   NUM_PROJ = 5; //number of projectile a bike can emit
   BIKESPEED = 5; //pixel distance bike will move per game loop iteration
   PROJ_SPEED = 20; //pixel distance projectile will move per game loop iteration
-  BIKE1_ID = "bike1";
-  BIKE1_IMG = "../img/red-bike.jpg";
-  BIKE1_CONTROL = ["a", "d", "w"]; //[turn-left, emit-projectile, turn-right] keys for bike1
-  BIKE1_TRAIL_COLOR = "rgb(188, 19, 254)";
+  BIKE1_ID = 'bike1';
+  BIKE1_IMG = '../img/red-bike.jpg';
+  BIKE1_CONTROL = ['a', 'd', 'w']; //[turn-left, emit-projectile, turn-right] keys for bike1
+  BIKE1_TRAIL_COLOR = 'rgb(188, 19, 254)';
   INITIAL_BIKE1_DIR = Direction.right;
   INITIAL_BIKE1_IMG_POS = [150, 180]; //left and top position of bike1
-  BIKE2_ID = "bike2";
-  BIKE2_IMG = "../img/green-bike.jpg";
-  BIKE2_CONTROL = ["ArrowLeft", "ArrowRight", "ArrowUp"]; //[turn-left, emit-projectile, turn-right] keys for bike1
-  BIKE2_TRAIL_COLOR = "rgb(57, 255, 20)";
+  BIKE2_ID = 'bike2';
+  BIKE2_IMG = '../img/green-bike.jpg';
+  BIKE2_CONTROL = ['ArrowLeft', 'ArrowRight', 'ArrowUp']; //[turn-left, emit-projectile, turn-right] keys for bike1
+  BIKE2_TRAIL_COLOR = 'rgb(57, 255, 20)';
   INITIAL_BIKE2_DIR = Direction.left;
   INITIAL_BIKE2_IMG_POS = [750, 180]; //left and top position of bike2
 
@@ -80,9 +82,9 @@ export default class Game {
     this.playerName1 = playerName1;
     this.playerName2 = playerName2;
     this.renderGameOverPage = renderGameOverPage;
-    this.openingPageElement = document.getElementById("opening-page");
-    this.gamePageElement = document.getElementById("game-page");
-    this.gameOverPageElement = document.getElementById("game-over-page");
+    this.openingPageElement = document.getElementById('opening-page');
+    this.gamePageElement = document.getElementById('game-page');
+    this.gameOverPageElement = document.getElementById('game-over-page');
 
     //create players
     const player1 = new Player(this.playerName1);
@@ -92,11 +94,11 @@ export default class Game {
 
     //wire up game-over page buttons
     document
-      .getElementById("main-menu-btn")
-      .addEventListener("click", this.mainMenuBtnClicked);
+      .getElementById('main-menu-btn')
+      .addEventListener('click', this.mainMenuBtnClicked);
     document
-      .getElementById("play-again-btn")
-      .addEventListener("click", this.playAgainBtnClicked);
+      .getElementById('play-again-btn')
+      .addEventListener('click', this.playAgainBtnClicked);
 
     //start a new game environment
     this.startFreshGame();
@@ -109,8 +111,8 @@ export default class Game {
   //PAGE SETUP METHODS=============================================================
   //Summary: setup the game page header and add to DOM
   setupGameHeader(playerName1, playerName2) {
-    const gameHeaderElement = document.createElement("div");
-    gameHeaderElement.id = "game-header";
+    const gameHeaderElement = document.createElement('div');
+    gameHeaderElement.id = 'game-header';
     this.gameHeaderElement = gameHeaderElement;
     this.gamePageElement.appendChild(gameHeaderElement);
     this.setupScoreBoard(playerName1, playerName2);
@@ -119,8 +121,8 @@ export default class Game {
 
   //Summary: set up scoreboard with player name and score then add to DOM
   setupScoreBoard(playerName1, playerName2) {
-    const scoreBoardElement = document.createElement("div");
-    scoreBoardElement.classList.add("score-board");
+    const scoreBoardElement = document.createElement('div');
+    scoreBoardElement.classList.add('score-board');
     scoreBoardElement.innerHTML = `<div class="score-box"><p class="label">Player 1</p>
     <p class="player-name">${playerName1}</p></div>
     <p id="player-score">0</p><div class="score-box"><p class="label">Player 2</p>
@@ -132,12 +134,12 @@ export default class Game {
   //the element to DOM
   setupProjectileBox() {
     //create an element that will hold two projectile box elements
-    const projRowElement = document.createElement("div");
-    projRowElement.id = "proj-row";
+    const projRowElement = document.createElement('div');
+    projRowElement.id = 'proj-row';
 
     //dynamically generate projectile box id based on bike Id
-    const projId1 = this.BIKE1_ID + "-proj-box";
-    const projId2 = this.BIKE2_ID + "-proj-box";
+    const projId1 = this.BIKE1_ID + '-proj-box';
+    const projId2 = this.BIKE2_ID + '-proj-box';
     //add to two projectile box elements to the projectile row elmeent
     projRowElement.innerHTML = `<div id=${projId1} class="proj-box"></div>
     <div id=${projId2} class="proj-box"></div>`;
@@ -145,8 +147,8 @@ export default class Game {
     //for each projectile box, add NUM_PROJ number of projectile img as icon
     [...projRowElement.children].forEach((pbox) => {
       for (let i = 0; i < this.NUM_PROJ; i++) {
-        const projIconElement = document.createElement("div");
-        projIconElement.classList.add("proj-icon");
+        const projIconElement = document.createElement('div');
+        projIconElement.classList.add('proj-icon');
         projIconElement.innerHTML = `<img src=${this.PROJ_IMG_PATH} class="proj-icon-img"/>`;
         pbox.append(projIconElement);
       }
@@ -158,11 +160,11 @@ export default class Game {
   //Summary: setup game arena and add to DOM
   setupArena() {
     //create an arena element and add to DOM
-    const rootElement = document.getElementById("game-page");
-    this.arenaElement = document.createElement("div");
-    this.arenaElement.id = "arena";
-    this.arenaElement.style.width = this.ARENA_WIDTH + "px";
-    this.arenaElement.style.height = this.ARENA_HEIGHT + "px";
+    const rootElement = document.getElementById('game-page');
+    this.arenaElement = document.createElement('div');
+    this.arenaElement.id = 'arena';
+    this.arenaElement.style.width = this.ARENA_WIDTH + 'px';
+    this.arenaElement.style.height = this.ARENA_HEIGHT + 'px';
     //this line together,with css, draws the gridlines for the arena
     this.arenaElement.style.backgroundSize = `${
       this.ARENA_WIDTH / this.ARENA_GRID_X_NUM
@@ -192,22 +194,22 @@ export default class Game {
 
   //Summary: create a canvas element for drawing ray trails and add it to DOM
   setupCanvas() {
-    const canvasElement = document.createElement("canvas");
+    const canvasElement = document.createElement('canvas');
     canvasElement.width = this.ARENA_WIDTH;
     canvasElement.height = this.ARENA_HEIGHT;
-    document.getElementById("arena").appendChild(canvasElement);
+    document.getElementById('arena').appendChild(canvasElement);
     this.trailCanvasElement = canvasElement;
   }
 
   //EVENT LISTNERS=================================================================
   //Summary: wire up event listeners for Bike objects
   setupBikeEventListeners() {
-    window.addEventListener("keydown", this.updateBikeEvent);
+    window.addEventListener('keydown', this.updateBikeEvent);
   }
 
   //Summary: remove event listeners for Bike objects
   removeBikeEventListeners() {
-    window.removeEventListener("keydown", this.updateBikeEvent);
+    window.removeEventListener('keydown', this.updateBikeEvent);
   }
 
   //Summary: key press event callback function for Bike objects
@@ -216,13 +218,13 @@ export default class Game {
   };
 
   mainMenuBtnClicked = () => {
-    this.openingPageElement.removeAttribute("hidden");
-    this.gameOverPageElement.setAttribute("hidden", true);
+    this.openingPageElement.removeAttribute('hidden');
+    this.gameOverPageElement.setAttribute('hidden', true);
   };
 
   playAgainBtnClicked = () => {
-    this.gameOverPageElement.setAttribute("hidden", true);
-    this.gamePageElement.removeAttribute("hidden");
+    this.gameOverPageElement.setAttribute('hidden', true);
+    this.gamePageElement.removeAttribute('hidden');
     this.startFreshGame();
   };
 
@@ -234,7 +236,7 @@ export default class Game {
   //Summary: setup or reset a new game environment then start the game loop.
   startFreshGame() {
     //reset parameters and elements
-    this.gamePageElement.innerHTML = "";
+    this.gamePageElement.innerHTML = '';
     this.score = 0;
     this.obstacles = [];
     this.projectiles = [];
@@ -288,9 +290,9 @@ export default class Game {
     this.players[1].bike = bike2;
 
     //Depending on difficulty, add obstacles to the arena
-    if (this.difficulty === "medium") {
+    if (this.difficulty === 'medium') {
       this.addObstacles(this.MED_LEVEL_OBS_NUM);
-    } else if (this.difficulty === "hard") {
+    } else if (this.difficulty === 'hard') {
       this.addObstacles(this.HARD_LEVEL_OBS_NUM);
     }
 
@@ -301,8 +303,8 @@ export default class Game {
   //Summary: Add rock-type Obstacle instances with random positions to the game.
   //Input: integer indicating how many obstacles wanted.
   addObstacles(numObstacles) {
-    //list of current arena objects, e.g. bike, rock
-    let arenaObjects = [...this.players.map((p) => p.bike.element)];
+    //list of current rock objects' html elment
+    let arenaObjects = [];
 
     //generate random rock obstacle height
     for (let i = 0; i < numObstacles; i++) {
@@ -311,12 +313,12 @@ export default class Game {
         Math.random() * (this.MAX_OBS_HEIGHT - this.MIN_OBS_HEIGHT);
 
       //add rock obstacle onto arena with initial arena-relative position [0,0]
-      const obsElement = document.createElement("img");
+      const obsElement = document.createElement('img');
       obsElement.src = this.OBS_IMG_PATH;
-      obsElement.classList.add("rock");
-      obsElement.style.height = obsHeight + "px";
-      obsElement.style.top = "0px";
-      obsElement.style.left = "0px";
+      obsElement.classList.add('rock');
+      obsElement.style.height = obsHeight + 'px';
+      obsElement.style.top = '0px';
+      obsElement.style.left = '0px';
       this.arenaElement.appendChild(obsElement);
 
       //when it's loaded into DOM, randomly places it on the arena
@@ -332,15 +334,48 @@ export default class Game {
           //randomly place the rock using arena relative position
           const left = Math.random() * (this.ARENA_WIDTH - obsWidth);
           const top = Math.random() * (this.ARENA_HEIGHT - obsHeight);
-          obsElement.style.top = top + "px";
-          obsElement.style.left = left + "px";
+          obsElement.style.top = top + 'px';
+          obsElement.style.left = left + 'px';
+
           const obsRect = obsElement.getBoundingClientRect();
+          //check if the rock is within each bike's no rock zone
+          const closeToBike = this.players.map((p) => {
+            const bikeLeft = p.bike.objPosition[0];
+            const bikeTop = p.bike.objPosition[1];
+            const bikeWidth = p.bike.objWidth;
+            const bikeHeight = p.bike.objHeight;
+            //note that left and top here is relative to the arena for both rock and bikes
+            //because we can't use getBoundingClient on bike as it might not have loaded.
+            return this.checkImageOverlap(
+              left,
+              top,
+              obsRect.width,
+              obsRect.height,
+              bikeLeft - this.NO_ROCK_BOUND_X,
+              bikeTop - this.NO_ROCK_BOUND_Y,
+              bikeWidth + this.NO_ROCK_BOUND_X,
+              bikeHeight + this.NO_ROCK_BOUND_Y
+            );
+          });
+          //skip forward to next placement trial if rock is within the no rock zone
+          if (closeToBike.includes(true)) {
+            continue;
+          }
 
           //check for overlap with existing arena objects, if so replace it to another
           //random location
           for (const obj of arenaObjects) {
             const objRect = obj.getBoundingClientRect();
-            overlap = this.checkImageOverlap(obsRect, objRect);
+            overlap = this.checkImageOverlap(
+              obsRect.left,
+              obsRect.top,
+              obsRect.width,
+              obsRect.height,
+              objRect.left,
+              objRect.top,
+              objRect.width,
+              objRect.height
+            );
             //if this is overlap, no need to check against other objects
             if (overlap) {
               break;
@@ -348,16 +383,20 @@ export default class Game {
           }
           //if no overlap found, leave rock image where it's
           if (!overlap) {
-            const width = obsRect.width;
-            const height = obsRect.height;
             //added rock elmenet to list of existing arena object
             arenaObjects.push(obsElement);
-            this.addObstacleToList(obsElement,left,top,width,height);
+            this.addObstacleToList(
+              obsElement,
+              left,
+              top,
+              obsRect.width,
+              obsRect.height
+            );
             break;
           }
         }
         //delete this rock elmenet from DOM even if it can't be placed within allowed attempts
-        if (overlap){
+        if (overlap) {
           obsElement.remove();
         }
       };
@@ -369,15 +408,24 @@ export default class Game {
   //and y-range of the other image.
   //Input: inputs are DOMRect objects that are returned from calling getBoundingClientRect()
   //       on an html element
-  checkImageOverlap(rect1, rect2) {
-    const minX1 = rect1.left;
-    const maxX1 = rect1.left + rect1.width;
-    const minY1 = rect1.top;
-    const maxY1 = rect1.top + rect1.height;
-    const minX2 = rect2.left;
-    const maxX2 = rect2.left + rect2.width;
-    const minY2 = rect2.top;
-    const maxY2 = rect2.top + rect2.height;
+  checkImageOverlap(
+    left1,
+    top1,
+    width1,
+    height1,
+    left2,
+    top2,
+    width2,
+    height2
+  ) {
+    const minX1 = left1;
+    const maxX1 = left1 + width1;
+    const minY1 = top1;
+    const maxY1 = top1 + height1;
+    const minX2 = left2;
+    const maxX2 = left2 + width2;
+    const minY2 = height2;
+    const maxY2 = top2 + height2;
 
     //expression for checking if a corner of rect1 is contained in rect2
     const rect1InXRange =
@@ -396,7 +444,7 @@ export default class Game {
 
   //Summary: add boundaries of a rock type obstacle to the list of obstacle the game will keep track of
   //Input: left and top position of the rock obstacle image and the width and height of the image
-  addObstacleToList(obsElement, left, top, width, height){
+  addObstacleToList(obsElement, left, top, width, height) {
     const obsId = Math.random();
     this.obstacles.push(
       new Obstacle(
@@ -434,15 +482,15 @@ export default class Game {
   gameStartCountDown() {
     let counter = 3;
     //create count down text and add to DOM
-    const countDownTextElement = document.createElement("div");
-    countDownTextElement.classList.add("pop-up-text");
+    const countDownTextElement = document.createElement('div');
+    countDownTextElement.classList.add('pop-up-text');
     countDownTextElement.innerHTML = counter;
     this.arenaElement.append(countDownTextElement);
     //using setInterval to update countdown text
     const timeoutId = setInterval(() => {
       if (counter) {
         counter--;
-        const text = counter ? counter : "GO";
+        const text = counter ? counter : 'GO';
         countDownTextElement.innerHTML = text;
       } else {
         clearInterval(timeoutId);
@@ -487,7 +535,7 @@ export default class Game {
         updatedObstacles = [
           ...updatedObstacles,
           ...player.bike.boundaries,
-          ...player.bike.getTrailForCollisionCheck(),
+          ...player.bike.getTrailForCollisionCheck()
         ];
       });
 
@@ -525,16 +573,16 @@ export default class Game {
     //remove event listeners
     this.removeBikeEventListeners();
     //display Game Over text for 2 seconds
-    const endGameTextElement = document.createElement("div");
-    endGameTextElement.classList.add("pop-up-text");
-    endGameTextElement.innerHTML = "Game Over";
+    const endGameTextElement = document.createElement('div');
+    endGameTextElement.classList.add('pop-up-text');
+    endGameTextElement.innerHTML = 'Game Over';
     this.arenaElement.append(endGameTextElement);
     const timeoutId = setTimeout(() => {
       endGameTextElement.remove();
       //update score and render game-over page
 
       this.winningPlayer?.updateScore(this.score);
-      this.renderGameOverPage(...this.players, this.winningPlayer,this.score);
+      this.renderGameOverPage(...this.players, this.winningPlayer, this.score);
     }, 2000);
   }
 
@@ -545,7 +593,7 @@ export default class Game {
   incrementScore() {
     const newScore = Math.round((Date.now() - this.gameStartTime) / 100);
     this.score = newScore;
-    const scoreElement = document.getElementById("player-score");
+    const scoreElement = document.getElementById('player-score');
     scoreElement.textContent = `${newScore}`;
   }
 
@@ -565,7 +613,7 @@ export default class Game {
       )
     );
     //remove a projectile icon from projectile box element
-    const iconId = bike.id + "-proj-box";
+    const iconId = bike.id + '-proj-box';
     const projBox = document.getElementById(iconId);
     projBox.removeChild(projBox.children[0]);
   };
@@ -684,14 +732,14 @@ export default class Game {
   //instead of adding to the end, it always redraw the entire trail from beginning to achieve
   //the neon blur effect
   drawCanvasTrail() {
-    const ctx = this.trailCanvasElement.getContext("2d");
+    const ctx = this.trailCanvasElement.getContext('2d');
     //draw the trail of each bike
     this.players.forEach((player) => {
       const trailSegments = player.bike.trail;
       //set styles of trail
       ctx.strokeStyle = player.bike.trailColor;
       ctx.lineWidth = this.RAYWIDTH;
-      ctx.globalCompositeOperation = "lighter";
+      ctx.globalCompositeOperation = 'lighter';
       ctx.shadowBlur = this.RAYWIDTH;
       ctx.shadowColor = player.bike.trailColor;
       //define trail
@@ -711,7 +759,7 @@ export default class Game {
   //cover the blur portion of the ray.
   //Input: an array of trail-type Obstacle instances
   eraseCanvasTrail(segsToRemove) {
-    const ctx = this.trailCanvasElement.getContext("2d");
+    const ctx = this.trailCanvasElement.getContext('2d');
     for (const seg of segsToRemove) {
       //pos is an array [x1, y1, x2, y2]
       const pos = seg.position;
