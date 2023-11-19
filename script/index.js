@@ -41,16 +41,31 @@ function selectDifficultyMode(event) {
 
 //Summary: load game page and start game
 function startGame() {
-  //hide opening page and show game page
-  openingPageElement.setAttribute('hidden', 'true');
-  gamePageElement.removeAttribute('hidden');
-  //clear opening page input field
+  //get input player names
   const playerName1 = inputElement1.value;
   const playerName2 = inputElement2.value;
-  inputElement1.value = '';
-  inputElement2.value = '';
-  //start game
-  new Game(difficulty, playerName1, playerName2);
+  if (!playerName1){
+    inputElement1.classList.add('empty-input');
+    inputElement1.placeholder = 'This can\'t be empty';
+  }
+  if (!playerName2){
+    inputElement2.classList.add('empty-input');
+    inputElement2.placeholder = 'This can\'t be empty';
+  }
+  if(playerName1 && playerName2){
+
+    //hide opening page and show game page
+    openingPageElement.setAttribute('hidden', 'true');
+    gamePageElement.removeAttribute('hidden');
+    //clear input field
+    inputElement1.classList.remove('empty-input');
+    inputElement2.classList.remove('empty-input');
+    inputElement1.value = '';
+    inputElement2.value = '';
+    //start game
+    new Game(difficulty, playerName1, playerName2);
+  }
+
 }
 
 //Entry point for the game

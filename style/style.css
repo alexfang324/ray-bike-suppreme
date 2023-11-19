@@ -19,6 +19,10 @@ body {
   font-size: 1.5em;
 }
 
+.modal-body h1{
+  font-size: 1.7rem;
+}
+
 /* ===================================================================== */
 /* =====================Opening Page Styling Below========================= */
 
@@ -37,6 +41,11 @@ input {
   box-sizing: border-box;
   font-size: 20px;
   width: 200px;
+}
+
+.empty-input::placeholder {
+  color:red;
+  border: solid 2px red;
 }
 
 #game-title {
@@ -306,13 +315,13 @@ canvas {
 }
 
 #winner-is {
-  color: red;
+  color: white;
 }
 
 #winner-score,
 #winner-name {
   text-align: center;
-  color: rgb(188, 19, 254);
+  color: white;
 }
 
 #score-stats {
