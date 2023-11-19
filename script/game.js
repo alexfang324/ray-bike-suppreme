@@ -16,6 +16,7 @@ export default class Game {
   HARD_LEVEL_OBS_NUM = 8; //number of rock obstacles for hard difficulty
   MIN_OBS_HEIGHT = 40; //minimum pixel height or rock obstacle
   MAX_OBS_HEIGHT = 80; //maximum pixel height or rock obstacle
+  MAX_OBS_PLACEMENT_ATTEMPTS = 20 //number of attempts to find a free non-overlapping location to place rock obstacles
   OBS_IMG_PATH = "../img/rock.jpg"; //image path of stationary obstacle
   PROJ_IMG_PATH = "../img/laser.png"; //image path of projectile
 
@@ -296,6 +297,7 @@ export default class Game {
     //start countdown and game loop
     this.gameStartCountDown();
   }
+
   //Summary: Add rock-type Obstacle instances with random positions to the game.
   //Input: integer indicating how many obstacles wanted.
   addObstacles(numObstacles) {
@@ -322,8 +324,7 @@ export default class Game {
         //get the correspondible random rock width
         const obsWidth = obsElement.getBoundingClientRect().width;
 
-        //max attempt 20 before moving on
-        let attempts = 20;
+        let attempts = this.MAX_OBS_PLACEMENT_ATTEMPTS;
         let overlap = false;
         while (attempts) {
           attempts -= 1;
@@ -340,6 +341,7 @@ export default class Game {
           for (const obj of arenaObjects) {
             const objRect = obj.getBoundingClientRect();
             overlap = this.checkImageOverlap(obsRect, objRect);
+            //if this is overlap, no need to check against other objects
             if (overlap) {
               break;
             }
@@ -350,43 +352,11 @@ export default class Game {
             const height = obsRect.height;
             //added rock elmenet to list of existing arena object
             arenaObjects.push(obsElement);
-            //add rock's boundaries as rock-type Obstacle instances into the obstacle array tracked
-            //in the game
-            const obsId = Math.random();
-            this.obstacles.push(
-              new Obstacle(
-                [left, top, left + width, top],
-                ObstacleType.rock,
-                obsId,
-                null,
-                obsElement
-              ),
-              new Obstacle(
-                [left + width, top, left + width, top + height],
-                ObstacleType.rock,
-                obsId,
-                null,
-                obsElement
-              ),
-              new Obstacle(
-                [left, top + height, left + width, top + height],
-                ObstacleType.rock,
-                obsId,
-                null,
-                obsElement
-              ),
-              new Obstacle(
-                [left, top, left, top + height],
-                ObstacleType.rock,
-                obsId,
-                null,
-                obsElement
-              )
-            );
+            this.addObstacleToList(obsElement,left,top,width,height);
             break;
           }
         }
-        ////delete this rock elmenet from DOM even if it can't be placed within allowed attempts
+        //delete this rock elmenet from DOM even if it can't be placed within allowed attempts
         if (overlap){
           obsElement.remove();
         }
@@ -422,6 +392,42 @@ export default class Game {
       (minY2 >= minY1 && minY2 <= maxY1) || (maxY2 >= minY1 && maxY2 <= maxY1);
 
     return (rect1InXRange && rect1InYRange) || (rect2InXRange && rect2InYRange);
+  }
+
+  //Summary: add boundaries of a rock type obstacle to the list of obstacle the game will keep track of
+  //Input: left and top position of the rock obstacle image and the width and height of the image
+  addObstacleToList(obsElement, left, top, width, height){
+    const obsId = Math.random();
+    this.obstacles.push(
+      new Obstacle(
+        [left, top, left + width, top],
+        ObstacleType.rock,
+        obsId,
+        null,
+        obsElement
+      ),
+      new Obstacle(
+        [left + width, top, left + width, top + height],
+        ObstacleType.rock,
+        obsId,
+        null,
+        obsElement
+      ),
+      new Obstacle(
+        [left, top + height, left + width, top + height],
+        ObstacleType.rock,
+        obsId,
+        null,
+        obsElement
+      ),
+      new Obstacle(
+        [left, top, left, top + height],
+        ObstacleType.rock,
+        obsId,
+        null,
+        obsElement
+      )
+    );
   }
 
   //Summary: count down to game start then invoke the core game loop.
