@@ -6,16 +6,17 @@ let difficulty = 'easy';
 
 //html Elements
 const openingPageElement = document.getElementById('opening-page');
+const gamePageElement = document.getElementById('game-page');
+const gameOverPageElement = document.getElementById('game-over-page');
 const startGameBtn = document.getElementById('start-game-btn');
 const difficultyModes = Array.from(
   document.getElementById('difficulty-mode').children
 );
 const inputElement1 = document.getElementById('name1');
 const inputElement2 = document.getElementById('name2');
-const gamePageElement = document.getElementById('game-page');
 
 //Summary: wire up opening page default options and event listener
-function loadOpeningPage() {
+function renderOpeningPage() {
   //set up start game button
   startGameBtn.addEventListener('click', startGame);
 
@@ -63,12 +64,39 @@ function startGame() {
     inputElement1.value = '';
     inputElement2.value = '';
     //start game
-    new Game(difficulty, playerName1, playerName2);
+    new Game(difficulty, playerName1, playerName2, renderGameOverPage);
+  }
+}
+
+ //Summary:hide gameplay screen and construct game over screen
+ const renderGameOverPage = (player1, player2, winningPlayer, score) =>{
+  //switch screen
+  gamePageElement.setAttribute("hidden", "true");
+  gameOverPageElement.removeAttribute("hidden");
+
+  //calculate and display stats for each player
+  const winnerNameElement = document.getElementById("winner-name");
+  const winnerScoreElement = document.getElementById("winner-score");
+  if (winningPlayer) {
+    winnerNameElement.innerHTML = `The winner is:<br/>${winningPlayer.name}`;
+    winnerScoreElement.innerHTML = `You scored ${score} points!`;
+  } else {
+    winnerNameElement.innerHTML = 'This was an even game!';
+    winnerScoreElement.innerHTML ='';
   }
 
+  const statsBoardElement = document.getElementById("score-stats");
+  statsBoardElement.innerHTML = `<p></p><p>${player1.name}</p>
+  <p>${player2.name}
+  </p><p>Best Score</p>
+  <p>${player1.bestScore}</p>
+  <p>${player2.bestScore}</p>
+  <p>Accumulated Score</p>
+  <p>${player1.accumulatedScore}</p>
+  <p>${player2.accumulatedScore}</p>`;
 }
 
 //Entry point for the game
 document.addEventListener('DOMContentLoaded', () => {
-  loadOpeningPage();
+  renderOpeningPage();
 });

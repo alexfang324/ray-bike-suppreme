@@ -14,13 +14,13 @@ body {
 /* ===================================================================== */
 /* =====================Modal Page Styling Below========================= */
 
-.modal-title,
 .modal-body {
-  font-size: 1.5em;
+  font-size: 25px;
 }
 
+.modal-title,
 .modal-body h1{
-  font-size: 1.7rem;
+  font-size: 30px;
 }
 
 /* ===================================================================== */
@@ -304,6 +304,7 @@ canvas {
 #game-over-page {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   width: 100%;
   height: 600px;
@@ -332,11 +333,12 @@ canvas {
 }
 
 #score-stats > p {
-  font-size: 1.5em;
+  font-size: 25px;
 }
 
 #play-again-btn,
 #main-menu-btn {
   font-size: 20px;
   background-color: orange;
+  margin: 0 20px;
 }

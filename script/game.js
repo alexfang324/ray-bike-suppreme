@@ -67,14 +67,18 @@ export default class Game {
   gameOverPageElement;
   trailCanvasElement; //canvas html elements
 
+  //Callback Function
+  renderGameOverPage; //callback for displaying score stats when game ended
+
   /////////////////////////////////////////////////////////////////////////////////
   //CONSTRUCTOR
   /////////////////////////////////////////////////////////////////////////////////
-  constructor(difficulty, playerName1, playerName2) {
+  constructor(difficulty, playerName1, playerName2, renderGameOverPage) {
     //initializing properties and objects that will not change during the lifetime of the game
     this.difficulty = difficulty;
     this.playerName1 = playerName1;
     this.playerName2 = playerName2;
+    this.renderGameOverPage = renderGameOverPage;
     this.openingPageElement = document.getElementById("opening-page");
     this.gamePageElement = document.getElementById("game-page");
     this.gameOverPageElement = document.getElementById("game-over-page");
@@ -192,33 +196,6 @@ export default class Game {
     canvasElement.height = this.ARENA_HEIGHT;
     document.getElementById("arena").appendChild(canvasElement);
     this.trailCanvasElement = canvasElement;
-  }
-
-  //Summary:hide gameplay screen and construct game over screen
-  renderGameOverPage() {
-    //switch screen
-    this.gamePageElement.setAttribute("hidden", "true");
-    this.gameOverPageElement.removeAttribute("hidden");
-
-    //calculate and display stats for each player
-    const winnerNameElement = document.getElementById("winner-name");
-    const winnerScoreElement = document.getElementById("winner-score");
-    if (this.winningPlayer) {
-      winnerNameElement.innerHTML = `The winner is:<br/>${this.winningPlayer.name}`;
-      winnerScoreElement.innerHTML = `You scored ${this.score} points!`;
-    } else {
-      winnerNameElement.innerHTML = "This was an even game!";
-    }
-
-    const statsBoardElement = document.getElementById("score-stats");
-    statsBoardElement.innerHTML = `<p></p><p>${this.players[0].name}</p>
-    <p>${this.players[1].name}
-    </p><p>Best Score</p>
-    <p>${this.players[0].bestScore}</p>
-    <p>${this.players[1].bestScore}</p>
-    <p>Accumulated Score</p>
-    <p>${this.players[0].accumulatedScore}</p>
-    <p>${this.players[1].accumulatedScore}</p>`;
   }
 
   //EVENT LISTNERS=================================================================
@@ -531,6 +508,8 @@ export default class Game {
   //Summary: Pause the collision scene with Game over text for some time, remove game-related
   //event listeners then render game over page
   endGame() {
+    //remove event listeners
+    this.removeBikeEventListeners();
     //display Game Over text for 2 seconds
     const endGameTextElement = document.createElement("div");
     endGameTextElement.classList.add("pop-up-text");
@@ -538,10 +517,10 @@ export default class Game {
     this.arenaElement.append(endGameTextElement);
     const timeoutId = setTimeout(() => {
       endGameTextElement.remove();
-      //remove event listeners, update score and render game-over page
-      this.removeBikeEventListeners();
+      //update score and render game-over page
+
       this.winningPlayer?.updateScore(this.score);
-      this.renderGameOverPage();
+      this.renderGameOverPage(...this.players, this.winningPlayer,this.score);
     }, 2000);
   }
 
