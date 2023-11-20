@@ -45,16 +45,15 @@ function startGame() {
   //get input player names
   const playerName1 = inputElement1.value;
   const playerName2 = inputElement2.value;
-  if (!playerName1){
+  if (!playerName1) {
     inputElement1.classList.add('empty-input');
-    inputElement1.placeholder = 'This can\'t be empty';
+    inputElement1.placeholder = "This can't be empty";
   }
-  if (!playerName2){
+  if (!playerName2) {
     inputElement2.classList.add('empty-input');
-    inputElement2.placeholder = 'This can\'t be empty';
+    inputElement2.placeholder = "This can't be empty";
   }
-  if(playerName1 && playerName2){
-
+  if (playerName1 && playerName2) {
     //hide opening page and show game page
     openingPageElement.setAttribute('hidden', 'true');
     gamePageElement.removeAttribute('hidden');
@@ -68,24 +67,20 @@ function startGame() {
   }
 }
 
- //Summary:hide gameplay screen and construct game over screen
- const renderGameOverPage = (player1, player2, winningPlayer, score) =>{
-  //switch screen
-  gamePageElement.setAttribute("hidden", "true");
-  gameOverPageElement.removeAttribute("hidden");
-
+//Summary:hide gameplay screen and construct game over screen
+const renderGameOverPage = (player1, player2, winningPlayer, score) => {
   //calculate and display stats for each player
-  const winnerNameElement = document.getElementById("winner-name");
-  const winnerScoreElement = document.getElementById("winner-score");
+  const winnerNameElement = document.getElementById('winner-name');
+  const winnerScoreElement = document.getElementById('winner-score');
   if (winningPlayer) {
     winnerNameElement.innerHTML = `The winner is:<br/>${winningPlayer.name}`;
     winnerScoreElement.innerHTML = `You scored ${score} points!`;
   } else {
     winnerNameElement.innerHTML = 'This was an even game!';
-    winnerScoreElement.innerHTML ='';
+    winnerScoreElement.innerHTML = '';
   }
 
-  const statsBoardElement = document.getElementById("score-stats");
+  const statsBoardElement = document.getElementById('score-stats');
   statsBoardElement.innerHTML = `<p></p><p>${player1.name}</p>
   <p>${player2.name}
   </p><p>Best Score</p>
@@ -94,7 +89,11 @@ function startGame() {
   <p>Accumulated Score</p>
   <p>${player1.accumulatedScore}</p>
   <p>${player2.accumulatedScore}</p>`;
-}
+
+  //switch screen
+  gamePageElement.setAttribute('hidden', 'true');
+  gameOverPageElement.removeAttribute('hidden');
+};
 
 //Entry point for the game
 document.addEventListener('DOMContentLoaded', () => {

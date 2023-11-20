@@ -1,3 +1,4 @@
+'use strict';
 import { ObstacleType } from './enum.js';
 import MovableObject from './movable-object.js';
 

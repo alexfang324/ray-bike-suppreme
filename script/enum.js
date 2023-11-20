@@ -1,3 +1,4 @@
+'use strict';
 //Enum that list out the allow moving directions of a MovableObject object
 const Direction = Object.freeze({
   up: 'up',

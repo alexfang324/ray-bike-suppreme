@@ -1,3 +1,4 @@
+'use strict';
 //An obstacle is defined as a line segment. A 2D obstacle can be represented using four obstacles
 //that correponds its four sides.
 export default class Obstacle {

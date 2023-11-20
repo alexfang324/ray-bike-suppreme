@@ -16,7 +16,7 @@ export default class Game {
   HARD_LEVEL_OBS_NUM = 8; //number of rock obstacles for hard difficulty
   MIN_OBS_HEIGHT = 40; //minimum pixel height or rock obstacle
   MAX_OBS_HEIGHT = 80; //maximum pixel height or rock obstacle
-  NO_ROCK_BOUND_X = 50; //pixel distance to the left and right of bike where rock can't be placed at game start
+  NO_ROCK_BOUND_X = 40; //pixel distance to the left and right of bike where rock can't be placed at game start
   NO_ROCK_BOUND_Y = 10; //pixel distance to the top and bottom of bike where rock can't be placed at game start
   MAX_OBS_PLACEMENT_ATTEMPTS = 40; //number of attempts to find a free non-overlapping location to place rock obstacles
   OBS_IMG_PATH = '../img/rock.jpg'; //image path of stationary obstacle
@@ -303,8 +303,8 @@ export default class Game {
   //Summary: Add rock-type Obstacle instances with random positions to the game.
   //Input: integer indicating how many obstacles wanted.
   addObstacles(numObstacles) {
-    //list of current rock objects' html elment
-    let arenaObjects = [];
+    //list of rock properties object containing {left, top, width, height}
+    let arenaObjectSpecs = [];
 
     //generate random rock obstacle height
     for (let i = 0; i < numObstacles; i++) {
@@ -332,69 +332,47 @@ export default class Game {
           attempts -= 1;
 
           //randomly place the rock using arena relative position
-          const left = Math.random() * (this.ARENA_WIDTH - obsWidth);
-          const top = Math.random() * (this.ARENA_HEIGHT - obsHeight);
-          obsElement.style.top = top + 'px';
-          obsElement.style.left = left + 'px';
+          const obsLeft = Math.random() * (this.ARENA_WIDTH - obsWidth);
+          const obsTop = Math.random() * (this.ARENA_HEIGHT - obsHeight);
+          obsElement.style.left = obsLeft + 'px';
+          obsElement.style.top = obsTop + 'px';
 
-          const obsRect = obsElement.getBoundingClientRect();
-          //check if the rock is within each bike's no rock zone
-          const closeToBike = this.players.map((p) => {
-            const bikeLeft = p.bike.objPosition[0];
-            const bikeTop = p.bike.objPosition[1];
-            const bikeWidth = p.bike.objWidth;
-            const bikeHeight = p.bike.objHeight;
-            //note that left and top here is relative to the arena for both rock and bikes
-            //because we can't use getBoundingClient on bike as it might not have loaded.
-            return this.checkImageOverlap(
-              left,
-              top,
-              obsRect.width,
-              obsRect.height,
-              bikeLeft - this.NO_ROCK_BOUND_X,
-              bikeTop - this.NO_ROCK_BOUND_Y,
-              bikeWidth + this.NO_ROCK_BOUND_X,
-              bikeHeight + this.NO_ROCK_BOUND_Y
-            );
-          });
-          //skip forward to next placement trial if rock is within the no rock zone
-          if (closeToBike.includes(true)) {
+          //construct a dimension spec object for this rock obstacle
+          const obsSpec = {
+            left: obsLeft,
+            top: obsTop,
+            width: obsWidth,
+            height: obsHeight
+          };
+
+          //if the rock is too close to any bike, replace it by jumping to next placement loop
+          const tooCloseToBikes =
+            this.checkRockPlacementTooCloseToBikes(obsSpec);
+          if (tooCloseToBikes) {
+            //set overlap to true so the rock can be removed from stage if failed to relocate within attempts
+            overlap = true;
             continue;
           }
 
-          //check for overlap with existing arena objects, if so replace it to another
-          //random location
-          for (const obj of arenaObjects) {
-            const objRect = obj.getBoundingClientRect();
-            overlap = this.checkImageOverlap(
-              obsRect.left,
-              obsRect.top,
-              obsRect.width,
-              obsRect.height,
-              objRect.left,
-              objRect.top,
-              objRect.width,
-              objRect.height
-            );
-            //if this is overlap, no need to check against other objects
+          //if the rock overlapped with any existing rock, stop further checking with other rock object
+          for (const objSpec of arenaObjectSpecs) {
+            overlap = this.checkImageOverlap(obsSpec, objSpec);
             if (overlap) {
               break;
             }
           }
-          //if no overlap found, leave rock image where it's
+
+          //if no overlap with other rock found, leave rock image where it's and add it to
+          //game
           if (!overlap) {
-            //added rock elmenet to list of existing arena object
-            arenaObjects.push(obsElement);
-            this.addObstacleToList(
-              obsElement,
-              left,
-              top,
-              obsRect.width,
-              obsRect.height
-            );
+            //added rock elmenet to list of existing arena object specs
+            arenaObjectSpecs.push(obsSpec);
+            //add it to the list of obstacles tracked in main game loop
+            this.addObstacleToList(obsElement, obsSpec);
             break;
           }
         }
+
         //delete this rock elmenet from DOM even if it can't be placed within allowed attempts
         if (overlap) {
           obsElement.remove();
@@ -403,48 +381,70 @@ export default class Game {
     }
   }
 
-  //Summary: check if two rectangular html image elements have overlap
-  //overlap is true when a corner of an image is within both the x-range
-  //and y-range of the other image.
-  //Input: inputs are DOMRect objects that are returned from calling getBoundingClientRect()
-  //       on an html element
-  checkImageOverlap(
-    left1,
-    top1,
-    width1,
-    height1,
-    left2,
-    top2,
-    width2,
-    height2
-  ) {
-    const minX1 = left1;
-    const maxX1 = left1 + width1;
-    const minY1 = top1;
-    const maxY1 = top1 + height1;
-    const minX2 = left2;
-    const maxX2 = left2 + width2;
-    const minY2 = height2;
-    const maxY2 = top2 + height2;
+  //Summary: check if a rock obstacle is within the no rock zone of any bike
+  //Input: obsSpec is an object containing the left, top, width, and height propery
+  //       of the rock
+  //Output: boolean of if the rock is touching any no bike zone.
+  checkRockPlacementTooCloseToBikes(obsSpec) {
+    //for each bike, get its dimension specs
+    return this.players
+      .map((p) => {
+        const bikeLeft = p.bike.objPosition[0];
+        const bikeTop = p.bike.objPosition[1];
+        const bikeWidth = p.bike.objWidth;
+        const bikeHeight = p.bike.objHeight;
+        //define the no rock zone of the bike and check for overlap
+        return this.checkImageOverlap(obsSpec, {
+          left: bikeLeft - this.NO_ROCK_BOUND_X,
+          top: bikeTop - this.NO_ROCK_BOUND_Y,
+          width: bikeWidth + this.NO_ROCK_BOUND_X,
+          height: bikeHeight + this.NO_ROCK_BOUND_Y
+        });
+      })
+      .includes(true);
+  }
+
+  //Summary: check if two rectangles have overlap. Overlap is true when a corner of an image
+  //         is within both the x-range and y-range of the other image.
+  //Input: inputs are object containing the left, top, width, and height property of each rectangle
+  //Output: boolean of whether the two rectangles overlaps
+  checkImageOverlap(rect1, rect2) {
+    const minX1 = rect1.left;
+    const maxX1 = rect1.left + rect1.width;
+    const minY1 = rect1.top;
+    const maxY1 = rect1.top + rect1.height;
+    const minX2 = rect2.left;
+    const maxX2 = rect2.left + rect2.width;
+    const minY2 = rect2.top;
+    const maxY2 = rect2.top + rect2.height;
 
     //expression for checking if a corner of rect1 is contained in rect2
-    const rect1InXRange =
+    const rect1InRect2XRange =
       (minX1 >= minX2 && minX1 <= maxX2) || (maxX1 >= minX2 && maxX1 <= maxX2);
-    const rect1InYRange =
+    const rect1InRect2YRange =
       (minY1 >= minY2 && minY1 <= maxY2) || (maxY1 >= minY2 && maxY1 <= maxY2);
 
     //expression for checking if a corner of rect2 is contained in rect1
-    const rect2InXRange =
+    const rect2InRect1XRange =
       (minX2 >= minX1 && minX2 <= maxX1) || (maxX2 >= minX1 && maxX2 <= maxX1);
-    const rect2InYRange =
+    const rect2InRect1YRange =
       (minY2 >= minY1 && minY2 <= maxY1) || (maxY2 >= minY1 && maxY2 <= maxY1);
 
-    return (rect1InXRange && rect1InYRange) || (rect2InXRange && rect2InYRange);
+    return (
+      //these expressions handle when one box has at least a corner in the other box
+      (rect1InRect2XRange && rect1InRect2YRange) ||
+      (rect2InRect1XRange && rect2InRect1YRange) ||
+      //these expressions handle when the two boxes forms a + shape
+      (rect1InRect2XRange && rect2InRect1YRange) ||
+      (rect2InRect1XRange && rect1InRect2YRange)
+    );
   }
 
   //Summary: add boundaries of a rock type obstacle to the list of obstacle the game will keep track of
-  //Input: left and top position of the rock obstacle image and the width and height of the image
-  addObstacleToList(obsElement, left, top, width, height) {
+  //Input: obsElement is the img html elment of the rock obstacle.
+  //       left, top, width, height are dimension values of the img element. Note that the left and top
+  //       are arena-relative values.
+  addObstacleToList(obsElement, { left, top, width, height }) {
     const obsId = Math.random();
     this.obstacles.push(
       new Obstacle(
@@ -709,16 +709,16 @@ export default class Game {
           this.isRunning = false;
         }
         break;
-      //if collided with projecticle from another bike, delete both from screen
-      case ObstacleType.projectile && obstacle.ownerId != projectile.groupId:
-        //find the other projectile in projectile array and its index in array
-        const otherProjectile = this.projectiles.filter(
-          (p) => p.groupId === obstacle.ownerId
-        )[0];
-        const otherProjectileIndex = this.projectiles.indexOf(otherProjectile);
-        //if the collision between two projectile boundary obstacles are not from
-        //the same projectile, then emove both projectiles from array and from screne
-        if (projectile.id != otherProjectile.id) {
+      //if collided with projecticle
+      case ObstacleType.projectile:
+        //if collided with projectile from another bike
+        if (obstacle.ownerId != projectile.groupId) {
+          //find the other projectile in projectile array and its index in array
+          const otherProjectile = this.projectiles.filter(
+            (p) => p.groupId === obstacle.ownerId
+          )[0];
+          const otherProjectileIndex =
+            this.projectiles.indexOf(otherProjectile);
           //remove both projectile object and their html element
           projectile.element.remove();
           this.projectiles.splice(pIndex, 1);
